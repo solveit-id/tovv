@@ -59,6 +59,21 @@ Keterbatasan emulator: kamera virtual menghasilkan frame hitam (HAL emulator), s
 - Order lunas tetap "Menunggu penerimaan pembayaran" → "Tagihan tercatat lunas (demo)".
 - Penawaran kedaluwarsa pada permintaan berstatus Ditawarkan kurang jelas → baris diberi "perlu penawaran ulang".
 
+### Review akhir desain (Impeccable finish reviewer)
+
+Disposisi awal: *fix* — delapan perbaikan material, semuanya diterapkan lalu diperiksa ulang di emulator (ponsel normal, ponsel kecil + font 1,3):
+
+1. Beranda owner: tiga tindakan pertama → buku operasi (uang) → pekerjaan berjalan; "Catat permintaan" di footer, terjangkau ibu jari ("Hitung harga" tetap di tab Lainnya).
+2. Tombol henti perjalanan driver sudah di luar baris ibu jari (di akhir konten, membuka formulir wajib); label tanpa istilah Inggris.
+3. Pita DEMO: target sentuh 48 dp; peran tidak lagi terpotong pada layar sempit/font besar.
+4. Salinan berbahasa Inggris (custody, receipt, reversal, unapplied, provisional, as of, abort) diganti bahasa Indonesia.
+5. Label keparahan dipindah dari atas judul ke baris PIC/tenggat (tetap teks + ikon).
+6. Nominal tidak lagi diulang di judul tindakan tagihan.
+7. Grup pilihan jadwal/filter akun memakai SectionTitle, bukan label huruf kapital.
+8. Serial dokumen tidak lagi tampil ganda di header invoice/penawaran/bukti.
+
+Lembar rangkap (DocumentStack) diperiksa pada invoice A10 dengan nota kredit: tepi lembar terlihat, riwayat dapat dibuka.
+
 ### Gate yang tidak diklaim
 
 Tahap ini **tidak** meluluskan gate prototype penuh PRD (backend, otorisasi server, transaksi atomik, perangkat nyata untuk semua peran, performa rilis). Hasil di atas hanya bukti frontend dengan adapter demo.
