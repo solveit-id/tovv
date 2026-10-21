@@ -45,7 +45,9 @@ export function DemoAccountScreen() {
       const extra = Object.entries(rest).filter(([, v]) => typeof v === 'string') as [string, string][];
       const sep = next.includes('?') ? '&' : '?';
       const tail = extra.filter(([k]) => !next.includes(`${k}=`)).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
-      router.replace((tail ? `${next}${sep}${tail}` : next) as `/${string}`);
+      // Beranda peran ditaruh di bawah tujuan agar tombol kembali perangkat tidak menutup aplikasi.
+      router.replace(`/${view}`);
+      if (next !== `/${view}`) router.push((tail ? `${next}${sep}${tail}` : next) as `/${string}`);
     } else router.replace(`/${view}`);
   };
 

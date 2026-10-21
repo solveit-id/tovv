@@ -51,7 +51,8 @@ function driverNextStep(ctx: Ctx, s: OrderSummary): OrderSummary {
   if (ctx.actor.view !== 'driver') return s;
   if (['handed_over', 'closed'].includes(s.status)) return { ...s, nextStep: 'Tugas selesai', outstanding: null, collection: null, invoiceStatus: null };
   if (s.status === 'canceled' || s.status === 'aborted') return { ...s, outstanding: null, collection: null, invoiceStatus: null };
-  return { ...s, outstanding: null, collection: null, invoiceStatus: null };
+  const offeredToMe = s.status === 'confirmed' && ctx.store.db.assignments.some((a) => a.orderId === s.id && a.driverId === ctx.actor.user.id && a.status === 'offered');
+  return { ...s, nextStep: offeredToMe ? 'Terima atau tolak tawaran tugas' : s.nextStep, outstanding: null, collection: null, invoiceStatus: null };
 }
 
 /** Aksi staf disaring menurut scope efektif (peran + delegasi), sama seperti server menolak tindakan tak berizin. */

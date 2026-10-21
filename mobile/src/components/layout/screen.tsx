@@ -61,21 +61,24 @@ export function Screen({
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       {headerScrolls && scroll ? null : header}
       {body}
-      {footer ? <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, space.md) }]}>{footer}</View> : null}
+      {footer ? <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, space.md) }]}><View style={styles.footerInner}>{footer}</View></View> : null}
     </KeyboardAvoidingView>
   );
 }
 
+const MAX_CONTENT = 720;
+
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: color.ground },
   flex: { flex: 1 },
-  content: { paddingHorizontal: space.lg, paddingTop: space.lg },
+  // Lebar baca dibatasi di tablet/lanskap; header tetap selebar layar.
+  content: { paddingHorizontal: space.lg, paddingTop: space.lg, width: '100%', maxWidth: MAX_CONTENT, alignSelf: 'center' },
   footer: {
     backgroundColor: color.sheet,
     borderTopWidth: StyleSheet.hairlineWidth * 2,
     borderTopColor: color.rule,
     paddingHorizontal: space.lg,
     paddingTop: space.md,
-    gap: space.sm,
   },
+  footerInner: { gap: space.sm, width: '100%', maxWidth: MAX_CONTENT - space.lg * 2, alignSelf: 'center' },
 });

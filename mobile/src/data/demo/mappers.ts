@@ -123,7 +123,7 @@ export function orderSummary(db: DemoDb, order: Order, now: string): OrderSummar
   const inv = invoiceStateFor(db, order.id, now);
   const coPending = db.changeOrders.some((c) => c.orderId === order.id && c.status === 'pending');
   let next = NEXT_STEP[order.status];
-  if (order.status === 'handed_over' && inv.invoiceStatus) next = order.evidence === 'disputed' ? 'Tinjau keberatan serah-terima' : 'Menunggu penerimaan pembayaran';
+  if (order.status === 'handed_over' && inv.invoiceStatus) next = order.evidence === 'disputed' ? 'Tinjau keberatan serah-terima' : inv.collection === 'settled' ? 'Tagihan tercatat lunas (demo)' : 'Menunggu penerimaan pembayaran';
   if (order.status === 'confirmed' && asg?.status === 'offered') next = `Menunggu ${userName(db, asg.driverId)} menerima tugas`;
   return {
     id: order.id,
