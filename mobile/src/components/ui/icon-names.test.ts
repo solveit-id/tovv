@@ -15,8 +15,8 @@ function walk(dir: string): string[] {
 
 describe('ikon satu keluarga (Material Community Icons)', () => {
   it('semua ikon status ada', () => {
-    const names = Object.values(status)
-      .filter((v): v is Record<string, { icon: string }> => typeof v === 'object' && v !== null && !Array.isArray(v))
+    const names = (Object.values(status) as unknown[])
+      .filter((v): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v))
       .flatMap((m) => Object.values(m))
       .filter((x): x is { icon: string } => typeof x === 'object' && x !== null && 'icon' in x)
       .map((x) => x.icon);

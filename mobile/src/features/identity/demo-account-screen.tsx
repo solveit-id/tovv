@@ -35,13 +35,13 @@ export function DemoAccountScreen() {
   const enter = async (acc: DemoAccount, view: ViewGroup) => {
     setPick(null);
     await setSession({ userId: acc.userId, view });
-    router.dismissAll?.();
+    if (router.canDismiss()) router.dismissAll();
     router.replace(`/${view}`);
   };
 
   return (
     <Screen header={<DetailHeader title="Pilih akun demo" subtitle="Hanya mode demo lokal · bukan login produksi" />}>
-      <Sheet style={{ backgroundColor: color.demoWash, borderColor: '#E3CE73' }}>
+      <Sheet style={{ backgroundColor: color.demoWash, borderColor: color.demoRule }}>
         <Txt variant="bodySm" tone="demoInk">
           Akun di bawah adalah fixture sintetis F-05. Tidak ada kata sandi karena ini simulasi; aplikasi nyata memakai sesi
           perangkat dari server, dan peran tidak bisa diubah dari ponsel.

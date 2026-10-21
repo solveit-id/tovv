@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.navy,
     borderRadius: radius.control,
     padding: space.md,
-    shadowColor: '#000',
+    shadowColor: color.shadow,
     shadowOpacity: 0.18,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },

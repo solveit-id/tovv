@@ -125,7 +125,7 @@ export function InvoiceScreen() {
             </DocumentStack>
 
             <SectionTitle title="Instruksi pembayaran (DEMO)" />
-            <Sheet style={{ backgroundColor: color.demoWash, borderColor: '#E3CE73' }}>
+            <Sheet style={{ backgroundColor: color.demoWash, borderColor: color.demoRule }}>
               <View style={{ flexDirection: 'row', gap: space.sm }}>
                 <Icon name="bank-off-outline" tone="demoInk" />
                 <View style={{ flex: 1, gap: 2 }}>

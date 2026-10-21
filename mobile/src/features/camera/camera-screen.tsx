@@ -238,12 +238,12 @@ export function CameraScreen() {
 }
 
 const styles = StyleSheet.create({
-  camRoot: { flex: 1, backgroundColor: '#000' },
+  camRoot: { flex: 1, backgroundColor: color.cameraGround },
   denied: { alignItems: 'center', gap: space.md, paddingVertical: space.xxl },
   preview: { width: '100%', borderRadius: radius.sheet, overflow: 'hidden', backgroundColor: color.navy },
-  overlay: { position: 'absolute', left: 0, right: 0, bottom: 0, padding: space.sm, backgroundColor: 'rgba(8,42,86,0.78)', gap: 1 },
+  overlay: { position: 'absolute', left: 0, right: 0, bottom: 0, padding: space.sm, backgroundColor: color.overlayInk, gap: 1 },
   ovBold: { fontWeight: '700', letterSpacing: 0.4 },
-  locChip: { position: 'absolute', top: space.md, left: space.md, flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(8,42,86,0.82)', paddingHorizontal: space.sm, paddingVertical: 4, borderRadius: radius.cell },
+  locChip: { position: 'absolute', top: space.md, left: space.md, flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: color.overlayInk, paddingHorizontal: space.sm, paddingVertical: 4, borderRadius: radius.cell },
   controls: { backgroundColor: color.navy, paddingHorizontal: space.lg, paddingTop: space.md, gap: space.sm },
   controlRow: { flexDirection: 'row', gap: space.md, alignItems: 'center' },
 });

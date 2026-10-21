@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Image } from 'expo-image';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
-import { space } from '@/core/design/tokens';
+import { color, space } from '@/core/design/tokens';
 import { Screen } from '@/components/layout/screen';
 import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
@@ -37,7 +37,7 @@ export function AboutScreen() {
   return (
     <Screen header={<DetailHeader title="Mode demo & tentang" />}>
       <Sheet>
-        <View style={{ backgroundColor: '#082A56', padding: space.lg, borderRadius: 6, alignItems: 'flex-start', gap: space.sm }}>
+        <View style={{ backgroundColor: color.navy, padding: space.lg, borderRadius: 6, alignItems: 'flex-start', gap: space.sm }}>
           <Wordmark height={30} />
           <Txt variant="caption" tone="onNavySecondary">Wordmark sementara — logo resmi Tovv belum tersedia</Txt>
         </View>

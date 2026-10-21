@@ -51,7 +51,7 @@ export function DemoStrip() {
 }
 
 const styles = StyleSheet.create({
-  strip: { backgroundColor: color.demoWash, borderBottomWidth: 1, borderBottomColor: '#E3CE73' },
+  strip: { backgroundColor: color.demoWash, borderBottomWidth: 1, borderBottomColor: color.demoRule },
   row: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: space.lg, minHeight: 28, paddingVertical: 4 },
   bold: { fontWeight: '700', letterSpacing: 0.3 },
   ctx: { flex: 1 },

@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth * 2,
     borderColor: color.ruleStrong,
     padding: space.lg,
-    shadowColor: '#082A56',
+    shadowColor: color.shadow,
     shadowOpacity: 0.06,
     shadowRadius: 3,
     shadowOffset: { width: 0, height: 1 },

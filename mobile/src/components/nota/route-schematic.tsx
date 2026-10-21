@@ -99,5 +99,5 @@ export function RouteSchematic({
 
 const styles = StyleSheet.create({
   box: { backgroundColor: color.sheetSunk, borderRadius: radius.sheet, overflow: 'hidden', borderWidth: StyleSheet.hairlineWidth * 2, borderColor: color.rule },
-  legend: { position: 'absolute', left: space.sm, bottom: space.xs, backgroundColor: 'rgba(238,242,247,0.9)', paddingHorizontal: 4, borderRadius: 2 },
+  legend: { position: 'absolute', left: space.sm, bottom: space.xs, backgroundColor: color.legendWash, paddingHorizontal: 4, borderRadius: 2 },
 });

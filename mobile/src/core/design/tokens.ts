@@ -43,6 +43,12 @@ export const color = {
 
   demoInk: '#082A56',
   demoWash: '#F7E6A1',
+  demoRule: '#E3CE73',
+
+  shadow: '#082A56',
+  cameraGround: '#000000',
+  overlayInk: 'rgba(8, 42, 86, 0.8)',
+  legendWash: 'rgba(238, 242, 247, 0.9)',
 
   scrim: 'rgba(8, 42, 86, 0.48)',
 } as const;
