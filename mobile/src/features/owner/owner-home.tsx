@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { color, space } from '@/core/design/tokens';
+import { space } from '@/core/design/tokens';
 import { Screen } from '@/components/layout/screen';
 import { RootHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
@@ -18,7 +18,7 @@ import { useDemoNow } from '@/core/hooks/use-demo-now';
 import { formatDateTime } from '@/core/format/time';
 import { formatRupiah } from '@/core/format/money';
 
-/** Beranda owner: yang tertahan hari ini lebih dulu, lalu pekerjaan berjalan, lalu buku operasi dari ledger. */
+/** Beranda owner: yang tertahan hari ini lebih dulu, lalu buku operasi dari ledger, lalu pekerjaan berjalan; aksi utama di footer (Hitung harga di tab Lainnya). */
 export function OwnerHome() {
   const router = useRouter();
   const qc = useQueryClient();
@@ -31,8 +31,10 @@ export function OwnerHome() {
   const myDrive = active.data?.find((o) => o.driverName === session.data?.userName && o.status !== 'handed_over');
 
   return (
-    <Screen headerScrolls
+    <Screen
+      headerScrolls
       onRefresh={() => qc.invalidateQueries()}
+      footer={<Button label="Catat permintaan" icon="phone-plus-outline" onPress={() => router.push('/request/new')} accessibilityHint="Hitung harga tersedia di tab Lainnya" />}
       header={
         <RootHeader right={<HeaderActions />} subtitle={`${session.data?.tenantName ?? ''} · ${formatDateTime(now)}`}>
           {canDrive ? (
@@ -49,24 +51,7 @@ export function OwnerHome() {
         </RootHeader>
       }
     >
-      <DailyActionsBlock />
-
-      <SectionTitle
-        title="Pekerjaan berjalan"
-        count={active.data?.length}
-        action={<Button label="Semua" variant="quiet" compact onPress={() => router.push('/owner/pekerjaan')} />}
-      />
-      <Sheet padded={false}>
-        <QueryView q={active}>
-          {(list) =>
-            list.length ? (
-              list.slice(0, 4).map((o, i, arr) => <OrderRow key={o.id} o={o} last={i === arr.length - 1} />)
-            ) : (
-              <EmptyBlock icon="tow-truck" title="Tidak ada pekerjaan berjalan" />
-            )
-          }
-        </QueryView>
-      </Sheet>
+      <DailyActionsBlock limit={3} />
 
       <SectionTitle title="Buku operasi" action={<Button label="Laporan" variant="quiet" compact icon="chart-box-outline" onPress={() => router.push('/reports')} />} />
       <QueryView q={summary}>
@@ -88,27 +73,38 @@ export function OwnerHome() {
                 </View>
                 {s.contribution.provisionalAliases.length ? (
                   <Txt variant="caption" tone="warnInk">
-                    {`Provisional (biaya belum lengkap, tidak dihitung nol): ${s.contribution.provisionalAliases.join(', ')}`}
+                    {`Sementara (biaya belum lengkap, tidak dihitung nol): ${s.contribution.provisionalAliases.join(', ')}`}
                   </Txt>
                 ) : null}
               </Cell>
             </CellGrid>
             <Txt variant="caption" tone="inkSecondary">
-              {`${s.periodLabel} · as of ${formatDateTime(s.asOf)} · formula ${s.formulaVersion} · dihitung dari baris transaksi demo yang sama dengan laporan.`}
+              {`${s.periodLabel} · per ${formatDateTime(s.asOf)} · formula ${s.formulaVersion} · dihitung dari baris transaksi demo yang sama dengan laporan.`}
             </Txt>
           </View>
         )}
       </QueryView>
 
-      <View style={styles.quick}>
-        <Button label="Catat permintaan" icon="phone-plus-outline" onPress={() => router.push('/request/new')} style={{ flex: 1 }} />
-        <Button label="Hitung harga" icon="calculator-variant-outline" variant="secondary" onPress={() => router.push('/pricing')} style={{ flex: 1 }} />
-      </View>
+      <SectionTitle
+        title="Pekerjaan berjalan"
+        count={active.data?.length}
+        action={<Button label="Semua" variant="quiet" compact onPress={() => router.push('/owner/pekerjaan')} />}
+      />
+      <Sheet padded={false}>
+        <QueryView q={active}>
+          {(list) =>
+            list.length ? (
+              list.slice(0, 4).map((o, i, arr) => <OrderRow key={o.id} o={o} last={i === arr.length - 1} />)
+            ) : (
+              <EmptyBlock icon="tow-truck" title="Tidak ada pekerjaan berjalan" />
+            )
+          }
+        </QueryView>
+      </Sheet>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   contrib: { flexDirection: 'row', alignItems: 'baseline', gap: space.sm, flexWrap: 'wrap' },
-  quick: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: space.xxl, borderTopWidth: 0, borderColor: color.rule },
 });

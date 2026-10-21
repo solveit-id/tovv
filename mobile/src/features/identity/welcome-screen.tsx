@@ -12,7 +12,7 @@ import { Icon } from '@/components/ui/icon';
 const FACTS = [
   { icon: 'file-document-multiple-outline', text: 'Permintaan, penawaran berversi, invoice, dan bukti bayar dalam satu nomor pekerjaan.' },
   { icon: 'map-marker-path', text: 'Tahap perjalanan dan lokasi dengan sumber serta umur data yang selalu terlihat.' },
-  { icon: 'calculator-variant-outline', text: 'Kontribusi per pekerjaan; biaya yang belum lengkap tetap ditandai provisional.' },
+  { icon: 'calculator-variant-outline', text: 'Kontribusi per pekerjaan; biaya yang belum lengkap tetap ditandai sementara.' },
 ];
 
 export function WelcomeScreen() {

@@ -55,7 +55,7 @@ export function QuoteScreen() {
 
   return (
     <Screen
-      header={<DetailHeader serial={doc ? `${doc.id.replace(/-v\d+$/, '')} · v${doc.version}` : undefined} title="Penawaran" subtitle={doc?.operatorName} />}
+      header={<DetailHeader title={doc ? `Penawaran v${doc.version}` : 'Penawaran'} subtitle={doc?.operatorName} />}
       footer={
         canDecide ? (
           <>

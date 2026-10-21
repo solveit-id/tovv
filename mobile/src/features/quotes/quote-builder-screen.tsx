@@ -129,7 +129,8 @@ export function QuoteBuilderScreen() {
           <Txt variant="bodySm">{`Delegasi dari ${session.data.delegation.delegatorName}: diskon sampai ${formatRupiah(session.data.delegation.limit)} di bawah target, berlaku sampai ${formatDateTime(session.data.delegation.expiresAt)}.`}</Txt>
         </Sheet>
       ) : null}
-      <Choice label="Jadwal (±2,5 jam + buffer 30 mnt)" value={slot} onChange={(v) => { setSlot(v); setUnitId(null); }} options={presets.map((p, i) => ({ value: String(i), label: p.label }))} />
+      <SectionTitle title="Jadwal" />
+      <Choice label="Jadwal" hideLabel helper="Rentang ±2,5 jam ditambah buffer 30 menit." value={slot} onChange={(v) => { setSlot(v); setUnitId(null); }} options={presets.map((p, i) => ({ value: String(i), label: p.label }))} />
 
       <SectionTitle title="Unit" />
       <QueryView q={cands} loadingLabel="Memeriksa kelayakan unit…">

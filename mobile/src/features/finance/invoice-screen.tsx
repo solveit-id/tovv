@@ -73,7 +73,7 @@ export function InvoiceScreen() {
   return (
     <Screen
       onRefresh={() => qc.invalidateQueries()}
-      header={<DetailHeader serial={d?.number} title={d ? `Invoice ${d.alias}` : 'Invoice'} subtitle={d ? d.payerLabel : undefined} />}
+      header={<DetailHeader title={d ? `Invoice ${d.alias}` : 'Invoice'} subtitle={d ? d.payerLabel : undefined} />}
       footer={
         d && d.allowedActions.includes('submit_proof') ? (
           <Button
@@ -176,18 +176,18 @@ export function InvoiceScreen() {
 
             {inv.receipts.length ? (
               <>
-                <SectionTitle title="Penerimaan tercatat (receipt demo)" count={inv.receipts.length} />
+                <SectionTitle title="Penerimaan tercatat (demo)" count={inv.receipts.length} />
                 <View style={{ gap: space.sm }}>
                   {inv.receipts.map((r) => (
                     <Sheet key={r.id}>
                       <View style={styles.head}>
                         <View style={{ flex: 1, gap: 2 }}>
                           <Serial>{r.id}</Serial>
-                          <Txt variant="caption" tone="inkSecondary">{`${formatDateTime(r.postedAt)} · ${r.method === 'cash_demo' ? 'tunai' : 'transfer'} · custody ${r.custody === 'driver_demo' ? 'di driver' : 'diterima operator'} · ${r.verifiedByName}`}</Txt>
+                          <Txt variant="caption" tone="inkSecondary">{`${formatDateTime(r.postedAt)} · ${r.method === 'cash_demo' ? 'tunai' : 'transfer'} · ${r.custody === 'driver_demo' ? 'dana masih di driver' : 'diterima operator'} · ${r.verifiedByName}`}</Txt>
                         </View>
                         <Money value={r.amount} />
                       </View>
-                      {r.unapplied !== '0' ? <LineItem label="Belum dialokasikan (unapplied)" hint="Lebih bayar menunggu keputusan; bukan dompet" value={<Money value={r.unapplied} tone="warnInk" />} /> : null}
+                      {r.unapplied !== '0' ? <LineItem label="Belum dialokasikan" hint="Lebih bayar menunggu keputusan; bukan dompet" value={<Money value={r.unapplied} tone="warnInk" />} /> : null}
                       {r.refunds.map((f, i) => <LineItem key={i} label="Refund tercatat (demo)" hint={f.recordedAt ? formatShortDateTime(f.recordedAt) : f.status} value={<Money value={`-${f.amount}`} />} />)}
                       {staff && r.unapplied !== '0' ? <Button label="Catat refund demo" variant="secondary" compact onPress={() => open({ refund: r.id }, parseMoneyString(r.unapplied))} style={{ alignSelf: 'flex-start', marginTop: space.sm }} /> : null}
                     </Sheet>
@@ -221,7 +221,7 @@ export function InvoiceScreen() {
                         : api.recordRefund((sheet as { refund: string }).refund, amount ?? 0, reason),
                   sheet === 'request'
                     ? d?.paymentRequests.some((pr) => pr.status === 'active') ? 'Permintaan baru aktif; permintaan sebelumnya diganti.' : 'Permintaan pembayaran aktif dibuat.'
-                    : sheet === 'credit' ? 'Kredit diposting; kelebihan alokasi direversal otomatis.' : 'Refund dicatat sebagai keputusan demo; tidak ada transfer.',
+                    : sheet === 'credit' ? 'Kredit dicatat; kelebihan alokasi dibalik otomatis.' : 'Refund dicatat sebagai keputusan demo; tidak ada transfer.',
                 )
               }
             />

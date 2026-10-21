@@ -65,7 +65,7 @@ export const executionStatus: Record<ExecutionStatus, StatusLook> = {
   handed_over: L('Diserahkan', 'ok', 'solid', 'handshake-outline'),
   closed: L('Ditutup', 'ok', 'solid', 'archive-check-outline'),
   canceled: L('Dibatalkan', 'neutral', 'struck', 'cancel'),
-  aborted: L('Dihentikan (abort)', 'danger', 'struck', 'alert-octagon-outline'),
+  aborted: L('Dihentikan', 'danger', 'struck', 'alert-octagon-outline'),
 };
 
 export const assignmentStatus: Record<AssignmentStatus, StatusLook> = {
@@ -149,7 +149,7 @@ export const evidenceLook: Record<EvidenceCompleteness, StatusLook> = {
 
 export const costLook: Record<CostCompleteness, StatusLook> = {
   final: L('Biaya final', 'ok', 'solid', 'calculator-variant-outline'),
-  provisional: L('Biaya provisional', 'warn', 'dashed', 'calculator-variant-outline'),
+  provisional: L('Biaya sementara', 'warn', 'dashed', 'calculator-variant-outline'),
   na: L('Tidak berlaku', 'neutral', 'dashed', 'minus'),
 };
 

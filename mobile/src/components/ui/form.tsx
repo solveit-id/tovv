@@ -65,10 +65,11 @@ export function MoneyField({ value, onChange, ...rest }: Omit<FieldProps, 'value
   return <Field {...rest} prefix="Rp" keyboardType="number-pad" value={formatInputRupiah(value)} onChangeText={(t) => onChange(parseRupiahInput(t))} />;
 }
 
-export function Choice<T extends string>({ label, options, value, onChange, helper }: { label: string; options: { value: T; label: string; hint?: string }[]; value: T; onChange: (v: T) => void; helper?: string }) {
+/** `hideLabel` bila grup sudah diberi SectionTitle; label tetap dibacakan pembaca layar. */
+export function Choice<T extends string>({ label, options, value, onChange, helper, hideLabel }: { label: string; options: { value: T; label: string; hint?: string }[]; value: T; onChange: (v: T) => void; helper?: string; hideLabel?: boolean }) {
   return (
     <View style={styles.field} accessibilityRole="radiogroup" accessibilityLabel={label}>
-      <Txt variant="label" tone="inkSecondary">{label}</Txt>
+      {hideLabel ? null : <Txt variant="label" tone="inkSecondary">{label}</Txt>}
       <View style={styles.choices}>
         {options.map((o) => {
           const on = o.value === value;

@@ -4,7 +4,7 @@ import { customerCanSeeRequest } from './policy';
 import type { DailyAction } from '@/data/api/contract';
 import { userName, currentAssignment, requestOf } from './mappers';
 import { invoiceBalance } from '@/domain/ledger';
-import { toMoneyString, formatRupiah } from '@/core/format/money';
+import { toMoneyString } from '@/core/format/money';
 import { formatUntil } from '@/core/format/time';
 
 /**
@@ -65,7 +65,7 @@ export function dailyActions(db: DemoDb, actor: Actor, scopes: Set<Scope>, now: 
         push({ sourceType: 'order', sourceId: o.id, type: 'handover_not_invoiced', title: `${o.alias} · sudah diserahkan, belum diinvoice`, reason: 'Serah-terima tidak melunasi apa pun; terbitkan invoice dari penawaran yang disetujui.', picName: financeName, dueAt: null, link: `/order/${o.id}`, severity: 'attention', amount: null });
       }
       if ((finance || actor.view === 'owner') && ['handed_over', 'closed'].includes(o.status) && o.costCompleteness === 'provisional') {
-        push({ sourceType: 'order', sourceId: o.id, type: 'cost_not_final', title: `${o.alias} · biaya belum final`, reason: 'Kontribusi tetap provisional; biaya yang hilang tidak dihitung nol.', picName: financeName, dueAt: null, link: `/order/${o.id}`, severity: 'info', amount: null });
+        push({ sourceType: 'order', sourceId: o.id, type: 'cost_not_final', title: `${o.alias} · biaya belum final`, reason: 'Kontribusi masih sementara; biaya yang hilang tidak dihitung nol.', picName: financeName, dueAt: null, link: `/order/${o.id}`, severity: 'info', amount: null });
       }
     });
     if (finance || actor.view === 'owner') {
@@ -78,7 +78,7 @@ export function dailyActions(db: DemoDb, actor: Actor, scopes: Set<Scope>, now: 
         const b = invoiceBalance(db, i.id, now);
         if (b.outstanding > 0 && b.overdueDays !== null) {
           const alias = db.orders.find((o) => o.id === i.orderId)?.alias ?? '';
-          push({ sourceType: 'invoice', sourceId: i.id, type: 'receivable_overdue', title: `${alias} · piutang lewat jatuh tempo`, reason: `${formatRupiah(b.outstanding)} lewat ${b.overdueDays} hari (${i.payerLabel}).`, picName: financeName, dueAt: null, link: `/invoice/${i.id}`, severity: 'attention', amount: toMoneyString(b.outstanding) });
+          push({ sourceType: 'invoice', sourceId: i.id, type: 'receivable_overdue', title: `${alias} · piutang lewat jatuh tempo`, reason: `Lewat ${b.overdueDays} hari (${i.payerLabel}).`, picName: financeName, dueAt: null, link: `/invoice/${i.id}`, severity: 'attention', amount: toMoneyString(b.outstanding) });
         }
       });
       db.expenses.filter((e) => e.tenantId === t && e.status === 'submitted').forEach((e) => {
@@ -112,7 +112,7 @@ export function dailyActions(db: DemoDb, actor: Actor, scopes: Set<Scope>, now: 
         db.invoices.filter((i) => i.orderId === o.id && i.status === 'issued').forEach((i) => {
           const b = invoiceBalance(db, i.id, now);
           const canSeeInvoice = !actor.user.businessAccountId || (actor.user.b2bRoles ?? []).includes('finance');
-          if (b.outstanding > 0 && canSeeInvoice) push({ sourceType: 'invoice', sourceId: i.id, type: 'invoice_open', title: `${o.alias} · tagihan ${formatRupiah(b.outstanding)}`, reason: b.overdueDays ? `Lewat jatuh tempo ${b.overdueDays} hari.` : 'Belum ada penerimaan tercatat.', picName: actor.user.name, dueAt: null, link: `/invoice/${i.id}`, severity: 'attention', amount: toMoneyString(b.outstanding) });
+          if (b.outstanding > 0 && canSeeInvoice) push({ sourceType: 'invoice', sourceId: i.id, type: 'invoice_open', title: `${o.alias} · tagihan terbuka`, reason: b.overdueDays ? `Lewat jatuh tempo ${b.overdueDays} hari.` : 'Belum ada penerimaan tercatat.', picName: actor.user.name, dueAt: null, link: `/invoice/${i.id}`, severity: 'attention', amount: toMoneyString(b.outstanding) });
         });
       }
     });

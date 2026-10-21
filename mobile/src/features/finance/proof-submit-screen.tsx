@@ -87,7 +87,7 @@ export function ProofSubmitScreen() {
               <Txt variant="caption" tone="inkSecondary" style={{ marginTop: 4 }}>{`Tujuan DEMO: ${d.instruction.account}. Jangan mengirim uang nyata.`}</Txt>
             </Sheet>
             <MoneyField label="Nominal dibayar" value={amount ?? (active ? parseMoneyString(active.requestedAmount) : parseMoneyString(d.outstanding))} onChange={setAmount} />
-            <Choice label="Metode" value={method} onChange={setMethod} options={[{ value: 'transfer_demo', label: 'Transfer (demo)' }, { value: 'cash_demo', label: 'Tunai ke petugas (demo)', hint: 'Custody dicatat terpisah dari penerimaan finance' }]} />
+            <Choice label="Metode" value={method} onChange={setMethod} options={[{ value: 'transfer_demo', label: 'Transfer (demo)' }, { value: 'cash_demo', label: 'Tunai ke petugas (demo)', hint: 'Penguasaan uang dicatat terpisah dari penerimaan finance' }]} />
             <Field label="Referensi transfer / nomor kuitansi" value={ref} onChangeText={setRef} autoCapitalize="characters" placeholder="mis. TRF-DEMO-1234" />
             <Choice label="Waktu pembayaran" value={when} onChange={setWhen} options={[{ value: '15', label: '15 menit lalu' }, { value: '120', label: '2 jam lalu' }, { value: '1440', label: 'Kemarin' }]} helper="Waktu kejadian dicatat terpisah dari waktu diterima server." />
             {staff ? <Field label="Alasan pencatatan dibantu" value={assisted} onChangeText={setAssisted} multiline placeholder="mis. pelanggan mengirim foto bukti via chat" /> : null}

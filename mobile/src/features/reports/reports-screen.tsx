@@ -61,8 +61,10 @@ export function ReportsScreen({ asTab = false }: { asTab?: boolean }) {
 
   return (
     <Screen headerScrolls={asTab} onRefresh={() => qc.invalidateQueries()} header={header}>
+      <SectionTitle title="Akun bisnis" />
       <Choice
         label="Filter akun bisnis"
+        hideLabel
         value={account}
         onChange={setAccount}
         options={[{ value: 'all', label: 'Semua pelanggan' }, ...(accounts.data ?? []).map((b) => ({ value: b.id, label: b.name, hint: `${b.alias} · ${b.poRequired ? 'PO wajib' : 'PO opsional'}` }))]}
@@ -70,7 +72,7 @@ export function ReportsScreen({ asTab = false }: { asTab?: boolean }) {
       <QueryView q={q} loadingLabel="Menghitung dari ledger…">
         {(a) => (
           <>
-            <Txt variant="caption" tone="inkSecondary">{`${a.periodLabel} · as of ${formatDateTime(a.asOf)} · formula ${a.formulaVersion} · zona Asia/Jakarta`}</Txt>
+            <Txt variant="caption" tone="inkSecondary">{`${a.periodLabel} · per ${formatDateTime(a.asOf)} · formula ${a.formulaVersion} · zona Asia/Jakarta`}</Txt>
             <SectionTitle title="Uang (demo)" />
             <CellGrid>
               {a.money.map((m) => (
@@ -94,7 +96,7 @@ export function ReportsScreen({ asTab = false }: { asTab?: boolean }) {
                   <Txt variant="serial" tone="serial" style={styles.c1}>{c.alias}</Txt>
                   <Txt variant="bodySm" tabular align="right" style={styles.cN}>{formatRupiah(c.commercialNet).replace('Rp ', '')}</Txt>
                   <Txt variant="bodySm" tabular align="right" tone={c.actualDirect ? 'ink' : 'warnInk'} style={styles.cN}>{c.actualDirect ? formatRupiah(c.actualDirect).replace('Rp ', '') : '—'}</Txt>
-                  <Txt variant="bodySm" tabular align="right" tone={c.contribution ? 'ink' : 'warnInk'} style={[styles.cN, { fontWeight: '700' }]}>{c.contribution ? formatRupiah(c.contribution).replace('Rp ', '') : 'provisional'}</Txt>
+                  <Txt variant="bodySm" tabular align="right" tone={c.contribution ? 'ink' : 'warnInk'} style={[styles.cN, { fontWeight: '700' }]}>{c.contribution ? formatRupiah(c.contribution).replace('Rp ', '') : 'sementara'}</Txt>
                 </Pressable>
               ))}
               <Rule strong />
@@ -103,7 +105,7 @@ export function ReportsScreen({ asTab = false }: { asTab?: boolean }) {
                 <Money value={a.contribution.final} />
               </View>
             </Sheet>
-            <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.xs }}>Angka dalam rupiah. Kontribusi = komersial − D aktual − biaya SaaS per layanan. Bukan laba bersih; provisional tidak dijumlah sebagai nol.</Txt>
+            <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.xs }}>Angka dalam rupiah. Kontribusi = komersial − D aktual − biaya SaaS per layanan. Bukan laba bersih; yang sementara tidak dijumlah sebagai nol.</Txt>
 
             <SectionTitle title="Estimasi vs aktual (biaya langsung)" />
             <Sheet>
@@ -153,7 +155,7 @@ export function ReportsScreen({ asTab = false }: { asTab?: boolean }) {
                     <View key={b.accountId ?? 'all'} style={[styles.tr, { flexWrap: 'wrap' }]}>
                       <View style={{ flex: 1, minWidth: 160 }}>
                         <Txt variant="bodyStrong">{b.label}</Txt>
-                        <Txt variant="caption" tone="inkSecondary">{`${b.orders} order · piutang ${formatRupiah(b.receivable)}${b.provisional ? ` · ${b.provisional} provisional` : ''}`}</Txt>
+                        <Txt variant="caption" tone="inkSecondary">{`${b.orders} order · piutang ${formatRupiah(b.receivable)}${b.provisional ? ` · ${b.provisional} sementara` : ''}`}</Txt>
                       </View>
                       <View style={{ alignItems: 'flex-end' }}>
                         <Txt variant="caption" tone="inkSecondary">Kontribusi final</Txt>

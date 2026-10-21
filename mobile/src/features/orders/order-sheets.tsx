@@ -113,12 +113,12 @@ function SheetBody({ sheet, onClose, submit, isStaff }: { sheet: SheetKind; onCl
     body = (
       <>
         <Field label="Lokasi saat ini" value={text} onChangeText={setText} />
-        <Field label="Custody kendaraan" value={text2} onChangeText={setText2} helper="Di mana kendaraan pelanggan sekarang dan siapa yang memegangnya." />
+        <Field label="Penguasaan kendaraan" value={text2} onChangeText={setText2} helper="Di mana kendaraan pelanggan sekarang dan siapa yang memegangnya." />
         <Field label="PIC" value={text3} onChangeText={setText3} />
         <Field label="Rencana penyelesaian" value={text4} onChangeText={setText4} multiline />
       </>
     );
-    footer = <Button label="Catat abort" variant="danger" loading={busy} onPress={() => void run(() => submit.abort({ location: text, custody: text2, pic: text3, plan: text4 }))} />;
+    footer = <Button label="Catat penghentian" variant="danger" loading={busy} onPress={() => void run(() => submit.abort({ location: text, custody: text2, pic: text3, plan: text4 }))} />;
   }
   if (k === 'change') {
     body = (

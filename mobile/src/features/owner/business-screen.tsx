@@ -43,7 +43,7 @@ export function BusinessScreen() {
                   <LineItem label="Order dalam periode" value={<Txt variant="figure">{String(b.orders)}</Txt>} />
                   <LineItem label="Invoice net" value={<Money value={b.invoiceNet} />} />
                   <LineItem label="Piutang" value={<Money value={b.receivable} />} />
-                  {staff ? <LineItem label="Kontribusi final (internal)" hint={b.provisional ? `${b.provisional} pekerjaan provisional tidak dihitung` : undefined} value={<Money value={b.contribution} missingLabel="belum ada final" />} /> : null}
+                  {staff ? <LineItem label="Kontribusi final (internal)" hint={b.provisional ? `${b.provisional} pekerjaan sementara tidak dihitung` : undefined} value={<Money value={b.contribution} missingLabel="belum ada final" />} /> : null}
                   <Txt variant="label" tone="inkSecondary" style={{ marginTop: space.md }}>Rute favorit</Txt>
                   {b.favoriteRoutes.map((f) => <Txt key={f.id} variant="bodySm">{`• ${f.label}`}</Txt>)}
                   <Txt variant="label" tone="inkSecondary" style={{ marginTop: space.md }}>Order terbaru</Txt>

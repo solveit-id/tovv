@@ -105,7 +105,7 @@ export function OrderAlerts({ d, onResolve, onDecideChange }: { d: OrderDetail; 
   return (
     <View style={{ gap: space.sm, marginTop: space.md }}>
       {d.abortInfo ? (
-        <Banner tone="danger" icon="alert-octagon-outline" title="Dihentikan setelah loading (abort)" body={`${d.abortInfo.location}. Custody: ${d.abortInfo.custody}. PIC: ${d.abortInfo.pic}. Rencana: ${d.abortInfo.plan}`} />
+        <Banner tone="danger" icon="alert-octagon-outline" title="Dihentikan setelah dimuat" body={`${d.abortInfo.location}. Penguasaan kendaraan: ${d.abortInfo.custody}. PIC: ${d.abortInfo.pic}. Rencana: ${d.abortInfo.plan}`} />
       ) : null}
       {open.map((i) => (
         <Banner key={i.id} tone="danger" icon="alert-octagon-outline" title={`Kendala: ${i.typeLabel}`} body={`${i.note}\nPIC ${i.picName} · dibuka ${formatShortDateTime(i.openedAt)} · ${i.followUp}`}>
@@ -220,7 +220,7 @@ export function InternalCostSection({ d, onFinalize }: { d: OrderDetail; onFinal
         <LineItem label="Biaya langsung estimasi (snapshot)" value={<Money value={i.estimateDirect} />} />
         <LineItem label="Biaya langsung aktual disetujui" value={<Money value={i.actualDirect} missingLabel="belum final" />} />
         <Rule />
-        <LineItem label="Kontribusi pekerjaan" hint="Pendapatan komersial − biaya langsung − biaya SaaS. Bukan laba bersih." value={<Money value={i.contribution} missingLabel={i.reason ?? 'provisional'} />} emphasis />
+        <LineItem label="Kontribusi pekerjaan" hint="Pendapatan komersial − biaya langsung − biaya SaaS. Bukan laba bersih." value={<Money value={i.contribution} missingLabel={i.reason ?? 'sementara'} />} emphasis />
         {i.advance ? (
           <>
             <Rule />

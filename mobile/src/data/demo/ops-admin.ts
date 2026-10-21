@@ -104,8 +104,8 @@ function summaryFrom(a: AnalyticsResult): OwnerSummary {
     periodLabel: '22 Sep – 21 Okt 2026 (WIB)',
     money: [
       m('invoice_net', 'Nilai invoice net', a.invoiceNet, 'Invoice terbit dalam periode − kredit. Bukan kas.'),
-      m('receipts', 'Penerimaan demo diperiksa', a.netReceipts, 'Receipt posted − reversal − refund. Bukan saldo bank.'),
-      m('receivable', 'Piutang', a.receivable, 'Sisa invoice terbit sampai as of.', a.receivableInvoiceIds),
+      m('receipts', 'Penerimaan demo diperiksa', a.netReceipts, 'Penerimaan tercatat − pembalikan − refund. Bukan saldo bank.'),
+      m('receivable', 'Piutang', a.receivable, 'Sisa invoice terbit sampai waktu laporan.', a.receivableInvoiceIds),
       m('unapplied', 'Belum dialokasikan', a.unapplied, 'Lebih bayar yang menunggu keputusan; bukan dompet.'),
     ],
     contribution: {

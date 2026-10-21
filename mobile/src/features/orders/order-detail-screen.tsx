@@ -69,7 +69,7 @@ export function OrderDetailScreen() {
     incident: (t, n) => api.reportIncident(id, t, n).then(() => toast.show('Kendala tercatat dan diteruskan ke admin.', 'ok')),
     exception: (r) => api.advanceTrip(id, 'start_loading', r).then(() => toast.show('Mulai memuat. Pengecualian foto tercatat.', 'ok')),
     cancel: (r) => api.cancelOrder(id, r).then(() => toast.show('Order dibatalkan; reservasi unit dilepas.', 'ok')),
-    abort: (info) => api.abortOrder(id, info).then(() => toast.show('Abort tercatat dengan custody dan PIC.', 'ok')),
+    abort: (info) => api.abortOrder(id, info).then(() => toast.show('Penghentian tercatat dengan penguasaan kendaraan dan PIC.', 'ok')),
     change: (amt, r) => api.proposeChange(id, amt, r).then(() => toast.show('Biaya tambahan diajukan; belum ditagih.', 'ok')),
     decide: (cid, ap, note) => api.decideChange(cid, ap, note).then(() => toast.show(ap ? 'Biaya tambahan disetujui.' : 'Biaya tambahan ditolak; tagihan tidak berubah.', 'ok')),
     resolve: (iid, f) => api.resolveIncident(iid, f).then(() => toast.show('Kendala ditutup. Tahap perjalanan tidak berubah otomatis.', 'ok')),
@@ -145,8 +145,8 @@ export function OrderDetailScreen() {
           {isStaff ? <StaffSecondary d={d} setSheet={setSheet} /> : null}
           {isDriver && d.allowedActions.includes('abort') ? (
             <View style={{ marginTop: space.xxl, gap: space.xs }}>
-              <Button label="Hentikan perjalanan (abort)…" icon="alert-octagon-outline" variant="danger" onPress={() => setSheet({ kind: 'abort' })} />
-              <Txt variant="caption" tone="inkSecondary">Hanya bila perjalanan tidak dapat dilanjutkan setelah kendaraan dimuat. Wajib mencatat lokasi, custody, PIC, dan rencana.</Txt>
+              <Button label="Hentikan perjalanan…" icon="alert-octagon-outline" variant="danger" onPress={() => setSheet({ kind: 'abort' })} />
+              <Txt variant="caption" tone="inkSecondary">Hanya bila perjalanan tidak dapat dilanjutkan setelah kendaraan dimuat. Wajib mencatat lokasi, penguasaan kendaraan, PIC, dan rencana.</Txt>
             </View>
           ) : null}
         </>
@@ -166,7 +166,7 @@ function StaffSecondary({ d, setSheet }: { d: OrderDetail; setSheet: (s: SheetKi
         {a.includes('propose_change') ? <Button label="Ajukan biaya tambahan" icon="cash-plus" variant="secondary" onPress={() => setSheet({ kind: 'change' })} /> : null}
         {a.includes('report_incident') ? <Button label="Catat kendala" icon="alert-outline" variant="secondary" onPress={() => setSheet({ kind: 'incident' })} /> : null}
         {a.includes('cancel') ? <Button label="Batalkan order" icon="cancel" variant="danger" onPress={() => setSheet({ kind: 'cancel' })} /> : null}
-        {a.includes('abort') ? <Button label="Hentikan (abort)" icon="alert-octagon-outline" variant="danger" onPress={() => setSheet({ kind: 'abort' })} /> : null}
+        {a.includes('abort') ? <Button label="Hentikan perjalanan" icon="alert-octagon-outline" variant="danger" onPress={() => setSheet({ kind: 'abort' })} /> : null}
       </View>
     </View>
   );

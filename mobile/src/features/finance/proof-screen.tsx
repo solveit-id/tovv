@@ -48,13 +48,13 @@ export function ProofScreen() {
     try {
       if (mode === 'verify') {
         await api.verifyProof({ proofId: id, amountVerified: amount ?? parseMoneyString(p.amountClaimed), receivedEventAt: p.eventAt, custody, reason, duplicateResolution: dup || null });
-        toast.show('Diterima (demo). Receipt dan alokasi dibuat; sisa dihitung ulang dari ledger.', 'ok');
+        toast.show('Diterima (demo). Penerimaan dan alokasi dicatat; sisa dihitung ulang dari ledger.', 'ok');
       } else if (mode === 'reject') {
         await api.rejectProof(id, reason);
         toast.show('Bukti ditolak dengan alasan; saldo tidak berubah.', 'ok');
       } else if (mode === 'reverse') {
         await api.reverseVerification(id, reason);
-        toast.show('Verifikasi dibatalkan: reversal receipt & alokasi tercatat, histori tetap.', 'ok');
+        toast.show('Verifikasi dibatalkan: pembalikan penerimaan & alokasi tercatat, histori tetap.', 'ok');
       }
       setMode(null);
     } catch (e) {
@@ -67,7 +67,7 @@ export function ProofScreen() {
   const canVerify = p?.allowedActions.includes('verify');
   return (
     <Screen
-      header={<DetailHeader serial={p ? `${p.id} · ${p.invoiceNumber}` : undefined} title="Bukti pembayaran" subtitle={p ? proofStatus[p.status].label : undefined} />}
+      header={<DetailHeader title="Bukti pembayaran" subtitle={p ? `${p.invoiceNumber} · ${proofStatus[p.status].label}` : undefined} />}
       footer={
         canVerify ? (
           <View style={{ flexDirection: 'row', gap: space.sm }}>
@@ -108,7 +108,7 @@ export function ProofScreen() {
                   <LineItem label="Pemeriksa" value={<Txt variant="bodySm">{d.review.byName}</Txt>} />
                   <LineItem label="Waktu" value={<Txt variant="bodySm">{formatDateTime(d.review.at)}</Txt>} />
                   {d.review.amountVerified ? <LineItem label="Jumlah diterima (demo)" value={<Money value={d.review.amountVerified} tone="okInk" />} /> : null}
-                  {d.review.custody ? <LineItem label="Custody" value={<Txt variant="bodySm">{d.review.custody === 'driver_demo' ? 'Di driver' : 'Diterima operator'}</Txt>} /> : null}
+                  {d.review.custody ? <LineItem label="Penguasaan dana" value={<Txt variant="bodySm">{d.review.custody === 'driver_demo' ? 'Di driver' : 'Diterima operator'}</Txt>} /> : null}
                   <Txt variant="bodySm" tone="inkSecondary">{d.review.reason}</Txt>
                 </Sheet>
               </>
@@ -126,12 +126,12 @@ export function ProofScreen() {
         visible={mode !== null}
         title={mode === 'verify' ? 'Periksa & terima (demo)' : mode === 'reject' ? 'Tolak bukti' : 'Batalkan verifikasi'}
         onClose={() => setMode(null)}
-        footer={<>{err ? <Txt variant="bodySm" tone="dangerInk" accessibilityLiveRegion="polite">{err}</Txt> : null}<Button label={mode === 'verify' ? 'Posting receipt demo' : mode === 'reject' ? 'Tolak' : 'Buat reversal'} variant={mode === 'verify' ? 'primary' : 'danger'} loading={busy} onPress={() => void run()} /></>}
+        footer={<>{err ? <Txt variant="bodySm" tone="dangerInk" accessibilityLiveRegion="polite">{err}</Txt> : null}<Button label={mode === 'verify' ? 'Catat penerimaan demo' : mode === 'reject' ? 'Tolak' : 'Buat pembalikan'} variant={mode === 'verify' ? 'primary' : 'danger'} loading={busy} onPress={() => void run()} /></>}
       >
         {mode === 'verify' && p ? (
           <>
-            <MoneyField label="Jumlah yang benar-benar diterima (demo)" value={amount ?? parseMoneyString(p.amountClaimed)} onChange={setAmount} helper={`Sisa invoice ${formatRupiah(p.outstandingNow)}; kelebihan menjadi unapplied.`} />
-            <Choice label="Custody" value={custody} onChange={setCustody} options={[{ value: 'operator_demo', label: 'Diterima operator' }, { value: 'driver_demo', label: 'Masih di driver (tunai)' }]} />
+            <MoneyField label="Jumlah yang benar-benar diterima (demo)" value={amount ?? parseMoneyString(p.amountClaimed)} onChange={setAmount} helper={`Sisa invoice ${formatRupiah(p.outstandingNow)}; kelebihan dicatat sebagai belum dialokasikan.`} />
+            <Choice label="Penguasaan dana" value={custody} onChange={setCustody} options={[{ value: 'operator_demo', label: 'Diterima operator' }, { value: 'driver_demo', label: 'Masih di driver (tunai)' }]} />
             <Field label="Dasar pemeriksaan" value={reason} onChangeText={setReason} multiline placeholder="mis. cocok dengan catatan penerimaan demo" />
             {p.similarReferences.length ? <Field label="Keputusan atas referensi mirip" value={dup} onChangeText={setDup} multiline /> : null}
           </>

@@ -30,12 +30,12 @@ export function ActionItem({ item, last }: { item: DailyAction; last?: boolean }
         <Icon name={s.icon} size={20} tone={s.tone} />
       </View>
       <View style={{ flex: 1, gap: 2 }}>
-        <Txt variant="caption" tone={s.tone} style={{ fontWeight: '700' }}>{s.label}</Txt>
         <Txt variant="bodyStrong" numberOfLines={3}>{item.title}</Txt>
         {item.amount ? <Money value={item.amount} size="sm" align="left" /> : null}
         <Txt variant="bodySm" tone="inkSecondary" numberOfLines={3}>{item.reason}</Txt>
         <Txt variant="caption" tone="inkSecondary">
-          {`PIC ${item.picName}${item.dueAt ? ` · tenggat ${formatShortDateTime(item.dueAt)}` : ''}`}
+          <Txt variant="caption" tone={s.tone} style={{ fontWeight: '700' }}>{s.label}</Txt>
+          {` · PIC ${item.picName}${item.dueAt ? ` · tenggat ${formatShortDateTime(item.dueAt)}` : ''}`}
         </Txt>
       </View>
       <View style={styles.right}>
