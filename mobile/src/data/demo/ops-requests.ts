@@ -4,7 +4,7 @@ import { customerCanSeeRequest, requireScope } from './policy';
 import { isStaffView, mediaItem, quoteDoc, requestOf, requestSummary, userName } from './mappers';
 import { haversineKm } from './tracking';
 import type { DemoDb } from './db';
-import { STANDARD_RATE } from '@/data/fixtures/reference';
+import { PLACES, STANDARD_RATE } from '@/data/fixtures/reference';
 import { ApiError, type NewRequestInput, type QuoteDoc, type QuoteInput, type RequestDetail, type RequestSummary, type UnitCandidate } from '@/data/api/contract';
 import type { CustomerVehicle, Order, Quote, ServiceRequest } from '@/domain/types';
 import { evaluatePrice } from '@/domain/pricing';
@@ -470,4 +470,34 @@ export function reorder(ctx: Ctx, orderId: string): RequestSummary {
     asDraft: true,
     idempotencyKey: `reorder-${orderId}-${ctx.now}`,
   });
+}
+
+/** Konteks minimum untuk kamera: tanpa harga/biaya, sehingga aman untuk driver yang bertugas. */
+export function captureContext(ctx: Ctx, requestId: string) {
+  const db = ctx.store.db;
+  const r = requestOf(db, requestId);
+  if (r.tenantId !== ctx.actor.user.tenantId) throw new ApiError('NOT_FOUND', 'Permintaan tidak ditemukan.');
+  const staff = isStaffView(ctx.actor);
+  const customer = ctx.actor.view === 'customer' && customerCanSeeRequest(ctx.actor.user, r);
+  const order = db.orders.find((o) => o.requestId === r.id);
+  const driver = ctx.actor.view === 'driver' && !!order && db.assignments.some((a) => a.orderId === order.id && a.driverId === ctx.actor.user.id && a.status === 'accepted');
+  if (!staff && !customer && !driver) throw new ApiError('NOT_FOUND', 'Permintaan tidak ditemukan.');
+  const v = db.vehicles.find((x) => x.id === r.vehicleId)!;
+  return { id: r.id, alias: r.alias, vehicle: { label: v.label, plate: v.plate }, pickup: r.pickup, dropoff: r.dropoff };
+}
+
+/** Daftar pelanggan tenant untuk pencatatan dibantu admin (tanpa data pribadi berlebih). */
+export function listCustomers(ctx: Ctx) {
+  requireScope(ctx.scopes, 'request.manage', 'Hanya admin/owner.');
+  const db = ctx.store.db;
+  return db.users
+    .filter((u) => u.tenantId === ctx.actor.user.tenantId && u.customerKind)
+    .map((u) => {
+      const acc = u.businessAccountId ? db.businessAccounts.find((b) => b.id === u.businessAccountId) : null;
+      return { userId: u.id, name: u.name, businessAccountId: acc?.id ?? null, businessAccountName: acc?.name ?? null, poRequired: acc?.poRequired ?? false, roles: u.b2bRoles ?? [] };
+    });
+}
+
+export function demoPlaces() {
+  return Object.values(PLACES);
 }

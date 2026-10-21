@@ -391,6 +391,12 @@ export function captureMedia(ctx: Ctx, input: MediaCaptureInput): MediaItem {
   return ctx.store.transact((db) => {
     const req = requestOf(db, input.requestId);
     if (req.tenantId !== ctx.actor.user.tenantId) throw new ApiError('NOT_FOUND', 'Permintaan tidak ditemukan.');
+    if (ctx.actor.view === 'customer' && !customerCanSeeRequest(ctx.actor.user, req)) throw new ApiError('NOT_FOUND', 'Permintaan tidak ditemukan.');
+    if (ctx.actor.view === 'driver') {
+      const o = db.orders.find((x) => x.requestId === req.id);
+      const a = o ? currentAssignment(db, o.id) : null;
+      if (!a || a.driverId !== ctx.actor.user.id || a.status !== 'accepted') throw new ApiError('FORBIDDEN', 'Foto hanya untuk tugas aktif Anda.');
+    }
     const existing = db.media.find((m) => m.clientMediaId === input.clientMediaId && m.tenantId === req.tenantId);
     if (existing) return mediaItem(db, existing);
     const id = `MP-${req.alias}-${input.slot}-${db.media.length + 1}`;

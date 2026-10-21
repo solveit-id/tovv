@@ -407,3 +407,11 @@ export function recentOrdersForAccount(ctx: Ctx, accountId: string) {
 
 export const describeNow = (iso: string) => formatDateTime(iso);
 export type { ViewGroup };
+
+/** Admin tenant yang dapat menerima delegasi (dispatcher/finance). */
+export function listAdmins(ctx: Ctx) {
+  requireScope(ctx.scopes, 'delegation.manage', 'Hanya owner.');
+  return ctx.store.db.users
+    .filter((u) => u.tenantId === ctx.actor.user.tenantId && (u.staffRoles.includes('dispatcher') || u.staffRoles.includes('finance')))
+    .map((u) => ({ id: u.id, name: u.name, role: u.staffRoles.includes('finance') ? 'finance' : 'dispatcher' }));
+}

@@ -62,6 +62,9 @@ export function createDemoApi(store: DemoStore, session: () => SessionRef | null
     // Permintaan & penawaran
     listRequests: (filter: 'open' | 'all') => read((c) => rq.listRequests(c, filter)),
     getRequest: (id: string) => read((c) => rq.getRequest(c, id)),
+    listCustomers: () => read(rq.listCustomers),
+    listPlaces: async () => rq.demoPlaces(),
+    getCaptureContext: (id: string) => read((c) => rq.captureContext(c, id)),
     createRequest: (input: Parameters<typeof rq.createRequest>[1]) => write((c) => rq.createRequest(c, input)),
     submitDraft: (id: string) => write((c) => rq.submitDraft(c, id)),
     completeReview: (id: string, spec: Parameters<typeof rq.completeReview>[2]) => write((c) => rq.completeReview(c, id, spec)),
@@ -119,6 +122,7 @@ export function createDemoApi(store: DemoStore, session: () => SessionRef | null
     getSaas: () => read(adm.saas),
     schedulePlanChange: (kind: 'subscription' | 'success') => write((c) => adm.schedulePlanChange(c, kind)),
     listDelegations: () => read(adm.listDelegations),
+    listAdmins: () => read(adm.listAdmins),
     grantDelegation: (input: Parameters<typeof adm.grantDelegation>[1]) => write((c) => adm.grantDelegation(c, input)),
     revokeDelegation: (id: string) => write((c) => adm.revokeDelegation(c, id)),
     listSupportGrants: () => read(adm.listSupportGrants),

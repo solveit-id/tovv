@@ -120,3 +120,21 @@ export function secondsBetween(aIso: string, bIso: string): number {
 export function zoneAbbr(tz = DEFAULT_TZ): string {
   return zone(tz).abbr;
 }
+
+/** Jam lokal WIB pada tanggal lokal tertentu → ISO UTC. */
+export function localAt(date: string, hour: number, minute = 0): string {
+  const [y, m, d] = date.split('-').map(Number);
+  return new Date(Date.UTC(y!, m! - 1, d!, hour - 7, minute)).toISOString();
+}
+
+/** Preset waktu yang mudah dipilih di lapangan (tanpa pemilih tanggal kecil). */
+export function timePresets(nowIso: string): { label: string; start: string }[] {
+  const today = localDate(nowIso);
+  const plus2 = new Date(Math.ceil((Date.parse(nowIso) + 2 * 3600_000) / 1_800_000) * 1_800_000).toISOString();
+  return [
+    { label: `Hari ini ${formatTime(plus2)}`, start: plus2 },
+    { label: 'Besok 08.00 WIB', start: localAt(addLocalDays(today, 1), 8) },
+    { label: 'Besok 13.00 WIB', start: localAt(addLocalDays(today, 1), 13) },
+    { label: 'Lusa 08.00 WIB', start: localAt(addLocalDays(today, 2), 8) },
+  ];
+}
