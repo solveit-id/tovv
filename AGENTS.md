@@ -8,7 +8,7 @@ Tovv is a multi-tenant SaaS for towing/vehicle-transport operators: one Android 
 
 Source of truth, in reading order: `PRD.md` → `ARCHITECTURE.md` → `INTEGRATION_PLAN.md` → `IMPLEMENTATION_PLAN.md` → `TEST_PLAN.md` → `VALIDATION_PLAN.md` (package 2.1, repository root). PRD wins on scope and business rules. Do not duplicate it into other documents; link to it.
 
-Current status and handoff: `.ai/project-status.md`. Visual direction: `docs/design/visual-direction.md`. Screen coverage vs requirements: `docs/product/screen-inventory.md`.
+Current status and handoff: `.ai/project-status.md`. Visual direction: `docs/design/visual-direction.md`; shipped design system: `docs/DESIGN.md` (sidecar `.impeccable/design.json`). Screen coverage vs requirements: `docs/product/screen-inventory.md`.
 
 ## Repository layout
 

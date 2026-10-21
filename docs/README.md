@@ -6,6 +6,7 @@ Paket spesifikasi 2.1 berada di root repository dan tetap menjadi sumber kebenar
 |---|---|
 | [`PRODUCT.md`](PRODUCT.md) | Ringkasan produk untuk keputusan desain (merujuk PRD) |
 | [`design/visual-direction.md`](design/visual-direction.md) | Arah visual "Nota Rangkap", token, komponen, motion, referensi |
+| [`DESIGN.md`](DESIGN.md) | Sistem desain yang terkirim (token, tipografi, komponen, aturan) — diturunkan dari kode |
 | [`product/screen-inventory.md`](product/screen-inventory.md) | Inventaris layar vs requirement PROTO: tersedia / disimulasikan / belum |
 | [`development/mobile-development.md`](development/mobile-development.md) | Versi, cara menjalankan Android/iOS, mode demo, struktur kode |
 | [`qa/qa-report.md`](qa/qa-report.md) | Hasil pemeriksaan per putaran (perangkat, mode, bukti, blocker) |
