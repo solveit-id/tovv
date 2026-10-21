@@ -1,6 +1,6 @@
 import type { Ctx } from './ctx';
 import { queueOutbox, requireOnline } from './ctx';
-import { customerCanSeeRequest, requireScope } from './policy';
+import { customerCanSeeRequest, requireScope, type Scope } from './policy';
 import { assertCanSeeOrder, currentAssignment, isStaffView, mediaItem, orderDetail, orderSummary, requestOf, userName } from './mappers';
 import { trackingSnapshot } from './tracking';
 import type { DemoDb } from './db';
@@ -10,6 +10,7 @@ import {
   type ExpenseDTO,
   type MediaCaptureInput,
   type MediaItem,
+  type OrderAction,
   type OrderDetail,
   type OrderSummary,
   type OutboxDTO,
@@ -53,9 +54,26 @@ function driverNextStep(ctx: Ctx, s: OrderSummary): OrderSummary {
   return { ...s, outstanding: null, collection: null, invoiceStatus: null };
 }
 
+/** Aksi staf disaring menurut scope efektif (peran + delegasi), sama seperti server menolak tindakan tak berizin. */
+const STAFF_ACTION_SCOPE: Partial<Record<OrderAction, Scope>> = {
+  manage_assignment: 'assignment.manage',
+  cancel: 'request.manage',
+  close: 'request.manage',
+  propose_change: 'change.propose',
+  resolve_incident: 'request.manage',
+  issue_invoice: 'invoice.issue',
+};
+
 export function getOrder(ctx: Ctx, id: string): OrderDetail {
   const db = ctx.store.db;
-  return orderDetail(db, orderFor(ctx, db, id), ctx.actor, ctx.now);
+  const d = orderDetail(db, orderFor(ctx, db, id), ctx.actor, ctx.now);
+  if (!isStaffView(ctx.actor)) return d;
+  const allowed = d.allowedActions.filter((a) => {
+    if (a === 'abort' || a === 'report_incident') return ctx.scopes.has('request.manage');
+    const need = STAFF_ACTION_SCOPE[a];
+    return !need || ctx.scopes.has(need);
+  });
+  return { ...d, allowedActions: allowed };
 }
 
 export function getTracking(ctx: Ctx, id: string): TrackingSnapshot {

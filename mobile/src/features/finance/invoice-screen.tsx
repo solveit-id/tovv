@@ -219,7 +219,9 @@ export function InvoiceScreen() {
                       : sheet === 'credit'
                         ? api.addCreditNote(id, amount ?? 0, reason)
                         : api.recordRefund((sheet as { refund: string }).refund, amount ?? 0, reason),
-                  sheet === 'request' ? 'Permintaan aktif dibuat; permintaan lama diganti.' : sheet === 'credit' ? 'Kredit diposting; kelebihan alokasi direversal otomatis.' : 'Refund dicatat sebagai keputusan demo; tidak ada transfer.',
+                  sheet === 'request'
+                    ? d?.paymentRequests.some((pr) => pr.status === 'active') ? 'Permintaan baru aktif; permintaan sebelumnya diganti.' : 'Permintaan pembayaran aktif dibuat.'
+                    : sheet === 'credit' ? 'Kredit diposting; kelebihan alokasi direversal otomatis.' : 'Refund dicatat sebagai keputusan demo; tidak ada transfer.',
                 )
               }
             />

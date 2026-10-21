@@ -13,27 +13,30 @@ export function BottomSheet({ visible, title, onClose, children, footer }: { vis
   const insets = useSafeAreaInsets();
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent navigationBarTranslucent>
-      <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <View style={styles.fill}>
         <Pressable style={styles.backdrop} onPress={onClose} accessibilityRole="button" accessibilityLabel="Tutup" />
-        <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, space.lg) }]} accessibilityViewIsModal>
-          <View style={styles.grabber} />
-          <View style={styles.head}>
-            <Txt variant="headline" accessibilityRole="header" style={{ flex: 1 }}>{title}</Txt>
-            <HeaderIconButton icon="close" label="Tutup" onPress={onClose} onDark={false} />
+        <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} pointerEvents="box-none">
+          <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, space.lg) }]} accessibilityViewIsModal>
+            <View style={styles.grabber} />
+            <View style={styles.head}>
+              <Txt variant="headline" accessibilityRole="header" style={{ flex: 1 }}>{title}</Txt>
+              <HeaderIconButton icon="close" label="Tutup" onPress={onClose} onDark={false} />
+            </View>
+            <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: space.md }} style={{ maxHeight: 520 }}>
+              {children}
+            </ScrollView>
+            {footer ? <View style={{ gap: space.sm }}>{footer}</View> : null}
           </View>
-          <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: space.md }} style={{ maxHeight: 520 }}>
-            {children}
-          </ScrollView>
-          {footer ? <View style={{ gap: space.sm }}>{footer}</View> : null}
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  fill: { flex: 1 },
   root: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: color.scrim },
+  backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: color.scrim },
   sheet: { backgroundColor: color.ground, borderTopLeftRadius: radius.sheet * 2, borderTopRightRadius: radius.sheet * 2, paddingHorizontal: space.lg, paddingTop: space.sm },
   grabber: { alignSelf: 'center', width: 40, height: 4, borderRadius: 2, backgroundColor: color.ruleStrong, marginBottom: space.sm },
   head: { flexDirection: 'row', alignItems: 'center', marginBottom: space.sm },

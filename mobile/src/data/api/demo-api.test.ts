@@ -307,3 +307,17 @@ describe('DTO per peran (TEN-03)', () => {
     expect(o.parties.payer).toBe('—');
   });
 });
+
+describe('aksi per scope', () => {
+  it('finance dapat menerbitkan invoice tetapi tidak menutup order atau mengatur penugasan', async () => {
+    const { api, as } = setup();
+    as('finance-a', 'admin');
+    const o = await api.getOrder('O-A05');
+    expect(o.allowedActions).toContain('issue_invoice');
+    expect(o.allowedActions).not.toContain('close');
+    as('admin-a2', 'admin');
+    const o2 = await api.getOrder('O-A05');
+    expect(o2.allowedActions).not.toContain('issue_invoice');
+    expect(o2.allowedActions).toContain('close');
+  });
+});
