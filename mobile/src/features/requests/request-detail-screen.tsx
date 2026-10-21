@@ -63,7 +63,7 @@ export function RequestDetailScreen() {
     if (d.orderId) footer = <Button label="Buka order" icon="tow-truck" size="lg" onPress={() => router.push(`/order/${d.orderId}`)} />;
     else if (d.allowedActions.includes('submit_draft')) footer = <Button label="Kirim permintaan" icon="send-outline" size="lg" loading={busy} onPress={() => void run(() => api.submitDraft(id), 'Permintaan dikirim ke operator.')} />;
     else if (d.allowedActions.includes('mark_ready')) footer = <Button label="Lengkapi data kendaraan" icon="clipboard-edit-outline" size="lg" onPress={() => setSheet('review')} />;
-    else if (d.allowedActions.includes('quote')) footer = <Button label={latest ? `Buat penawaran v${latest.version + 1}` : 'Susun penawaran'} icon="file-document-edit-outline" size="lg" onPress={() => router.push(`/request/${id}/quote`)} />;
+    else if (d.allowedActions.includes('quote')) footer = <Button label={latest ? `Buat penawaran v${latest.version + 1}` : 'Susun penawaran'} variant={latest?.status === 'sent' ? 'secondary' : 'primary'} icon="file-document-edit-outline" size="lg" onPress={() => router.push(`/request/${id}/quote`)} />;
     else if (!staff && latest?.allowedActions.includes('accept')) footer = <Button label="Tinjau penawaran" icon="file-check-outline" size="lg" onPress={() => router.push(`/quote/${latest.id}`)} />;
   }
 

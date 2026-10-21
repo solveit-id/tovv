@@ -41,7 +41,7 @@ export function RequestRow({ r, last }: { r: RequestSummary; last?: boolean }) {
         <Txt variant="caption" tone="inkSecondary" style={{ flex: 1 }}>{`${channelLabel[r.channel]} · ${formatShortDateTime(r.createdAt)}`}</Txt>
         {r.latestQuote ? (
           <View style={{ alignItems: 'flex-end' }}>
-            <Txt variant="caption" tone={r.latestQuote.status === 'sent' ? 'warnInk' : 'inkSecondary'}>{`v${r.latestQuote.version} · ${quoteStatus[r.latestQuote.status].label}`}</Txt>
+            <Txt variant="caption" tone={r.latestQuote.status === 'expired' ? 'dangerInk' : r.latestQuote.status === 'sent' ? 'warnInk' : 'inkSecondary'}>{`v${r.latestQuote.version} · ${quoteStatus[r.latestQuote.status].label}${r.latestQuote.status === 'expired' && r.status === 'quoted' ? ' · perlu penawaran ulang' : ''}`}</Txt>
             <Money value={r.latestQuote.amount} size="sm" />
           </View>
         ) : null}

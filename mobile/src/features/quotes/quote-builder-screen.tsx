@@ -105,7 +105,7 @@ export function QuoteBuilderScreen() {
         belowTargetReason: below ? reason : null,
         validHours: Number(valid) || 24,
       });
-      toast.show(`Penawaran v${q.version} terkirim. Versi sebelumnya otomatis diganti.`, 'ok');
+      toast.show(q.version > 1 ? `Penawaran v${q.version} terkirim. Versi sebelumnya otomatis diganti.` : 'Penawaran v1 terkirim ke pelanggan.', 'ok');
       goBack();
     } catch (e) {
       setErr(errorMessage(e));
@@ -135,7 +135,7 @@ export function QuoteBuilderScreen() {
       <QueryView q={cands} loadingLabel="Memeriksa kelayakan unit…">
         {(list) => (
           <View style={{ gap: space.sm }}>
-            {list.map((c) => <UnitOption key={c.unitId} c={c} on={unitId === c.unitId} onPress={() => setUnitId(c.unitId)} />)}
+            {list.map((c) => <UnitOption key={c.unitId} c={c} on={unitId === c.unitId} onPress={() => { setUnitId(c.unitId); setErr(null); }} />)}
             <Txt variant="caption" tone="inkSecondary">Unit tidak layak tidak dapat dipilih — harga atau override owner tidak meloloskan kapasitas.</Txt>
           </View>
         )}
@@ -143,7 +143,7 @@ export function QuoteBuilderScreen() {
 
       <SectionTitle title="Harga & biaya" />
       {req.data ? <Txt variant="caption" tone="inkSecondary" style={{ marginBottom: space.sm }}>{`${req.data.rate.note}${req.data.rate.amount ? ` · ${formatRupiah(req.data.rate.amount)}` : ''}`}</Txt> : null}
-      <MoneyField label="Harga jasa" value={price ?? rate} onChange={setPrice} />
+      <MoneyField label="Harga jasa" value={price ?? rate} onChange={(v) => { setPrice(v); setErr(null); }} />
       <MoneyField label="Biaya langsung (D)" value={dEff} onChange={(v) => { setDirectTouched(true); setDirect(v); }} helper={selected ? `Dari estimasi unit ${selected.code}; ubah bila perlu. Kosong = belum diketahui.` : 'Pilih unit untuk estimasi.'} />
       <View style={{ flexDirection: 'row', gap: space.sm }}>
         <View style={{ flex: 1 }}><MoneyField label="Alokasi (A)" value={alloc} onChange={setAlloc} /></View>
