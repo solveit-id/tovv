@@ -321,3 +321,15 @@ describe('aksi per scope', () => {
     expect(o2.allowedActions).toContain('close');
   });
 });
+
+describe('langkah berikut per peran', () => {
+  it('driver yang ditawari diminta menjawab tawaran; admin melihat status menunggu', async () => {
+    const { api, as } = setup();
+    as('driver-a2', 'driver');
+    const mine = (await api.listOrders('active')).find((o) => o.alias === 'A07');
+    expect(mine?.nextStep).toBe('Terima atau tolak tawaran tugas');
+    as('admin-a1', 'admin');
+    const staff = (await api.listOrders('active')).find((o) => o.alias === 'A07');
+    expect(staff?.nextStep).toBe('Menunggu Bayu Nugroho menerima tugas');
+  });
+});
