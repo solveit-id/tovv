@@ -316,31 +316,36 @@ export function orderDetail(db: DemoDb, order: Order, actor: Actor, now: string)
     ? db.expenses.filter((e) => e.orderId === order.id && e.status === 'approved' && e.submittedBy === advance.driverId && e.category.includes('uang jalan')).reduce((s, e) => s + e.amount, 0)
     : 0;
 
+  // Driver hanya menerima data yang diperlukan untuk menjalankan tugas: tanpa harga, tagihan, atau pembayar.
+  const driverView = actor.view === 'driver';
+  const summaryBase = orderSummary(db, order, now);
   return {
-    summary: orderSummary(db, order, now),
+    summary: driverView
+      ? { ...summaryBase, outstanding: null, collection: null, invoiceStatus: null, nextStep: ['handed_over', 'closed'].includes(order.status) ? 'Tugas selesai' : summaryBase.nextStep }
+      : summaryBase,
     requestId: req.id,
     channel: req.channel,
-    parties: req.parties,
+    parties: driverView ? { ...req.parties, payer: '—' } : req.parties,
     vehicle: { label: vehicle.label, plate: vehicle.plate, weightKg: vehicle.weightKg, lengthMm: vehicle.lengthMm, widthMm: vehicle.widthMm, condition: vehicle.condition },
     timing: { kind: req.timing.kind, start: req.timing.start, end: req.timing.end },
-    poRef: req.poRef ?? null,
+    poRef: driverView ? null : (req.poRef ?? null),
     businessAccountName: req.businessAccountId ? (db.businessAccounts.find((b) => b.id === req.businessAccountId)?.name ?? null) : null,
     timeline: timeline(order),
-    quote: quote ? quoteDoc(db, quote, actor, now) : null,
+    quote: quote && !driverView ? quoteDoc(db, quote, actor, now) : null,
     // Customer dan driver tidak melihat histori penolakan internal petugas lain.
     assignments: (staff ? db.assignments.filter((a) => a.orderId === order.id) : asg ? [asg] : []).map((a) => assignmentDto(db, a)),
     incidents: db.incidents
       .filter((i) => i.orderId === order.id)
       .map<IncidentDTO>((i) => ({ id: i.id, type: i.type, typeLabel: INCIDENT_LABEL[i.type] ?? i.type, status: i.status, picName: userName(db, i.pic), note: i.note, openedAt: i.openedAt, resolvedAt: i.resolvedAt, followUp: i.followUp })),
     changeOrders: db.changeOrders
-      .filter((c) => c.orderId === order.id)
+      .filter((c) => c.orderId === order.id && !driverView)
       .map((c) => ({ id: c.id, amount: toMoneyString(c.amount), reason: c.reason, status: c.status, createdAt: c.createdAt, decidedByName: c.decidedBy ? userName(db, c.decidedBy) : null })),
     media: media.map((m) => mediaItem(db, m)),
     evidenceSlots: EVIDENCE_SLOTS.map((s) => ({ ...s, mediaId: media.find((m) => m.slot === s.slot && m.stage === s.stage)?.id ?? null })),
     readiness: { ...order.readiness, note: order.readiness.note ?? null },
     handover: order.handover ? { ...order.handover, objectionNote: order.handover.objectionNote ?? null } : null,
     abortInfo: order.abortInfo ?? null,
-    invoices: invoices.map((i) => {
+    invoices: (driverView ? [] : invoices).map((i) => {
       const b = invoiceBalance(db, i.id, now);
       return { id: i.id, number: i.number, status: i.status, net: toMoneyString(b.net), outstanding: toMoneyString(b.outstanding), collection: b.collection };
     }),

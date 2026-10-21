@@ -30,7 +30,7 @@ export function FinanceQueueScreen({ title = 'Keuangan' }: { title?: string }) {
   const open = useTovvQuery(['invoices', 'open'], (a) => a.listInvoices('open'));
   const all = useTovvQuery(['invoices', 'all'], (a) => a.listInvoices('all'));
   return (
-    <Screen
+    <Screen headerScrolls
       onRefresh={() => qc.invalidateQueries()}
       header={
         <RootHeader title={title} subtitle="Pemeriksaan manual · DEMO nonpayable">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeBack } from '@/core/hooks/use-safe-back';
 import { space } from '@/core/design/tokens';
 import { Screen } from '@/components/layout/screen';
 import { DetailHeader } from '@/components/layout/app-header';
@@ -18,6 +19,7 @@ import { useToast } from '@/components/feedback/toast';
 export function HandoverScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const goBack = useSafeBack(`/order/${id}`);
   const api = useApi();
   const toast = useToast();
   const q = useTovvQuery(['order', id], (a) => a.getOrder(id));
@@ -34,7 +36,7 @@ export function HandoverScreen() {
     try {
       await api.handover(id, { receiverName: receiver, acceptance, objectionNote: acceptance === 'objection' ? objection : null, photoExceptionReason: exception || null });
       toast.show(acceptance === 'objection' ? 'Serah-terima tercatat dengan keberatan; bukti masuk review.' : 'Serah-terima tercatat. Tagihan diterbitkan terpisah oleh finance.', 'ok');
-      router.back();
+      goBack();
     } catch (e) {
       setErr(errorMessage(e));
     } finally {

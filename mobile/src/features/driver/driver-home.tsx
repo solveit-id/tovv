@@ -27,7 +27,7 @@ export function DriverHome() {
   const pending = outbox.data?.filter((x) => x.status === 'pending').length ?? 0;
   const s = session.data;
   return (
-    <Screen
+    <Screen headerScrolls
       onRefresh={() => qc.invalidateQueries()}
       header={
         <RootHeader title="Tugas saya" subtitle={s ? `${s.userName} · ${s.tenantName}` : undefined} right={<HeaderActions />}>

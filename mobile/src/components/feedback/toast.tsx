@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Pressable, StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
+import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { color, radius, space } from '@/core/design/tokens';
 import { Txt } from '@/components/ui/txt';
@@ -16,7 +16,7 @@ interface ToastMsg {
 const ToastContext = createContext<{ show: (text: string, tone?: Tone) => void }>({ show: () => undefined });
 export const useToast = () => useContext(ToastContext);
 
-/** Snackbar hasil tindakan. Diumumkan ke pembaca layar; tidak menghalangi tombol utama terlalu lama. */
+/** Snackbar hasil tindakan di bawah pita DEMO, agar tidak menutupi tombol aksi utama di area ibu jari. Diumumkan ke pembaca layar. */
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [msg, setMsg] = useState<ToastMsg | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -37,7 +37,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ show }}>
       {children}
       {msg ? (
-        <Animated.View key={msg.id} entering={FadeInDown.duration(220)} exiting={FadeOutDown.duration(160)} style={[styles.wrap, { bottom: insets.bottom + 72 }]} pointerEvents="box-none">
+        <Animated.View key={msg.id} entering={FadeInUp.duration(220)} exiting={FadeOutUp.duration(160)} style={[styles.wrap, { top: insets.top + 36 }]} pointerEvents="box-none">
           <Pressable onPress={() => setMsg(null)} accessibilityRole="alert" accessibilityLabel={msg.text} style={[styles.toast, msg.tone === 'danger' && styles.danger, msg.tone === 'ok' && styles.ok]}>
             <Icon name={msg.tone === 'danger' ? 'alert-circle-outline' : msg.tone === 'ok' ? 'check-circle-outline' : 'information-outline'} tone="onNavy" />
             <View style={{ flex: 1 }}>

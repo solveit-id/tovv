@@ -8,12 +8,15 @@ import { formatShortDateTime } from '@/core/format/time';
 
 const RAIL = 28;
 
+/** Ruas putus-putus mengisi tinggi baris tanpa ikut menentukan tingginya. */
 function Dashes({ tone }: { tone: string }) {
   return (
     <View style={styles.dashes}>
-      {Array.from({ length: 10 }).map((_, i) => (
-        <View key={i} style={[styles.dash, { backgroundColor: tone }]} />
-      ))}
+      <View style={styles.dashStack}>
+        {Array.from({ length: 12 }).map((_, i) => (
+          <View key={i} style={[styles.dash, { backgroundColor: tone }]} />
+        ))}
+      </View>
     </View>
   );
 }
@@ -101,7 +104,8 @@ const styles = StyleSheet.create({
   pending: { borderWidth: 1.5, borderStyle: 'dashed', borderColor: color.warnInk, backgroundColor: color.warnWash },
   upcoming: { borderWidth: 2, borderColor: color.ruleStrong, backgroundColor: color.sheet },
   solid: { flex: 1, width: stroke.stage, backgroundColor: color.carbon, minHeight: 18 },
-  dashes: { flex: 1, minHeight: 18, overflow: 'hidden', alignItems: 'center', paddingTop: 3, gap: 4 },
+  dashes: { flex: 1, minHeight: 18, width: 4, overflow: 'hidden' },
+  dashStack: { position: 'absolute', top: 3, left: 1, gap: 4 },
   dash: { width: 2, height: 5, borderRadius: 1 },
   body: { flex: 1, paddingBottom: space.lg, paddingTop: 1 },
   ticks: { flexDirection: 'row', gap: 3 },

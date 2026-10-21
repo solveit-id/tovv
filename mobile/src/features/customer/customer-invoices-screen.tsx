@@ -22,7 +22,7 @@ export function CustomerInvoicesScreen() {
   const q = useTovvQuery(['invoices', 'all'], (a) => a.listInvoices('all'));
   const b2bNoFinance = !!s.data?.businessAccountName && !s.data.b2bRoles.includes('finance');
   return (
-    <Screen onRefresh={() => qc.invalidateQueries()} header={<RootHeader title="Tagihan" subtitle="Dokumen DEMO · tidak dapat dibayar sungguhan" />}>
+    <Screen headerScrolls onRefresh={() => qc.invalidateQueries()} header={<RootHeader title="Tagihan" subtitle="Dokumen DEMO · tidak dapat dibayar sungguhan" />}>
       {b2bNoFinance ? (
         <Sheet><EmptyBlock icon="account-lock-outline" title="Tagihan organisasi tidak tampil untuk pemesan" body="Finance/approver organisasi Anda yang melihat dan menindaklanjuti tagihan." /></Sheet>
       ) : (

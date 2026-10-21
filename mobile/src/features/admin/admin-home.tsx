@@ -27,7 +27,7 @@ export function AdminHome() {
   const active = useTovvQuery(['orders', 'active'], (a) => a.listOrders('active'), { enabled: dispatcher });
   const roleLabel = s ? (s.staffRoles.includes('finance') ? 'Finance' : 'Dispatcher') : '';
   return (
-    <Screen
+    <Screen headerScrolls
       onRefresh={() => qc.invalidateQueries()}
       header={
         <RootHeader right={<HeaderActions />} subtitle={s ? `${s.userName} · ${roleLabel} · ${s.tenantName}` : undefined}>

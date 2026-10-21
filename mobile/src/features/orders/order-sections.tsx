@@ -67,7 +67,7 @@ export function TripDocument({ d }: { d: OrderDetail }) {
         <Meta label="Petugas" value={s.driverName ?? 'Belum ditugaskan'} />
         <Meta label="Pemesan" value={d.parties.orderer} />
         {d.businessAccountName ? <Meta label="Akun bisnis" value={`${d.businessAccountName}${d.poRef ? ` · ${d.poRef}` : ''}`} /> : null}
-        <Meta label="Pembayar" value={d.parties.payer} />
+        {d.parties.payer !== '—' ? <Meta label="Pembayar" value={d.parties.payer} /> : null}
       </View>
     </Sheet>
   );

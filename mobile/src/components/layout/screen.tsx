@@ -14,6 +14,7 @@ export function Screen({
   onRefresh,
   scroll = true,
   contentStyle,
+  headerScrolls = false,
 }: {
   header?: React.ReactNode;
   children: React.ReactNode;
@@ -21,13 +22,15 @@ export function Screen({
   onRefresh?: () => Promise<unknown>;
   scroll?: boolean;
   contentStyle?: ViewStyle;
+  /** Header akar ikut tergulir agar daftar mendapat ruang baca; pita DEMO tetap terpaku di atas. */
+  headerScrolls?: boolean;
 }) {
   const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
   const body = scroll ? (
     <ScrollView
       style={styles.flex}
-      contentContainerStyle={[styles.content, { paddingBottom: footer ? space.xxl : space.huge + insets.bottom }, contentStyle]}
+      contentContainerStyle={[{ paddingBottom: footer ? space.xxl : space.huge + insets.bottom }]}
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
       refreshControl={
@@ -48,14 +51,15 @@ export function Screen({
         ) : undefined
       }
     >
-      {children}
+      {headerScrolls ? header : null}
+      <View style={[styles.content, contentStyle]}>{children}</View>
     </ScrollView>
   ) : (
     <View style={[styles.flex, contentStyle]}>{children}</View>
   );
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      {header}
+      {headerScrolls && scroll ? null : header}
       {body}
       {footer ? <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, space.md) }]}>{footer}</View> : null}
     </KeyboardAvoidingView>

@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { Image } from 'expo-image';
 import { captureRef } from 'react-native-view-shot';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeBack } from '@/core/hooks/use-safe-back';
 import { color, radius, space } from '@/core/design/tokens';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
@@ -39,7 +40,7 @@ interface Shot {
  */
 export function CameraScreen() {
   const p = useLocalSearchParams<{ requestId: string; orderId?: string; stage: MediaStage; slot: string }>();
-  const router = useRouter();
+  const goBack = useSafeBack(p.orderId ? `/order/${p.orderId}` : `/request/${p.requestId}`);
   const api = useApi();
   const toast = useToast();
   const insets = useSafeAreaInsets();
@@ -55,6 +56,11 @@ export function CameraScreen() {
   const [error, setError] = useState<string | null>(null);
   const req = useTovvQuery(['capture-context', p.requestId], (a) => a.getCaptureContext(p.requestId));
   const now = api.now();
+
+  // Izin kamera ditanya sekali saat layar dibuka; bila ditolak, layar penjelasan + alternatif ditampilkan.
+  useEffect(() => {
+    if (perm && !perm.granted && perm.canAskAgain && perm.status === 'undetermined') void requestPerm();
+  }, [perm, requestPerm]);
 
   useEffect(() => {
     let alive = true;
@@ -131,14 +137,14 @@ export function CameraScreen() {
         clientMediaId,
       });
       toast.show(overlayUri ? 'Foto tersimpan di ponsel. Menunggu dikirim (lihat Sinkron).' : 'Original tersimpan; overlay gagal dibuat dan akan dicoba ulang.', 'ok');
-      router.back();
+      goBack();
     } catch (e) {
       setPhase('preview');
       setError(e instanceof StorageFullError ? `${e.message} Kosongkan ruang lalu coba lagi; foto lain yang menunggu tidak dihapus.` : errorMessage(e));
     }
   };
 
-  const header = <DetailHeader title={`Foto · ${stageLabel[p.stage] ?? p.stage}`} subtitle={req.data ? `${req.data.alias} · ${req.data.vehicle.label} ${req.data.vehicle.plate} · slot ${p.slot}` : undefined} />;
+  const header = <DetailHeader title={`Foto · ${stageLabel[p.stage] ?? 'bukti'}`} subtitle={req.data ? `${req.data.alias} · ${req.data.vehicle.label} ${req.data.vehicle.plate} · slot ${p.slot}` : undefined} />;
 
   if (!perm) return <Screen header={header}><Txt variant="body">Memeriksa izin kamera…</Txt></Screen>;
 
@@ -153,7 +159,7 @@ export function CameraScreen() {
           </Txt>
           {perm.canAskAgain ? <Button label="Izinkan kamera" icon="camera-outline" onPress={() => void requestPerm()} /> : <Button label="Buka pengaturan" icon="cog-outline" onPress={() => void Linking.openSettings()} />}
           <Button label="Impor dari galeri" icon="image-multiple-outline" variant="secondary" onPress={() => void importGallery()} />
-          <Button label="Kembali tanpa foto" variant="quiet" onPress={() => router.back()} />
+          <Button label="Kembali tanpa foto" variant="quiet" onPress={() => goBack()} />
         </View>
       </Screen>
     );

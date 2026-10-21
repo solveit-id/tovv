@@ -31,7 +31,7 @@ export function OwnerHome() {
   const myDrive = active.data?.find((o) => o.driverName === session.data?.userName && o.status !== 'handed_over');
 
   return (
-    <Screen
+    <Screen headerScrolls
       onRefresh={() => qc.invalidateQueries()}
       header={
         <RootHeader right={<HeaderActions />} subtitle={`${session.data?.tenantName ?? ''} · ${formatDateTime(now)}`}>

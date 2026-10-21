@@ -30,7 +30,7 @@ export function ExpensesScreen({ asTab = false }: { asTab?: boolean }) {
   const canApprove = sess.data?.scopes.includes('expense.approve');
   const decide = useTovvMutation((a, v: { id: string; ok: boolean }) => a.decideExpense(v.id, v.ok), { success: (r) => `Keputusan tercatat (${r.length} biaya).` });
   return (
-    <Screen onRefresh={() => qc.invalidateQueries()} header={asTab ? <RootHeader title="Biaya & uang jalan" subtitle="Catat saat berhenti; bukti nota menyusul" /> : <DetailHeader title="Biaya & uang jalan" />}>
+    <Screen headerScrolls={asTab} onRefresh={() => qc.invalidateQueries()} header={asTab ? <RootHeader title="Biaya & uang jalan" subtitle="Catat saat berhenti; bukti nota menyusul" /> : <DetailHeader title="Biaya & uang jalan" />}>
       <SectionTitle title="Uang jalan" />
       <QueryView q={adv}>
         {(list) =>

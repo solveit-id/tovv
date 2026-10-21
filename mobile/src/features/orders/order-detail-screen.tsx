@@ -143,6 +143,12 @@ export function OrderDetailScreen() {
           <InternalCostSection d={d} onFinalize={isStaff ? () => void act('close', () => api.finalizeCosts(id), 'Biaya ditandai final.') : undefined} />
           {isStaff ? <AssignmentHistory d={d} /> : null}
           {isStaff ? <StaffSecondary d={d} setSheet={setSheet} /> : null}
+          {isDriver && d.allowedActions.includes('abort') ? (
+            <View style={{ marginTop: space.xxl, gap: space.xs }}>
+              <Button label="Hentikan perjalanan (abort)…" icon="alert-octagon-outline" variant="danger" onPress={() => setSheet({ kind: 'abort' })} />
+              <Txt variant="caption" tone="inkSecondary">Hanya bila perjalanan tidak dapat dilanjutkan setelah kendaraan dimuat. Wajib mencatat lokasi, custody, PIC, dan rencana.</Txt>
+            </View>
+          ) : null}
         </>
       ) : null}
       <OrderSheets sheet={sheet} onClose={() => setSheet(null)} submit={submit} isStaff={isStaff} />
@@ -219,7 +225,7 @@ function Footer({
           <View style={styles.row}>
             <Button label="Kendala" icon="alert-outline" variant="secondary" compact style={{ flex: 1 }} onPress={() => setSheet({ kind: 'incident' })} />
             <Button label="Biaya" icon="cash" variant="secondary" compact style={{ flex: 1 }} onPress={() => setSheet({ kind: 'expense' })} />
-            {a.includes('abort') ? <Button label="Abort" icon="alert-octagon-outline" variant="danger" compact style={{ flex: 1 }} onPress={() => setSheet({ kind: 'abort' })} /> : null}
+            <Button label="Foto" icon="camera-outline" variant="secondary" compact style={{ flex: 1 }} onPress={() => router.push(`/order/${id}/evidence`)} />
           </View>
         ) : null}
       </>

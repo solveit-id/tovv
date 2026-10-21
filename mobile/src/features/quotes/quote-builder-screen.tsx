@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { useSafeBack } from '@/core/hooks/use-safe-back';
 import { color, radius, space } from '@/core/design/tokens';
 import { Screen } from '@/components/layout/screen';
 import { DetailHeader } from '@/components/layout/app-header';
@@ -50,7 +51,7 @@ function UnitOption({ c, on, onPress }: { c: UnitCandidate; on: boolean; onPress
  */
 export function QuoteBuilderScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
+  const goBack = useSafeBack(`/request/${id}`);
   const api = useApi();
   const toast = useToast();
   const presets = useMemo(() => timePresets(api.now()), [api]);
@@ -105,7 +106,7 @@ export function QuoteBuilderScreen() {
         validHours: Number(valid) || 24,
       });
       toast.show(`Penawaran v${q.version} terkirim. Versi sebelumnya otomatis diganti.`, 'ok');
-      router.back();
+      goBack();
     } catch (e) {
       setErr(errorMessage(e));
     } finally {

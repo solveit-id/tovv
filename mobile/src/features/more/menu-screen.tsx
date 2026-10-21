@@ -48,7 +48,7 @@ export function MenuScreen({ groups }: { groups: { title: string; items: MenuIte
   const s = session.data;
   const others = s?.views.filter((v) => v !== s.view) ?? [];
   return (
-    <Screen header={<RootHeader title="Lainnya" subtitle={s ? `${s.userName} · ${s.tenantName}` : undefined} />}>
+    <Screen headerScrolls header={<RootHeader title="Lainnya" subtitle={s ? `${s.userName} · ${s.tenantName}` : undefined} />}>
       {others.length ? (
         <>
           <SectionTitle title="Konteks" />

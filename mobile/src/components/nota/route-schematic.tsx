@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
-import Svg, { Circle, G, Line, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, G, Line, Rect } from 'react-native-svg';
 import { color, radius, space } from '@/core/design/tokens';
 import { Txt } from '@/components/ui/txt';
 import type { Place } from '@/domain/types';
@@ -83,7 +83,7 @@ export function RouteSchematic({
             <G>
               {halo ? <Circle cx={P.x} cy={P.y} r={halo} fill={color.carbon} opacity={0.12} /> : null}
               <Circle cx={P.x} cy={P.y} r={10} fill={stale ? color.sheet : color.carbon} stroke={color.carbon} strokeWidth={3} strokeDasharray={stale ? '3 3' : undefined} />
-              {!stale ? <Path d={`M${P.x - 4} ${P.y + 3}h8v-3l-2-3h-4z`} fill={color.sheet} /> : null}
+              <Circle cx={P.x} cy={P.y} r={3.5} fill={stale ? color.carbon : color.sheet} />
             </G>
           ) : null}
         </Svg>

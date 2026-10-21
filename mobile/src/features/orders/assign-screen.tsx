@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { useSafeBack } from '@/core/hooks/use-safe-back';
 import { color, space } from '@/core/design/tokens';
 import { Screen } from '@/components/layout/screen';
 import { DetailHeader } from '@/components/layout/app-header';
@@ -17,13 +18,13 @@ import { formatShortDateTime, formatTime } from '@/core/format/time';
 /** Tawarkan/alihkan tugas (FLT-05). Tawaran belum diterima tidak dianggap dispatch pasti; akses lama dicabut. */
 export function AssignScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
+  const goBack = useSafeBack(`/order/${id}`);
   const order = useTovvQuery(['order', id], (a) => a.getOrder(id));
   const fleet = useTovvQuery(['fleet'], (a) => a.getFleet());
   const [pick, setPick] = useState<string | null>(null);
   const offer = useTovvMutation((a, driverId: string) => a.offerAssignment(id, driverId), {
     success: 'Tawaran terkirim. Order tetap terkonfirmasi sampai petugas menerima.',
-    onSuccess: () => router.back(),
+    onSuccess: () => goBack(),
   });
   const current = order.data?.assignments.find((a) => a.status === 'offered' || a.status === 'accepted');
   return (

@@ -22,7 +22,7 @@ export function CustomerHome() {
   const s = session.data;
   const b2bRequesterOnly = !!s?.businessAccountName && !s.b2bRoles.includes('approver');
   return (
-    <Screen
+    <Screen headerScrolls
       onRefresh={() => qc.invalidateQueries()}
       header={
         <RootHeader

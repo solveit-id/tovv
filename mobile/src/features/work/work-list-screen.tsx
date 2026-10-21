@@ -61,7 +61,7 @@ export function WorkListScreen({ title = 'Pekerjaan', initial = 'active', canCre
   const history = useTovvQuery(['orders', 'history'], (a) => a.listOrders('history'));
   const requests = useTovvQuery(['requests', 'open'], (a) => a.listRequests('open'));
   return (
-    <Screen
+    <Screen headerScrolls
       onRefresh={() => qc.invalidateQueries()}
       header={
         <RootHeader title={title} right={<HeaderActions />}>

@@ -22,9 +22,9 @@ export function SyncScreen({ asTab = false }: { asTab?: boolean }) {
   const sync = useTovvMutation((a) => a.syncOutbox(), { success: (r) => `Antrean diproses: ${r.filter((x) => x.status === 'synced').length} diterima, ${r.filter((x) => x.status === 'needs_review').length} perlu ditinjau.` });
   const pending = q.data?.filter((x) => x.status === 'pending').length ?? 0;
   return (
-    <Screen
+    <Screen headerScrolls={asTab}
       header={asTab ? <RootHeader title="Sinkronisasi" subtitle="Catatan yang tersimpan di ponsel" /> : <DetailHeader title="Antrean sinkronisasi" />}
-      footer={<Button label={faults.data?.offline ? 'Masih offline — coba kirim' : `Kirim ${pending} item tertunda`} icon="cloud-upload-outline" size="lg" disabled={!pending} loading={sync.isPending} onPress={() => sync.mutate(undefined)} />}
+      footer={<Button label={faults.data?.offline ? 'Masih offline — coba kirim' : pending ? `Kirim ${pending} item tertunda` : 'Tidak ada item tertunda'} icon="cloud-upload-outline" size="lg" disabled={!pending} loading={sync.isPending} onPress={() => sync.mutate(undefined)} />}
     >
       {faults.data?.offline ? (
         <View style={styles.offline}>

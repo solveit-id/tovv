@@ -32,13 +32,13 @@ export function ActionItem({ item, last }: { item: DailyAction; last?: boolean }
       <View style={{ flex: 1, gap: 2 }}>
         <Txt variant="caption" tone={s.tone} style={{ fontWeight: '700' }}>{s.label}</Txt>
         <Txt variant="bodyStrong" numberOfLines={3}>{item.title}</Txt>
+        {item.amount ? <Money value={item.amount} size="sm" align="left" /> : null}
         <Txt variant="bodySm" tone="inkSecondary" numberOfLines={3}>{item.reason}</Txt>
         <Txt variant="caption" tone="inkSecondary">
           {`PIC ${item.picName}${item.dueAt ? ` · tenggat ${formatShortDateTime(item.dueAt)}` : ''}`}
         </Txt>
       </View>
       <View style={styles.right}>
-        {item.amount ? <Money value={item.amount} size="sm" /> : null}
         <Icon name="chevron-right" size={20} tone="inkSecondary" />
       </View>
     </Pressable>
@@ -49,5 +49,5 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: space.md, paddingVertical: space.md, paddingHorizontal: space.lg, minHeight: 64 },
   divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.rule },
   sev: { paddingTop: 14 },
-  right: { alignItems: 'flex-end', justifyContent: 'space-between', gap: space.sm, maxWidth: 120 },
+  right: { justifyContent: 'center' },
 });

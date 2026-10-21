@@ -60,7 +60,7 @@ export function ReportsScreen({ asTab = false }: { asTab?: boolean }) {
   const header = asTab ? <RootHeader title="Keuangan" subtitle="Penerimaan, piutang, kontribusi — DEMO" /> : <DetailHeader title="Laporan" subtitle="Dihitung dari transaksi demo" />;
 
   return (
-    <Screen onRefresh={() => qc.invalidateQueries()} header={header}>
+    <Screen headerScrolls={asTab} onRefresh={() => qc.invalidateQueries()} header={header}>
       <Choice
         label="Filter akun bisnis"
         value={account}

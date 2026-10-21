@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { color, radius, space } from '@/core/design/tokens';
 import { Screen } from '@/components/layout/screen';
@@ -34,10 +34,31 @@ export function DemoAccountScreen() {
 
   const enter = async (acc: DemoAccount, view: ViewGroup) => {
     setPick(null);
+    await go(acc, view);
+  };
+
+  const go = async (acc: DemoAccount, view: ViewGroup) => {
     await setSession({ userId: acc.userId, view });
     if (router.canDismiss()) router.dismissAll();
-    router.replace(`/${view}`);
+    if (next && next.startsWith('/')) {
+      // Android dapat mendekode tautan dua kali; parameter selain as/view/next diteruskan ke rute tujuan.
+      const extra = Object.entries(rest).filter(([, v]) => typeof v === 'string') as [string, string][];
+      const sep = next.includes('?') ? '&' : '?';
+      const tail = extra.filter(([k]) => !next.includes(`${k}=`)).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+      router.replace((tail ? `${next}${sep}${tail}` : next) as `/${string}`);
+    } else router.replace(`/${view}`);
   };
+
+  // Tautan demo `tovv-demo://demo?as=<akun>&view=<konteks>&next=<route>` untuk rehearsal dan screenshot.
+  // Hanya memilih akun fixture yang sama seperti mengetuk daftar; tidak ada di build produksi (tanpa pemilih demo).
+  const params = useLocalSearchParams<Record<string, string>>();
+  const { as, view: rawView, next, ...rest } = params;
+  const wantView = rawView as ViewGroup | undefined;
+  useEffect(() => {
+    const acc = q.data?.find((a) => a.userId === as);
+    if (acc && wantView && acc.views.includes(wantView)) void go(acc, wantView);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q.data, as, wantView]);
 
   return (
     <Screen header={<DetailHeader title="Pilih akun demo" subtitle="Hanya mode demo lokal · bukan login produksi" />}>

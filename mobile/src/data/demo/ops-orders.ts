@@ -42,7 +42,15 @@ export function listOrders(ctx: Ctx, filter: OrderListFilter): OrderSummary[] {
   if (filter === 'history') orders = orders.filter((o) => !isActive(o));
   return orders
     .sort((a, b) => (filter === 'active' ? Date.parse(a.scheduleStart) - Date.parse(b.scheduleStart) : Date.parse(b.confirmedAt) - Date.parse(a.confirmedAt)))
-    .map((o) => orderSummary(db, o, ctx.now));
+    .map((o) => driverNextStep(ctx, orderSummary(db, o, ctx.now)));
+}
+
+/** Langkah berikutnya untuk driver hanya menyangkut tugasnya; urusan invoice/pembayaran bukan bagian driver. */
+function driverNextStep(ctx: Ctx, s: OrderSummary): OrderSummary {
+  if (ctx.actor.view !== 'driver') return s;
+  if (['handed_over', 'closed'].includes(s.status)) return { ...s, nextStep: 'Tugas selesai', outstanding: null, collection: null, invoiceStatus: null };
+  if (s.status === 'canceled' || s.status === 'aborted') return { ...s, outstanding: null, collection: null, invoiceStatus: null };
+  return { ...s, outstanding: null, collection: null, invoiceStatus: null };
 }
 
 export function getOrder(ctx: Ctx, id: string): OrderDetail {

@@ -15,7 +15,7 @@ import { formatShortDateTime, formatTime } from '@/core/format/time';
 export function FleetScreen({ asTab = false }: { asTab?: boolean }) {
   const q = useTovvQuery(['fleet'], (a) => a.getFleet());
   return (
-    <Screen header={asTab ? <RootHeader title="Jadwal & armada" subtitle="Reservasi hanya dibuat saat penawaran disetujui" /> : <DetailHeader title="Armada" subtitle="Spesifikasi sintetis F-04" />}>
+    <Screen headerScrolls={asTab} header={asTab ? <RootHeader title="Jadwal & armada" subtitle="Reservasi hanya dibuat saat penawaran disetujui" /> : <DetailHeader title="Armada" subtitle="Spesifikasi sintetis F-04" />}>
       <QueryView q={q}>
         {(f) => (
           <>

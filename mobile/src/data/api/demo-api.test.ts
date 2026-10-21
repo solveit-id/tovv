@@ -293,3 +293,17 @@ describe('ekspor CSV aman', () => {
     await expectCode(api.exportCsv('REP-05', null), 'FORBIDDEN');
   });
 });
+
+describe('DTO per peran (TEN-03)', () => {
+  it('driver tidak menerima harga, biaya tambahan, tagihan, PO, atau pembayar', async () => {
+    const { api, as } = setup();
+    as('owner-a', 'driver');
+    const o = await api.getOrder('O-A06');
+    expect(o.quote).toBeNull();
+    expect(o.changeOrders).toEqual([]);
+    expect(o.invoices).toEqual([]);
+    expect(o.internal).toBeNull();
+    expect(o.poRef).toBeNull();
+    expect(o.parties.payer).toBe('—');
+  });
+});
