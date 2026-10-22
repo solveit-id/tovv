@@ -1,751 +1,1421 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-21T17:24:37+00:00",
+  "generatedAt": "2026-10-22T16:36:41.625Z",
   "title": "Design System: Tovv",
   "extensions": {
     "colorMeta": {
-      "carbon": {
+      "accent": {
         "role": "primary",
-        "displayName": "Tinta Karbon",
+        "displayName": "Biru Solveit",
         "canonical": "#1136D6",
-        "purpose": "Aksi utama, seleksi, tab aktif, garis tahap terjadi, status info.",
+        "scheme": "light",
         "tonalRamp": [
-          "#061247",
-          "#0A1F7B",
-          "#0E2CAF",
-          "#1239E3",
-          "#3D5FF0",
-          "#718AF4",
-          "#AAB9F8",
-          "#E7EBFD"
+          "#030045",
+          "#030C70",
+          "#0F2E9F",
+          "#234DCF",
+          "#4174FB",
+          "#6B9DFF",
+          "#97C7FF",
+          "#C1EDFF"
         ]
       },
-      "carbon-pressed": {
+      "accent-pressed": {
         "role": "primary",
-        "displayName": "Karbon Ditekan",
+        "displayName": "Biru Solveit Ditekan",
         "canonical": "#0C29A8",
-        "purpose": "Primary saat ditekan.",
+        "scheme": "light",
         "tonalRamp": [
-          "#051147",
-          "#091E7C",
-          "#0D2BB0",
-          "#1038E4",
-          "#3C5EF1",
-          "#7089F5",
-          "#A9B8F9",
-          "#E7EBFD"
+          "#030045",
+          "#030B70",
+          "#0F2E9F",
+          "#254ECD",
+          "#4475F6",
+          "#6B9DFF",
+          "#97C7FF",
+          "#C1EDFF"
         ]
       },
-      "carbon-tint": {
+      "accent-soft": {
         "role": "primary",
-        "displayName": "Wash Karbon",
-        "canonical": "#E8EDFD",
-        "purpose": "Wash tekan/seleksi di atas lembar.",
+        "displayName": "Wash Biru",
+        "canonical": "#E8EEFF",
+        "scheme": "light",
         "tonalRamp": [
-          "#061546",
-          "#0B257A",
-          "#0F35AE",
-          "#1445E1",
-          "#3F68EE",
-          "#7291F3",
-          "#ABBDF8",
-          "#E8EDFD"
+          "#070B15",
+          "#1F2430",
+          "#3B3F4D",
+          "#585D6B",
+          "#7B808F",
+          "#9FA4B4",
+          "#C4CADB",
+          "#E8EEFF"
         ]
       },
-      "navy": {
-        "role": "secondary",
-        "displayName": "Navy Sampul",
-        "canonical": "#082A56",
-        "purpose": "Header akar, segmen aktif, snackbar, QR internal.",
+      "accent-ink": {
+        "role": "primary",
+        "displayName": "Tinta Biru",
+        "canonical": "#1136D6",
+        "scheme": "light",
         "tonalRamp": [
-          "#072246",
-          "#0B3B79",
-          "#1054AD",
-          "#156DE0",
-          "#408BED",
-          "#73AAF2",
-          "#ABCCF7",
-          "#E8F1FD"
+          "#030045",
+          "#030C70",
+          "#0F2E9F",
+          "#234DCF",
+          "#4174FB",
+          "#6B9DFF",
+          "#97C7FF",
+          "#C1EDFF"
         ]
       },
-      "navy-raised": {
-        "role": "secondary",
-        "displayName": "Navy Timbul",
-        "canonical": "#0F3769",
-        "purpose": "Tombol di atas navy.",
-        "tonalRamp": [
-          "#0A2343",
-          "#113D74",
-          "#1856A5",
-          "#1F70D6",
-          "#488EE5",
-          "#79ACEC",
-          "#AFCDF4",
-          "#E9F1FC"
-        ]
-      },
-      "on-navy": {
-        "role": "secondary",
-        "displayName": "Putih di Navy",
+      "on-accent": {
+        "role": "primary",
+        "displayName": "Di Atas Biru",
         "canonical": "#FFFFFF",
-        "purpose": "Teks/ikon di atas navy dan karbon.",
+        "scheme": "light",
         "tonalRamp": [
-          "#262626",
-          "#424242",
-          "#5E5E5E",
-          "#7A7A7A",
-          "#969696",
-          "#B2B2B2",
-          "#D1D1D1",
-          "#F2F2F2"
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
         ]
       },
-      "on-navy-secondary": {
+      "hero-from": {
         "role": "secondary",
-        "displayName": "Biru Pucat di Navy",
-        "canonical": "#B9C8E3",
-        "purpose": "Teks sekunder di atas navy.",
+        "displayName": "Gradien Header Awal",
+        "canonical": "#0D2EC2",
+        "scheme": "light",
         "tonalRamp": [
-          "#162237",
-          "#263A5F",
-          "#365387",
-          "#466BAF",
-          "#6A8AC3",
-          "#92A9D3",
-          "#BDCBE5",
-          "#EDF1F8"
+          "#030045",
+          "#030C70",
+          "#0E2E9F",
+          "#224DCF",
+          "#4174FB",
+          "#6B9DFF",
+          "#97C7FF",
+          "#C1EDFF"
         ]
       },
-      "sky": {
+      "hero-to": {
         "role": "secondary",
-        "displayName": "Biru Langit",
+        "displayName": "Gradien Header Akhir",
+        "canonical": "#1766D1",
+        "scheme": "light",
+        "tonalRamp": [
+          "#000044",
+          "#00136F",
+          "#00349C",
+          "#0057C1",
+          "#317DEA",
+          "#57A3FF",
+          "#86CBFF",
+          "#B3F1FF"
+        ]
+      },
+      "hero-glow": {
+        "role": "secondary",
+        "displayName": "Cahaya Langit Header",
         "canonical": "#19B8F2",
-        "purpose": "Hanya v kedua wordmark di atas navy.",
+        "scheme": "light",
         "tonalRamp": [
-          "#043648",
-          "#075E7E",
-          "#0A86B3",
-          "#0DADE8",
-          "#39C2F4",
-          "#6ED2F7",
-          "#A8E4FA",
-          "#E7F8FE"
+          "#00073A",
+          "#00285B",
+          "#00487C",
+          "#00689E",
+          "#008DC5",
+          "#09B3ED",
+          "#50DBFF",
+          "#7EFFFF"
         ]
       },
-      "serial": {
-        "role": "tertiary",
-        "displayName": "Merah Nomor Seri",
-        "canonical": "#C42032",
-        "purpose": "Nomor dokumen dan badge hitungan saja.",
+      "on-hero": {
+        "role": "secondary",
+        "displayName": "Teks Header",
+        "canonical": "#FFFFFF",
+        "scheme": "light",
         "tonalRamp": [
-          "#420B11",
-          "#72131D",
-          "#A21A29",
-          "#D22236",
-          "#E24B5C",
-          "#EA7B88",
-          "#F2B0B7",
-          "#FBE9EB"
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
         ]
       },
-      "ply-pink": {
-        "role": "tertiary",
-        "displayName": "Ply Merah Muda",
-        "canonical": "#F6D5DE",
-        "purpose": "Tepi versi lama DocumentStack (1).",
+      "on-hero-secondary": {
+        "role": "secondary",
+        "displayName": "Teks Header Sekunder",
+        "canonical": "#E3ECFF",
+        "scheme": "light",
         "tonalRamp": [
-          "#3F0D1B",
-          "#6D172F",
-          "#9B2143",
-          "#CA2B56",
-          "#DA5378",
-          "#E4819C",
-          "#EFB3C4",
-          "#FBEAEE"
+          "#060B17",
+          "#1E2432",
+          "#39404F",
+          "#565E6E",
+          "#788091",
+          "#9CA5B6",
+          "#C2CBDD",
+          "#E6EFFF"
         ]
       },
-      "ply-yellow": {
-        "role": "tertiary",
-        "displayName": "Ply Kuning",
-        "canonical": "#F7E6A1",
-        "purpose": "Tepi versi lama DocumentStack (2).",
+      "hero-chip": {
+        "role": "secondary",
+        "displayName": "Chip Header Tembus",
+        "canonical": "rgba(255, 255, 255, 0.16)",
+        "scheme": "light"
+      },
+      "brand-sky": {
+        "role": "secondary",
+        "displayName": "Biru Langit Wordmark",
+        "canonical": "#19B8F2",
+        "scheme": "light",
         "tonalRamp": [
-          "#463A06",
-          "#7A640A",
-          "#AE8E0F",
-          "#E2B913",
-          "#EFCC3E",
-          "#F3DA72",
-          "#F8E9AA",
-          "#FDF9E7"
+          "#00073A",
+          "#00285B",
+          "#00487C",
+          "#00689E",
+          "#008DC5",
+          "#09B3ED",
+          "#50DBFF",
+          "#7EFFFF"
         ]
       },
-      "ply-blue": {
-        "role": "tertiary",
-        "displayName": "Ply Biru",
-        "canonical": "#D6E4FA",
-        "purpose": "Tepi versi lama DocumentStack (3).",
-        "tonalRamp": [
-          "#082044",
-          "#0E3776",
-          "#154EA8",
-          "#1B65DA",
-          "#4584E8",
-          "#77A5EE",
-          "#ADC9F5",
-          "#E8F0FC"
-        ]
-      },
-      "ground": {
+      "bg": {
         "role": "neutral",
         "displayName": "Latar Dingin",
-        "canonical": "#F6F8FB",
-        "purpose": "Latar layar.",
+        "canonical": "#F4F6FA",
+        "scheme": "light",
         "tonalRamp": [
-          "#182335",
-          "#293D5C",
-          "#3A5783",
-          "#4B71A9",
-          "#6E8EBF",
-          "#95ADD0",
-          "#BFCEE3",
-          "#EDF1F7"
+          "#0A0B0E",
+          "#232427",
+          "#3E4043",
+          "#5C5E61",
+          "#7E8084",
+          "#A3A5A8",
+          "#C9CACE",
+          "#ECEEF2"
         ]
       },
-      "sheet": {
+      "surface": {
         "role": "neutral",
-        "displayName": "Lembar",
+        "displayName": "Permukaan",
         "canonical": "#FFFFFF",
-        "purpose": "Permukaan lembar, field, footer, tab bar.",
+        "scheme": "light",
         "tonalRamp": [
-          "#262626",
-          "#424242",
-          "#5E5E5E",
-          "#7A7A7A",
-          "#969696",
-          "#B2B2B2",
-          "#D1D1D1",
-          "#F2F2F2"
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
         ]
       },
-      "sheet-sunk": {
+      "surface-alt": {
         "role": "neutral",
-        "displayName": "Lembar Cekung",
-        "canonical": "#EEF2F7",
-        "purpose": "Read-only, track segmen, skema rute.",
+        "displayName": "Permukaan Alt",
+        "canonical": "#EEF2F8",
+        "scheme": "light",
         "tonalRamp": [
-          "#182534",
-          "#2A405A",
-          "#3C5B80",
-          "#4E76A6",
-          "#7192BC",
-          "#97AFCE",
-          "#C1CFE2",
-          "#EEF2F7"
+          "#090B0F",
+          "#212429",
+          "#3D4045",
+          "#5A5E63",
+          "#7D8086",
+          "#A1A5AA",
+          "#C7CBD1",
+          "#EBEFF5"
         ]
       },
-      "rule": {
+      "surface-pressed": {
         "role": "neutral",
-        "displayName": "Garis Sel",
-        "canonical": "#D5DDE8",
-        "purpose": "Garis rambut sel dan pembatas.",
+        "displayName": "Permukaan Ditekan",
+        "canonical": "#E8EEFB",
+        "scheme": "light",
         "tonalRamp": [
-          "#1B2431",
-          "#2F3F56",
-          "#435A7A",
-          "#57759E",
-          "#7892B5",
-          "#9CAFC9",
-          "#C4CFDF",
-          "#EFF2F6"
+          "#080B13",
+          "#20242D",
+          "#3B404A",
+          "#595E69",
+          "#7B808C",
+          "#9FA5B1",
+          "#C5CBD7",
+          "#E9EFFC"
         ]
       },
-      "rule-strong": {
+      "line": {
+        "role": "neutral",
+        "displayName": "Garis",
+        "canonical": "#E3E8F0",
+        "scheme": "light",
+        "tonalRamp": [
+          "#080B10",
+          "#21242A",
+          "#3C4046",
+          "#5A5E65",
+          "#7C8088",
+          "#A0A5AC",
+          "#C6CBD3",
+          "#EAEFF7"
+        ]
+      },
+      "line-strong": {
         "role": "neutral",
         "displayName": "Garis Tegas",
-        "canonical": "#AEBBCD",
-        "purpose": "Border field, ply, total.",
+        "canonical": "#C3CDDB",
+        "scheme": "light",
         "tonalRamp": [
+          "#060B15",
           "#1D252F",
-          "#334052",
-          "#485B75",
-          "#5D7697",
-          "#7E92AF",
-          "#A0B0C5",
-          "#C6CFDC",
-          "#EFF2F5"
+          "#38404C",
+          "#565E6A",
+          "#78818E",
+          "#9CA5B3",
+          "#C1CBD9",
+          "#E5EFFE"
         ]
       },
       "ink": {
         "role": "neutral",
         "displayName": "Tinta",
-        "canonical": "#0D1B2E",
-        "purpose": "Teks utama.",
+        "canonical": "#0E1726",
+        "scheme": "light",
         "tonalRamp": [
-          "#11233C",
-          "#1D3D67",
-          "#2A5693",
-          "#3670BF",
-          "#5C8ED1",
-          "#88ACDD",
-          "#B7CDEB",
-          "#EBF1F9"
+          "#040B19",
+          "#1B2434",
+          "#364051",
+          "#535E71",
+          "#758194",
+          "#99A5BA",
+          "#BECBE1",
+          "#E2EFFF"
         ]
       },
       "ink-secondary": {
         "role": "neutral",
-        "displayName": "Slate",
-        "canonical": "#5C7392",
-        "purpose": "Teks sekunder dan label sel.",
+        "displayName": "Tinta Sekunder",
+        "canonical": "#56657B",
+        "scheme": "light",
         "tonalRamp": [
-          "#1E252F",
-          "#334051",
-          "#495B74",
-          "#5F7696",
-          "#7F93AE",
-          "#A1B0C4",
-          "#C7D0DC",
-          "#EFF2F5"
+          "#020B1C",
+          "#182437",
+          "#334055",
+          "#505F74",
+          "#728198",
+          "#95A6BE",
+          "#BBCCE5",
+          "#DEF0FF"
         ]
       },
-      "ink-disabled": {
+      "ink-muted": {
         "role": "neutral",
-        "displayName": "Tinta Nonaktif",
-        "canonical": "#98A6BA",
-        "purpose": "Kontrol nonaktif.",
+        "displayName": "Tinta Redup",
+        "canonical": "#8D99AC",
+        "scheme": "light",
         "tonalRamp": [
-          "#1F252E",
-          "#35404F",
-          "#4C5B71",
-          "#627693",
-          "#8293AB",
-          "#A3B0C2",
-          "#C8CFDA",
-          "#F0F2F5"
+          "#040B18",
+          "#1B2433",
+          "#364051",
+          "#535E70",
+          "#758193",
+          "#99A5B9",
+          "#BFCBDF",
+          "#E2EFFF"
+        ]
+      },
+      "inverse": {
+        "role": "neutral",
+        "displayName": "Inverse",
+        "canonical": "#111A2B",
+        "scheme": "light",
+        "tonalRamp": [
+          "#040B1A",
+          "#1A2436",
+          "#354053",
+          "#535E73",
+          "#758196",
+          "#99A5BC",
+          "#BECBE3",
+          "#E2EFFF"
+        ]
+      },
+      "on-inverse": {
+        "role": "neutral",
+        "displayName": "Di Atas Inverse",
+        "canonical": "#FFFFFF",
+        "scheme": "light",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
         ]
       },
       "ok-ink": {
-        "role": "status",
-        "displayName": "Hijau Diterima",
-        "canonical": "#1A6B3C",
-        "purpose": "Status ok, cap DISETUJUI/DIPERIKSA.",
+        "role": "neutral",
+        "displayName": "Tinta Sukses",
+        "canonical": "#146C38",
+        "scheme": "light",
         "tonalRamp": [
-          "#0F3E23",
-          "#1A6B3C",
-          "#259855",
-          "#30C56E",
-          "#57D68C",
-          "#84E1AB",
-          "#B5EDCD",
-          "#EAFAF1"
+          "#001500",
+          "#003200",
+          "#00501D",
+          "#196F3B",
+          "#43945D",
+          "#69B980",
+          "#90E0A5",
+          "#B3FFC8"
         ]
       },
       "ok-wash": {
-        "role": "status",
-        "displayName": "Wash Hijau",
-        "canonical": "#E3F3E8",
-        "purpose": "Latar status ok.",
+        "role": "neutral",
+        "displayName": "Wash Sukses",
+        "canonical": "#E2F5E9",
+        "scheme": "light",
         "tonalRamp": [
-          "#173621",
-          "#285D38",
-          "#398450",
-          "#49AB68",
-          "#6DC087",
-          "#94D1A7",
-          "#BFE3CA",
-          "#EDF7F0"
+          "#030E07",
+          "#19281F",
+          "#35443B",
+          "#526258",
+          "#74857A",
+          "#98AA9F",
+          "#BDD0C4",
+          "#E1F4E8"
         ]
       },
       "warn-ink": {
-        "role": "status",
-        "displayName": "Cokelat Menunggu",
+        "role": "neutral",
+        "displayName": "Tinta Peringatan",
         "canonical": "#8A5300",
-        "purpose": "Status warn, nilai belum lengkap.",
+        "scheme": "light",
         "tonalRamp": [
-          "#4C2E00",
-          "#855000",
-          "#BD7100",
-          "#F59300",
-          "#FFAC2E",
-          "#FFC266",
-          "#FFDAA3",
-          "#FFF5E5"
+          "#250000",
+          "#441200",
+          "#643000",
+          "#864F00",
+          "#AB722F",
+          "#D29755",
+          "#FBBD7B",
+          "#FFE19E"
         ]
       },
       "warn-wash": {
-        "role": "status",
-        "displayName": "Wash Kuning",
-        "canonical": "#FFF0CC",
-        "purpose": "Latar status warn.",
+        "role": "neutral",
+        "displayName": "Wash Peringatan",
+        "canonical": "#FFF1D6",
+        "scheme": "light",
         "tonalRamp": [
-          "#4C3600",
-          "#855E00",
-          "#BD8500",
-          "#F5AD00",
-          "#FFC12E",
-          "#FFD266",
-          "#FFE4A3",
-          "#FFF8E5"
+          "#130900",
+          "#2D220C",
+          "#493E28",
+          "#685C45",
+          "#8B7F66",
+          "#B0A38A",
+          "#D7C9AF",
+          "#FBEDD2"
         ]
       },
       "danger-ink": {
-        "role": "status",
-        "displayName": "Merah Bahaya",
+        "role": "neutral",
+        "displayName": "Tinta Bahaya",
         "canonical": "#B42318",
-        "purpose": "Status danger, galat, cap DITOLAK.",
+        "scheme": "light",
         "tonalRamp": [
-          "#440D09",
-          "#751710",
-          "#A62016",
-          "#D82A1D",
-          "#E65246",
-          "#ED8078",
-          "#F4B3AE",
-          "#FCEAE8"
+          "#320000",
+          "#5B0000",
+          "#870000",
+          "#AD1A10",
+          "#D74839",
+          "#FF705D",
+          "#FF9E8B",
+          "#FFCAB7"
         ]
       },
       "danger-wash": {
-        "role": "status",
-        "displayName": "Wash Merah",
-        "canonical": "#FDE8E6",
-        "purpose": "Latar status danger.",
+        "role": "neutral",
+        "displayName": "Wash Bahaya",
+        "canonical": "#FDECEA",
+        "scheme": "light",
         "tonalRamp": [
-          "#470B06",
-          "#7B140A",
-          "#AF1C0E",
-          "#E32412",
-          "#F04D3D",
-          "#F47D71",
-          "#F8B1AA",
-          "#FDE9E7"
+          "#120807",
+          "#2D211F",
+          "#493C3B",
+          "#685A58",
+          "#8B7C7A",
+          "#B0A09F",
+          "#D7C6C4",
+          "#FBEAE8"
         ]
       },
       "neutral-ink": {
-        "role": "status",
-        "displayName": "Abu Netral",
-        "canonical": "#43566F",
-        "purpose": "Status netral, cap DIGANTI.",
+        "role": "neutral",
+        "displayName": "Tinta Netral",
+        "canonical": "#45556C",
+        "scheme": "light",
         "tonalRamp": [
-          "#1D2530",
-          "#324053",
-          "#475B76",
-          "#5C7699",
-          "#7D93B0",
-          "#A0B0C5",
-          "#C6D0DC",
-          "#EFF2F5"
+          "#020B1D",
+          "#162439",
+          "#314157",
+          "#4E5F76",
+          "#70819A",
+          "#94A6C0",
+          "#B9CCE7",
+          "#DDF0FF"
         ]
       },
       "neutral-wash": {
-        "role": "status",
+        "role": "neutral",
         "displayName": "Wash Netral",
-        "canonical": "#EBEFF5",
-        "purpose": "Latar status netral.",
+        "canonical": "#EDF1F6",
+        "scheme": "light",
         "tonalRamp": [
-          "#192433",
-          "#2C3E58",
-          "#3F587E",
-          "#5272A3",
-          "#748FB9",
-          "#99ADCC",
-          "#C2CEE0",
-          "#EEF1F6"
+          "#090B0F",
+          "#212428",
+          "#3D4044",
+          "#5B5E62",
+          "#7D8185",
+          "#A1A5AA",
+          "#C7CBD0",
+          "#EBEFF4"
+        ]
+      },
+      "badge": {
+        "role": "tertiary",
+        "displayName": "Merah Badge",
+        "canonical": "#E5372B",
+        "scheme": "light",
+        "tonalRamp": [
+          "#320000",
+          "#5B0000",
+          "#870000",
+          "#B50000",
+          "#E2362A",
+          "#FF6E5D",
+          "#FF9E8C",
+          "#FFCAB8"
+        ]
+      },
+      "demo-ink": {
+        "role": "tertiary",
+        "displayName": "Tinta DEMO",
+        "canonical": "#3A2C00",
+        "scheme": "light",
+        "tonalRamp": [
+          "#150800",
+          "#302200",
+          "#4C3E14",
+          "#6B5C33",
+          "#8F7F55",
+          "#B4A378",
+          "#DAC99D",
+          "#FFEDC0"
         ]
       },
       "demo-wash": {
-        "role": "demo",
-        "displayName": "Kuning Pita DEMO",
-        "canonical": "#F7E6A1",
-        "purpose": "Pita DEMO — SIMULASI FRONTEND.",
+        "role": "tertiary",
+        "displayName": "Kuning DEMO",
+        "canonical": "#FFD84D",
+        "scheme": "light",
         "tonalRamp": [
-          "#463A06",
-          "#7A640A",
-          "#AE8E0F",
-          "#E2B913",
-          "#EFCC3E",
-          "#F3DA72",
-          "#F8E9AA",
-          "#FDF9E7"
+          "#1E0100",
+          "#3E1900",
+          "#5C3800",
+          "#7C5700",
+          "#A17B00",
+          "#C6A000",
+          "#EEC737",
+          "#FFEC78"
         ]
       },
       "demo-rule": {
-        "role": "demo",
-        "displayName": "Garis Pita DEMO",
-        "canonical": "#E3CE73",
-        "purpose": "Garis bawah pita DEMO.",
+        "role": "tertiary",
+        "displayName": "Garis DEMO",
+        "canonical": "#E9BE1F",
+        "scheme": "light",
         "tonalRamp": [
-          "#40360D",
-          "#6E5E16",
-          "#9D861F",
-          "#CCAD29",
-          "#DCC251",
-          "#E5D280",
-          "#F0E4B3",
-          "#FBF8EA"
+          "#1F0100",
+          "#401800",
+          "#5F3600",
+          "#7F5600",
+          "#A37A00",
+          "#C99F00",
+          "#F1C62D",
+          "#FFEB78"
+        ]
+      },
+      "shadow": {
+        "role": "neutral",
+        "displayName": "Sumber Bayangan",
+        "canonical": "#0E1726",
+        "scheme": "light",
+        "tonalRamp": [
+          "#040B19",
+          "#1B2434",
+          "#364051",
+          "#535E71",
+          "#758194",
+          "#99A5BA",
+          "#BECBE1",
+          "#E2EFFF"
+        ]
+      },
+      "scrim": {
+        "role": "neutral",
+        "displayName": "Scrim",
+        "canonical": "rgba(7, 12, 24, 0.5)",
+        "scheme": "light"
+      },
+      "overlay-ink": {
+        "role": "neutral",
+        "displayName": "Tinta Overlay Kamera",
+        "canonical": "rgba(14, 23, 38, 0.78)",
+        "scheme": "light"
+      },
+      "legend-wash": {
+        "role": "neutral",
+        "displayName": "Wash Legenda",
+        "canonical": "rgba(255, 255, 255, 0.9)",
+        "scheme": "light"
+      },
+      "skeleton": {
+        "role": "neutral",
+        "displayName": "Kerangka Memuat",
+        "canonical": "#E4E9F1",
+        "scheme": "light",
+        "tonalRamp": [
+          "#080B10",
+          "#21242A",
+          "#3C4046",
+          "#5A5E65",
+          "#7C8088",
+          "#A0A5AC",
+          "#C6CBD3",
+          "#EAEFF7"
+        ]
+      },
+      "camera-ground": {
+        "role": "neutral",
+        "displayName": "Latar Kamera",
+        "canonical": "#000000",
+        "scheme": "light",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
+        ]
+      },
+      "accent-dark": {
+        "role": "primary",
+        "displayName": "Biru Solveit (gelap)",
+        "canonical": "#2F5EF5",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#040045",
+          "#040B70",
+          "#112D9F",
+          "#254DCF",
+          "#4373FB",
+          "#6C9DFF",
+          "#98C6FF",
+          "#C2ECFF"
+        ]
+      },
+      "accent-pressed-dark": {
+        "role": "primary",
+        "displayName": "Biru Solveit Ditekan (gelap)",
+        "canonical": "#244ED6",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#040045",
+          "#030B70",
+          "#102D9F",
+          "#244DCF",
+          "#4273FB",
+          "#6C9DFF",
+          "#97C7FF",
+          "#C1ECFF"
+        ]
+      },
+      "accent-soft-dark": {
+        "role": "primary",
+        "displayName": "Wash Biru (gelap)",
+        "canonical": "#18264A",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#020728",
+          "#142245",
+          "#2E3E64",
+          "#4B5D85",
+          "#6D80AA",
+          "#90A4D1",
+          "#B5CAF9",
+          "#D9EEFF"
+        ]
+      },
+      "accent-ink-dark": {
+        "role": "primary",
+        "displayName": "Tinta Biru (gelap)",
+        "canonical": "#8EAEFF",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#03003D",
+          "#0B195E",
+          "#23397F",
+          "#3E59A2",
+          "#5F7CC9",
+          "#82A1F2",
+          "#A7C8FF",
+          "#CAECFF"
+        ]
+      },
+      "hero-from-dark": {
+        "role": "secondary",
+        "displayName": "Gradien Header Awal (gelap)",
+        "canonical": "#0C1D5E",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#02003B",
+          "#0A1B5C",
+          "#233A7D",
+          "#3F599F",
+          "#607DC6",
+          "#83A2EF",
+          "#A7C8FF",
+          "#CAEDFF"
+        ]
+      },
+      "hero-to-dark": {
+        "role": "secondary",
+        "displayName": "Gradien Header Akhir (gelap)",
+        "canonical": "#133C94",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#020045",
+          "#00136B",
+          "#0E378E",
+          "#2C58B2",
+          "#4D7CDA",
+          "#70A2FF",
+          "#95C9FF",
+          "#BCEEFF"
+        ]
+      },
+      "hero-glow-dark": {
+        "role": "secondary",
+        "displayName": "Cahaya Langit Header (gelap)",
+        "canonical": "#1C8FD0",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#00013D",
+          "#00245E",
+          "#00447F",
+          "#0064A2",
+          "#0D88C9",
+          "#46AEF1",
+          "#70D5FF",
+          "#95FAFF"
+        ]
+      },
+      "on-hero-secondary-dark": {
+        "role": "secondary",
+        "displayName": "Teks Header Sekunder (gelap)",
+        "canonical": "#D3DEF7",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#050A1A",
+          "#1C2336",
+          "#373F53",
+          "#545D73",
+          "#768097",
+          "#9AA5BC",
+          "#C0CAE3",
+          "#E3EFFF"
+        ]
+      },
+      "hero-chip-dark": {
+        "role": "secondary",
+        "displayName": "Chip Header Tembus (gelap)",
+        "canonical": "rgba(255, 255, 255, 0.12)",
+        "scheme": "dark"
+      },
+      "brand-sky-dark": {
+        "role": "secondary",
+        "displayName": "Biru Langit Wordmark (gelap)",
+        "canonical": "#3CC6F5",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#000B34",
+          "#002B53",
+          "#004A74",
+          "#006A95",
+          "#008FBB",
+          "#1FB5E3",
+          "#58DCFF",
+          "#80FFFF"
+        ]
+      },
+      "bg-dark": {
+        "role": "neutral",
+        "displayName": "Latar Dingin (gelap)",
+        "canonical": "#0A0F17",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#070B13",
+          "#1F242D",
+          "#3A404A",
+          "#575E68",
+          "#7A818C",
+          "#9EA5B1",
+          "#C3CBD7",
+          "#E7EFFB"
+        ]
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "Permukaan (gelap)",
+        "canonical": "#141B26",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#060B15",
+          "#1D2430",
+          "#38404D",
+          "#565E6C",
+          "#78818F",
+          "#9CA5B4",
+          "#C1CBDB",
+          "#E5EFFF"
+        ]
+      },
+      "surface-alt-dark": {
+        "role": "neutral",
+        "displayName": "Permukaan Alt (gelap)",
+        "canonical": "#1B2431",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#050B17",
+          "#1B2532",
+          "#37404F",
+          "#545E6E",
+          "#768191",
+          "#9AA6B6",
+          "#BFCCDD",
+          "#E3F0FF"
+        ]
+      },
+      "surface-pressed-dark": {
+        "role": "neutral",
+        "displayName": "Permukaan Ditekan (gelap)",
+        "canonical": "#1F2B3D",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#030B1B",
+          "#192436",
+          "#344054",
+          "#515E73",
+          "#738197",
+          "#97A6BC",
+          "#BCCCE3",
+          "#E0F0FF"
+        ]
+      },
+      "line-dark": {
+        "role": "neutral",
+        "displayName": "Garis (gelap)",
+        "canonical": "#253042",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#040B1A",
+          "#1A2436",
+          "#354053",
+          "#525E72",
+          "#748196",
+          "#98A5BC",
+          "#BDCBE3",
+          "#E1F0FF"
+        ]
+      },
+      "line-strong-dark": {
+        "role": "neutral",
+        "displayName": "Garis Tegas (gelap)",
+        "canonical": "#3B4A60",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#020B1C",
+          "#172438",
+          "#324056",
+          "#4F5F76",
+          "#71819A",
+          "#95A6BF",
+          "#BACCE6",
+          "#DDF0FF"
+        ]
+      },
+      "ink-dark": {
+        "role": "neutral",
+        "displayName": "Tinta (gelap)",
+        "canonical": "#EDF1F7",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#090B0F",
+          "#212429",
+          "#3D4045",
+          "#5A5E63",
+          "#7D8086",
+          "#A1A5AA",
+          "#C7CBD1",
+          "#EBEFF5"
+        ]
+      },
+      "ink-secondary-dark": {
+        "role": "neutral",
+        "displayName": "Tinta Sekunder (gelap)",
+        "canonical": "#A1AEC1",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#040B18",
+          "#1B2433",
+          "#364050",
+          "#535E6F",
+          "#758193",
+          "#99A6B8",
+          "#BECCDF",
+          "#E2F0FF"
+        ]
+      },
+      "ink-muted-dark": {
+        "role": "neutral",
+        "displayName": "Tinta Redup (gelap)",
+        "canonical": "#66748A",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#030B1B",
+          "#192437",
+          "#344054",
+          "#515E74",
+          "#738198",
+          "#97A6BD",
+          "#BCCCE4",
+          "#E0F0FF"
+        ]
+      },
+      "inverse-dark": {
+        "role": "neutral",
+        "displayName": "Inverse (gelap)",
+        "canonical": "#E9EEF6",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#080B10",
+          "#21242A",
+          "#3C4046",
+          "#5A5E65",
+          "#7C8088",
+          "#A0A5AC",
+          "#C6CBD3",
+          "#EAEFF7"
+        ]
+      },
+      "on-inverse-dark": {
+        "role": "neutral",
+        "displayName": "Di Atas Inverse (gelap)",
+        "canonical": "#0E1726",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#040B19",
+          "#1B2434",
+          "#364051",
+          "#535E71",
+          "#758194",
+          "#99A5BA",
+          "#BECBE1",
+          "#E2EFFF"
+        ]
+      },
+      "ok-ink-dark": {
+        "role": "neutral",
+        "displayName": "Tinta Sukses (gelap)",
+        "canonical": "#63D394",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#001700",
+          "#003400",
+          "#00531D",
+          "#00733B",
+          "#18985D",
+          "#4CBE80",
+          "#76E5A5",
+          "#9BFFC8"
+        ]
+      },
+      "ok-wash-dark": {
+        "role": "neutral",
+        "displayName": "Wash Sukses (gelap)",
+        "canonical": "#11301E",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#001103",
+          "#0C2B19",
+          "#294834",
+          "#466652",
+          "#688974",
+          "#8CAE97",
+          "#B1D5BD",
+          "#D5F9E0"
+        ]
+      },
+      "warn-ink-dark": {
+        "role": "neutral",
+        "displayName": "Tinta Peringatan (gelap)",
+        "canonical": "#F4BC52",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#250000",
+          "#441300",
+          "#633200",
+          "#845200",
+          "#AA7500",
+          "#D09A28",
+          "#F8C057",
+          "#FFE47C"
+        ]
+      },
+      "warn-wash-dark": {
+        "role": "neutral",
+        "displayName": "Wash Peringatan (gelap)",
+        "canonical": "#33250A",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#150800",
+          "#2F2106",
+          "#4C3D23",
+          "#6B5B40",
+          "#8E7E61",
+          "#B3A285",
+          "#DAC8A9",
+          "#FFECCD"
+        ]
+      },
+      "danger-ink-dark": {
+        "role": "neutral",
+        "displayName": "Tinta Bahaya (gelap)",
+        "canonical": "#FF8F85",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#310000",
+          "#540000",
+          "#781013",
+          "#9C3632",
+          "#C55B53",
+          "#EE8076",
+          "#FFA69B",
+          "#FFCABE"
+        ]
+      },
+      "danger-wash-dark": {
+        "role": "neutral",
+        "displayName": "Wash Bahaya (gelap)",
+        "canonical": "#3A1714",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#1D0101",
+          "#3B1815",
+          "#5A3430",
+          "#7A514D",
+          "#9F746E",
+          "#C69892",
+          "#EDBDB7",
+          "#FFE1DB"
+        ]
+      },
+      "neutral-ink-dark": {
+        "role": "neutral",
+        "displayName": "Tinta Netral (gelap)",
+        "canonical": "#B6C2D2",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#050B16",
+          "#1C2531",
+          "#37414E",
+          "#545F6D",
+          "#768190",
+          "#9AA6B5",
+          "#C0CCDC",
+          "#E3F0FF"
+        ]
+      },
+      "neutral-wash-dark": {
+        "role": "neutral",
+        "displayName": "Wash Netral (gelap)",
+        "canonical": "#1E2834",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#040C16",
+          "#1B2531",
+          "#36414E",
+          "#535F6D",
+          "#758190",
+          "#99A6B5",
+          "#BFCCDC",
+          "#E3F0FF"
+        ]
+      },
+      "badge-dark": {
+        "role": "tertiary",
+        "displayName": "Merah Badge (gelap)",
+        "canonical": "#FF5A4E",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#320000",
+          "#5B0000",
+          "#870000",
+          "#B40004",
+          "#DF3B33",
+          "#FF6D60",
+          "#FF9E8E",
+          "#FFC9BA"
+        ]
+      },
+      "shadow-dark": {
+        "role": "neutral",
+        "displayName": "Sumber Bayangan (gelap)",
+        "canonical": "#000000",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
+        ]
+      },
+      "scrim-dark": {
+        "role": "neutral",
+        "displayName": "Scrim (gelap)",
+        "canonical": "rgba(0, 0, 0, 0.6)",
+        "scheme": "dark"
+      },
+      "overlay-ink-dark": {
+        "role": "neutral",
+        "displayName": "Tinta Overlay Kamera (gelap)",
+        "canonical": "rgba(10, 15, 23, 0.82)",
+        "scheme": "dark"
+      },
+      "legend-wash-dark": {
+        "role": "neutral",
+        "displayName": "Wash Legenda (gelap)",
+        "canonical": "rgba(20, 27, 38, 0.9)",
+        "scheme": "dark"
+      },
+      "skeleton-dark": {
+        "role": "neutral",
+        "displayName": "Kerangka Memuat (gelap)",
+        "canonical": "#1E2836",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#040B17",
+          "#1B2532",
+          "#364150",
+          "#535F6F",
+          "#758192",
+          "#99A6B8",
+          "#BFCCDE",
+          "#E2F0FF"
         ]
       }
     },
     "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Judul/sapaan header akar dan layar sambutan."
+      },
       "title": {
-        "displayName": "title",
-        "purpose": "Judul header akar navy."
+        "displayName": "Title",
+        "purpose": "Judul kartu tugas utama driver."
       },
       "headline": {
-        "displayName": "headline",
-        "purpose": "Judul bottom sheet."
+        "displayName": "Headline",
+        "purpose": "SectionTitle dan judul bottom sheet."
       },
       "titleSm": {
-        "displayName": "titleSm",
-        "purpose": "Judul DetailHeader, SectionTitle, tombol lg."
+        "displayName": "Title Kecil",
+        "purpose": "Judul DetailHeader, kode pekerjaan, bar ringkas, label tombol lg."
       },
       "body": {
-        "displayName": "body",
-        "purpose": "Isi dan baris LineItem."
+        "displayName": "Body",
+        "purpose": "Isi dan field."
       },
       "bodyStrong": {
-        "displayName": "bodyStrong",
-        "purpose": "Penekanan isi, label tombol md."
+        "displayName": "Body Tebal",
+        "purpose": "Judul baris, label tombol md dan FAB."
       },
       "bodySm": {
-        "displayName": "bodySm",
-        "purpose": "Alasan, status tag, segmen."
+        "displayName": "Body Kecil",
+        "purpose": "Alasan, status tag, segmen, chip, toast."
       },
       "label": {
-        "displayName": "label",
-        "purpose": "Label sel/field/kolom, UPPERCASE; bukan kicker."
+        "displayName": "Label",
+        "purpose": "Menamai nilai di bawahnya; huruf biasa, bukan kicker."
       },
       "caption": {
-        "displayName": "caption",
-        "purpose": "Metadata, waktu, helper."
+        "displayName": "Caption",
+        "purpose": "Metadata, helper, label pintasan dan tab."
       },
       "figure": {
-        "displayName": "figure",
-        "purpose": "Nominal rupiah tabular."
+        "displayName": "Angka",
+        "purpose": "Nominal rupiah tabular di baris dan sub-angka."
       },
       "figureLg": {
-        "displayName": "figureLg",
-        "purpose": "Nominal utama tabular."
+        "displayName": "Angka Besar",
+        "purpose": "Nominal rupiah menonjol."
       },
-      "serial": {
-        "displayName": "serial",
-        "purpose": "Nomor dokumen, merah serial."
+      "figureXl": {
+        "displayName": "Angka Utama",
+        "purpose": "Angka utama HeroCard, menghitung naik sekali."
       },
       "mono": {
-        "displayName": "mono",
-        "purpose": "URI dan ref."
+        "displayName": "Mono",
+        "purpose": "Nomor dokumen, URI, ref."
       }
     },
     "shadows": [
       {
-        "name": "sheet-front",
-        "value": "0 1px 3px rgba(8,42,86,0.06)",
-        "purpose": "Lembar depan DocumentStack saja (RN: shadowOpacity 0.06, radius 3, y 1, elevation 1)."
+        "name": "elevation-1",
+        "value": "0px 2px 10px rgba(14, 23, 38, 0.07)",
+        "purpose": "Card, ActionItem, OrderRow, Cell, tombol primary (tema terang; gelap memakai garis 1 dp line)."
       },
       {
-        "name": "snackbar",
-        "value": "0 3px 8px rgba(8,42,86,0.18)",
-        "purpose": "Snackbar hasil tindakan (RN: shadowOpacity 0.18, radius 8, y 3, elevation 4)."
+        "name": "elevation-2",
+        "value": "0px 6px 18px rgba(14, 23, 38, 0.1)",
+        "purpose": "HeroCard dan lembar depan DocumentStack (tema terang)."
       },
       {
-        "name": "scrim",
-        "value": "rgba(8,42,86,0.48)",
-        "purpose": "Latar bottom sheet (token scrim)."
+        "name": "elevation-3",
+        "value": "0px 10px 26px rgba(14, 23, 38, 0.18)",
+        "purpose": "FAB dan toast; di gelap sumber shadow hitam."
       }
     ],
     "motion": [
       {
         "name": "duration-fast",
         "value": "140ms",
-        "purpose": "Fade keluar, feedback cepat."
+        "purpose": "Respons cepat."
       },
       {
         "name": "duration-base",
-        "value": "220ms",
-        "purpose": "Layout transition riwayat lembar, snackbar masuk."
+        "value": "240ms",
+        "purpose": "Transisi standar, layout DocumentStack."
       },
       {
         "name": "duration-slow",
-        "value": "320ms",
-        "purpose": "Transisi lebih panjang."
+        "value": "360ms",
+        "purpose": "Masuk kartu bertahap dan HeroCard."
       },
       {
-        "name": "duration-stamp",
-        "value": "260ms",
-        "purpose": "Tekanan cap: skala 1.28 -> 1, rotasi -6deg."
+        "name": "duration-count",
+        "value": "700ms",
+        "purpose": "Angka ringkasan menghitung naik sekali."
       },
       {
-        "name": "easeOut",
-        "value": "Easing.out(Easing.exp)",
-        "purpose": "Kemunculan; tidak untuk loop."
+        "name": "ease-out",
+        "value": "Easing.out(Easing.exp) ≈ cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Kemunculan."
       },
       {
-        "name": "easeInOut",
-        "value": "Easing.inOut(Easing.cubic)",
-        "purpose": "Perpindahan dua arah."
+        "name": "ease-in-out",
+        "value": "Easing.inOut(Easing.cubic) ≈ cubic-bezier(0.65, 0, 0.35, 1)",
+        "purpose": "Denyut kerangka memuat."
       },
       {
-        "name": "reduced-motion",
-        "value": "0ms",
-        "purpose": "useMotionDuration mengembalikan 0 saat kurangi gerakan aktif."
+        "name": "press-spring",
+        "value": "spring damping 18, stiffness 320, mass 0.6",
+        "purpose": "Tekan: skala 0.96 (subtle) / 0.975 + rotateY ≤ 4° (card)."
+      },
+      {
+        "name": "glide-spring",
+        "value": "spring damping 20, stiffness 220, mass 0.8",
+        "purpose": "Pil tab dan pil segmen."
+      },
+      {
+        "name": "enter-stagger",
+        "value": "FadeInDown 360ms, translateY 12, delay 60 + 45×i, maks 8 item",
+        "purpose": "Kartu daftar masuk bertahap."
+      },
+      {
+        "name": "header-parallax",
+        "value": "translateY = scrollY × 0.5; isi memudar 0–140 dp",
+        "purpose": "RootHeader saat digulir; bar ringkas 52 dp muncul."
       }
     ],
     "breakpoints": [
       {
-        "name": "reading-max",
+        "name": "content-max",
         "value": "720px"
-      },
-      {
-        "name": "touch-min",
-        "value": "48px"
       }
-    ],
-    "strokes": [
-      {
-        "name": "hairline",
-        "value": "1"
-      },
-      {
-        "name": "rule",
-        "value": "1.5"
-      },
-      {
-        "name": "stage",
-        "value": "3"
-      }
-    ],
-    "statusLine": {
-      "solid": "final",
-      "dashed": "menunggu/provisional",
-      "struck": "batal/tidak berlaku",
-      "source": "mobile/src/core/i18n/status.ts"
-    }
+    ]
   },
   "components": [
     {
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Aksi utama di footer Screen; lg 56 dp untuk lapangan.",
-      "html": "<button class=\"ds-btn-primary\">Catat permintaan</button>",
-      "css": ".ds-btn-primary { font-family: Roboto, 'SF Pro Text', system-ui, sans-serif; min-height: 48px; padding: 8px 16px; background: #1136D6; color: #FFFFFF; border: 1.5px solid #1136D6; border-radius: 8px; font-size: 16px; line-height: 22px; font-weight: 600; transition: transform 140ms cubic-bezier(0.16,1,0.3,1), background 140ms; } .ds-btn-primary:hover { background: #0C29A8; border-color: #0C29A8; } .ds-btn-primary:active { background: #0C29A8; transform: scale(0.985); } .ds-btn-primary:focus-visible { outline: 2px solid #082A56; outline-offset: 2px; }"
+      "description": "Aksi utama di footer atau kartu; biru merek terisi, bayangan rendah, turun saat ditekan.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z\"/></svg>Terima penawaran</button>",
+      "css": ".ds-btn-primary { font-family: Roboto, -apple-system, 'SF Pro Text', system-ui, sans-serif; display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 8px 16px; border: none; border-radius: 12px; background: #1136D6; color: #FFFFFF; font-size: 16px; line-height: 22px; font-weight: 600; box-shadow: 0px 2px 10px rgba(14, 23, 38, 0.07); transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-primary:hover { background: #0C29A8; } .ds-btn-primary:active { transform: scale(0.96); } .ds-btn-primary:focus-visible { outline: 2px solid #1136D6; outline-offset: 3px; }"
     },
     {
       "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Aksi kedua: lembar putih bergaris karbon.",
-      "html": "<button class=\"ds-btn-secondary\">Harga</button>",
-      "css": ".ds-btn-secondary { font-family: Roboto, 'SF Pro Text', system-ui, sans-serif; min-height: 48px; padding: 8px 16px; background: #FFFFFF; color: #1136D6; border: 1.5px solid #1136D6; border-radius: 8px; font-size: 16px; font-weight: 600; transition: background 140ms; } .ds-btn-secondary:hover, .ds-btn-secondary:active { background: #E8EDFD; } .ds-btn-secondary:focus-visible { outline: 2px solid #082A56; outline-offset: 2px; }"
+      "description": "Aksi pendamping: wash biru dengan tinta biru, tanpa bayangan.",
+      "html": "<button class=\"ds-btn-secondary\">Lihat rincian</button>",
+      "css": ".ds-btn-secondary { font-family: Roboto, -apple-system, 'SF Pro Text', system-ui, sans-serif; min-height: 48px; padding: 8px 16px; border: none; border-radius: 12px; background: #E8EEFF; color: #1136D6; font-size: 16px; line-height: 22px; font-weight: 600; transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-secondary:hover { background: #E8EEFB; } .ds-btn-secondary:active { transform: scale(0.96); } .ds-btn-secondary:focus-visible { outline: 2px solid #1136D6; outline-offset: 3px; }"
     },
     {
       "name": "Danger Button",
       "kind": "button",
       "refersTo": "button-danger",
-      "description": "Tolak/batalkan: garis merah di lembar putih.",
-      "html": "<button class=\"ds-btn-danger\">Tolak bukti</button>",
-      "css": ".ds-btn-danger { font-family: Roboto, 'SF Pro Text', system-ui, sans-serif; min-height: 48px; padding: 8px 16px; background: #FFFFFF; color: #B42318; border: 1.5px solid #B42318; border-radius: 8px; font-size: 16px; font-weight: 600; } .ds-btn-danger:hover, .ds-btn-danger:active { background: #E8EDFD; } .ds-btn-danger:focus-visible { outline: 2px solid #082A56; outline-offset: 2px; }"
+      "description": "Tindakan menolak/merusak: wash bahaya dengan tinta bahaya.",
+      "html": "<button class=\"ds-btn-danger\">Tolak permintaan</button>",
+      "css": ".ds-btn-danger { font-family: Roboto, -apple-system, 'SF Pro Text', system-ui, sans-serif; min-height: 48px; padding: 8px 16px; border: none; border-radius: 12px; background: #FDECEA; color: #B42318; font-size: 16px; line-height: 22px; font-weight: 600; transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-danger:active { transform: scale(0.96); } .ds-btn-danger:focus-visible { outline: 2px solid #B42318; outline-offset: 3px; }"
+    },
+    {
+      "name": "Extended FAB",
+      "kind": "button",
+      "refersTo": "fab-extended",
+      "description": "Aksi utama owner/admin di atas tab bar; menyusut jadi ikon saat menggulir turun.",
+      "html": "<button class=\"ds-fab\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z\"/></svg><span>Catat permintaan</span></button>",
+      "css": ".ds-fab { font-family: Roboto, -apple-system, 'SF Pro Text', system-ui, sans-serif; display: inline-flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 16px; border: none; border-radius: 18px; background: #1136D6; color: #FFFFFF; font-size: 16px; font-weight: 600; box-shadow: 0px 10px 26px rgba(14, 23, 38, 0.18); transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-fab:active { transform: scale(0.96); } .ds-fab:focus-visible { outline: 2px solid #1136D6; outline-offset: 3px; }"
     },
     {
       "name": "Field",
       "kind": "input",
       "refersTo": "field",
-      "description": "Label sel di atas, kotak putih 48 dp; fokus karbon 2.",
-      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Nomor polisi</span><input class=\"ds-field-input\" placeholder=\"B 1234 XYZ\"></label>",
-      "css": ".ds-field { font-family: Roboto, 'SF Pro Text', system-ui, sans-serif; display: flex; flex-direction: column; gap: 4px; } .ds-field-label { font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: #5C7392; } .ds-field-input { font: inherit; font-size: 16px; min-height: 48px; padding: 0 12px; border: 1.5px solid #AEBBCD; border-radius: 8px; background: #FFFFFF; color: #0D1B2E; } .ds-field-input:hover { border-color: #5C7392; } .ds-field-input:focus-visible { outline: none; border: 2px solid #1136D6; }"
+      "description": "Kolom isian: label kalimat di atas, kotak membulat 12; fokus garis biru 2.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Harga disepakati</span><span class=\"ds-field-box\"><b>Rp</b><input value=\"1.250.000\" /></span><span class=\"ds-field-help\">Kosongkan bila belum diketahui.</span></label>",
+      "css": ".ds-field { font-family: Roboto, -apple-system, 'SF Pro Text', system-ui, sans-serif; display: flex; flex-direction: column; gap: 6px; max-width: 340px; } .ds-field-label { font-size: 13px; line-height: 18px; font-weight: 600; color: #56657B; } .ds-field-box { display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 14px; border: 1.5px solid #E3E8F0; border-radius: 12px; background: #FFFFFF; } .ds-field-box b { color: #56657B; font-weight: 600; } .ds-field-box input { flex: 1; border: none; outline: none; background: transparent; font: inherit; font-size: 16px; color: #0E1726; font-variant-numeric: tabular-nums; } .ds-field-box:hover { border-color: #C3CDDB; } .ds-field-box:focus-within { border: 2px solid #1136D6; } .ds-field-help { font-size: 12px; line-height: 16px; color: #56657B; }"
     },
     {
       "name": "Status Tag",
       "kind": "chip",
-      "refersTo": "status-tag-info",
-      "description": "Teks + ikon + garis: utuh final, putus-putus menunggu, coret batal.",
-      "html": "<span class=\"ds-tag ds-tag-ok\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M12 2a10 10 0 1 0 0 20a10 10 0 0 0 0-20m0 2a8 8 0 1 1 0 16a8 8 0 0 1 0-16m-1 11.6L7.4 12L6 13.4l5 5l7-7L16.6 10z\"/></svg>Lunas tercatat (demo)</span> <span class=\"ds-tag ds-tag-warn\">Menunggu persetujuan</span> <span class=\"ds-tag ds-tag-struck\">Kedaluwarsa</span>",
-      "css": ".ds-tag { font-family: Roboto, 'SF Pro Text', system-ui, sans-serif; display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; border: 1.25px solid; font-size: 14px; line-height: 20px; font-weight: 600; } .ds-tag-ok { color: #1A6B3C; background: #E3F3E8; border-color: #1A6B3C; } .ds-tag-warn { color: #8A5300; background: #FFF0CC; border-color: #8A5300; border-style: dashed; } .ds-tag-struck { color: #43566F; background: #EBEFF5; border-color: #43566F; text-decoration: line-through; } .ds-tag:focus-visible { outline: 2px solid #1136D6; outline-offset: 2px; }"
+      "refersTo": "status-tag",
+      "description": "Status dengan teks + ikon + bentuk garis: utuh final, putus-putus menunggu, coret batal.",
+      "html": "<div class=\"ds-tags\"><span class=\"ds-tag ds-tag-ok\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z\"/></svg>Diserahkan</span><span class=\"ds-tag ds-tag-warn\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z\"/></svg>Menunggu sinkron</span><span class=\"ds-tag ds-tag-neutral\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z\"/></svg><s>Dibatalkan</s></span></div>",
+      "css": ".ds-tags { display: flex; gap: 8px; flex-wrap: wrap; } .ds-tag { font-family: Roboto, -apple-system, 'SF Pro Text', system-ui, sans-serif; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; border: 1.25px solid; font-size: 14px; line-height: 20px; font-weight: 600; } .ds-tag-ok { background: #E2F5E9; color: #146C38; border-color: #E2F5E9; } .ds-tag-warn { background: #FFF1D6; color: #8A5300; border-color: #8A5300; border-style: dashed; } .ds-tag-neutral { background: #EDF1F6; color: #45556C; border-color: #45556C; }"
     },
     {
-      "name": "Cell Grid",
+      "name": "Hero Header + Summary Card",
       "kind": "card",
-      "refersTo": "cell",
-      "description": "Sel nota: label kapital kecil di atas nominal tabular, garis sel.",
-      "html": "<div class=\"ds-cells\"><a class=\"ds-cell\" href=\"#\"><span class=\"ds-cell-label\">Piutang</span><span class=\"ds-cell-fig\">Rp 2.200.000</span></a><a class=\"ds-cell\" href=\"#\"><span class=\"ds-cell-label\">Belum dialokasikan</span><span class=\"ds-cell-fig\">Rp 200.000</span></a></div>",
-      "css": ".ds-cells { font-family: Roboto, 'SF Pro Text', system-ui, sans-serif; display: flex; flex-wrap: wrap; background: #FFFFFF; border-top: 1px solid #D5DDE8; border-left: 1px solid #D5DDE8; border-radius: 4px; overflow: hidden; } .ds-cell { flex: 1 1 50%; min-height: 72px; padding: 12px; box-sizing: border-box; border-right: 1px solid #D5DDE8; border-bottom: 1px solid #D5DDE8; display: flex; flex-direction: column; gap: 4px; text-decoration: none; color: #0D1B2E; } .ds-cell:hover, .ds-cell:active { background: #E8EDFD; } .ds-cell:focus-visible { outline: 2px solid #1136D6; outline-offset: -2px; } .ds-cell-label { font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: #5C7392; } .ds-cell-fig { font-size: 17px; line-height: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }"
+      "refersTo": "hero-card",
+      "description": "Header gradien biru dengan sapaan; kartu ringkasan putih menimpa tepi bawahnya dengan angka uang besar.",
+      "html": "<div class=\"ds-hero\"><div class=\"ds-hero-head\"><div class=\"ds-hero-title\">Halo, Raka</div><div class=\"ds-hero-sub\">Operator Angkut Demo · 22 Okt 2026</div></div><div class=\"ds-hero-card\"><div class=\"ds-hero-label\">Belum dibayar pelanggan</div><div class=\"ds-hero-fig\">Rp 2.200.000</div><div class=\"ds-hero-stats\"><div><span>Uang diterima</span><b class=\"ok\">Rp 5.800.000</b></div><div><span>Kontribusi final</span><b>Rp 2.150.000</b></div></div></div></div>",
+      "css": ".ds-hero { font-family: Roboto, -apple-system, 'SF Pro Text', system-ui, sans-serif; max-width: 380px; background: #F4F6FA; padding-bottom: 16px; } .ds-hero-head { background: radial-gradient(circle at 92% 5%, rgba(25,184,242,0.55), rgba(25,184,242,0) 70%), linear-gradient(135deg, #0D2EC2, #1766D1); color: #FFFFFF; padding: 16px 16px 76px; border-radius: 0 0 28px 28px; } .ds-hero-title { font-size: 30px; line-height: 36px; font-weight: 800; letter-spacing: -0.4px; } .ds-hero-sub { font-size: 14px; line-height: 20px; color: #E3ECFF; margin-top: 4px; } .ds-hero-card { margin: -72px 16px 0; background: #FFFFFF; border-radius: 20px; padding: 16px; box-shadow: 0px 6px 18px rgba(14, 23, 38, 0.1); transition: transform 140ms; } .ds-hero-card:hover { transform: scale(0.99); } .ds-hero-label { font-size: 13px; font-weight: 600; color: #56657B; } .ds-hero-fig { font-size: 32px; line-height: 38px; font-weight: 800; letter-spacing: -0.6px; color: #0E1726; font-variant-numeric: tabular-nums; } .ds-hero-stats { display: flex; border-top: 1px solid #E3E8F0; margin-top: 12px; padding-top: 12px; } .ds-hero-stats div { flex: 1; display: flex; flex-direction: column; gap: 2px; } .ds-hero-stats div + div { border-left: 1px solid #E3E8F0; padding-left: 12px; } .ds-hero-stats span { font-size: 12px; color: #56657B; } .ds-hero-stats b { font-size: 17px; font-weight: 700; color: #0E1726; font-variant-numeric: tabular-nums; } .ds-hero-stats b.ok { color: #146C38; }"
     },
     {
-      "name": "Root Header + Demo Strip",
+      "name": "Action Item Card",
+      "kind": "card",
+      "refersTo": "action-card",
+      "description": "Kartu \"Perlu tindakan\": tile tingkat, judul, alasan sehari-hari, chip tingkat, chevron.",
+      "html": "<a class=\"ds-action\" href=\"#\"><span class=\"ds-action-tile\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M11,15H13V17H11V15M11,7H13V13H11V7M12,2C6.47,2 2,6.5 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z\"/></svg></span><span class=\"ds-action-body\"><b>A06 · penerima belum siap</b><span>Petugas gudang tujuan baru siap menerima pukul 14.00 WIB</span><em>Menghambat</em></span><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"#8D99AC\"><path d=\"M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z\"/></svg></a>",
+      "css": ".ds-action { font-family: Roboto, -apple-system, 'SF Pro Text', system-ui, sans-serif; display: flex; align-items: center; gap: 12px; max-width: 380px; padding: 14px; border-radius: 16px; background: #FFFFFF; box-shadow: 0px 2px 10px rgba(14, 23, 38, 0.07); text-decoration: none; transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-action:active { transform: scale(0.975); } .ds-action:focus-visible { outline: 2px solid #1136D6; outline-offset: 2px; } .ds-action-tile { width: 40px; height: 40px; border-radius: 12px; background: #FDECEA; color: #B42318; display: flex; align-items: center; justify-content: center; flex: none; } .ds-action-body { flex: 1; display: flex; flex-direction: column; gap: 3px; } .ds-action-body b { font-size: 16px; line-height: 22px; font-weight: 600; color: #0E1726; } .ds-action-body span { font-size: 14px; line-height: 20px; color: #56657B; } .ds-action-body em { align-self: flex-start; font-style: normal; font-size: 12px; font-weight: 700; color: #B42318; background: #FDECEA; border-radius: 999px; padding: 2px 8px; }"
+    },
+    {
+      "name": "Role Tabs",
       "kind": "nav",
-      "refersTo": "root-header",
-      "description": "Pita DEMO kuning permanen di atas header akar navy (wordmark sementara).",
-      "html": "<div class=\"ds-demo\">DEMO — SIMULASI FRONTEND · Owner · Angkut Demo</div><header class=\"ds-root\"><span class=\"ds-wm\">tov<b>v</b></span><span class=\"ds-sub\">Beranda</span></header>",
-      "css": ".ds-demo { font-family: Roboto, 'SF Pro Text', system-ui, sans-serif; background: #F7E6A1; color: #082A56; border-bottom: 1px solid #E3CE73; min-height: 40px; padding: 4px 16px; display: flex; align-items: center; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; } .ds-root { font-family: Roboto, 'SF Pro Text', system-ui, sans-serif; background: #082A56; color: #FFFFFF; padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 2px; } .ds-wm { font-size: 26px; font-weight: 800; } .ds-wm b { color: #19B8F2; } .ds-sub { font-size: 14px; color: #B9C8E3; }"
+      "refersTo": "tab-bar",
+      "description": "Tab bawah per peran; ikon aktif terisi di atas pil wash biru yang mekar.",
+      "html": "<nav class=\"ds-tabs\"><a class=\"on\" href=\"#\"><i><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z\"/></svg></i>Beranda</a><a href=\"#\"><i><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3Z\"/></svg></i>Pekerjaan</a><a href=\"#\"><i><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M3,3V21H21V3H3M9,17H7V10H9V17M13,17H11V7H13V17M17,17H15V13H17V17Z\"/></svg></i>Keuangan</a></nav>",
+      "css": ".ds-tabs { font-family: Roboto, -apple-system, 'SF Pro Text', system-ui, sans-serif; display: flex; max-width: 380px; min-height: 64px; padding-top: 8px; background: #FFFFFF; border-top: 1px solid #E3E8F0; } .ds-tabs a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 12px; font-weight: 600; color: #56657B; text-decoration: none; } .ds-tabs i { width: 60px; height: 30px; border-radius: 999px; display: flex; align-items: center; justify-content: center; transition: background 240ms; } .ds-tabs a.on { color: #1136D6; } .ds-tabs a.on i { background: #E8EEFF; } .ds-tabs a:hover i { background: #E8EEFB; } .ds-tabs a:focus-visible { outline: 2px solid #1136D6; }"
     },
     {
-      "name": "Bottom Tabs",
-      "kind": "nav",
-      "refersTo": "segmented-on",
-      "description": "Tab bawah native per peran; aktif karbon, badge merah seri.",
-      "html": "<nav class=\"ds-tabs\"><a class=\"ds-tab ds-tab-on\" href=\"#\">Beranda</a><a class=\"ds-tab\" href=\"#\">Pekerjaan</a><a class=\"ds-tab\" href=\"#\">Keuangan</a><a class=\"ds-tab\" href=\"#\">Lainnya</a></nav>",
-      "css": ".ds-tabs { font-family: Roboto, 'SF Pro Text', system-ui, sans-serif; display: flex; background: #FFFFFF; border-top: 1px solid #D5DDE8; min-height: 60px; } .ds-tab { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #5C7392; text-decoration: none; } .ds-tab:hover { color: #0D1B2E; } .ds-tab-on { color: #1136D6; } .ds-tab:focus-visible { outline: 2px solid #1136D6; outline-offset: -2px; }"
-    },
-    {
-      "name": "Document Stack + Stamp",
+      "name": "Demo Strip",
       "kind": "custom",
-      "refersTo": "sheet",
-      "description": "Lembar rangkap: versi lama mengintip sebagai ply berwarna (jumlah ply = jumlah versi); cap hanya saat status tercapai.",
-      "html": "<div class=\"ds-stack\"><div class=\"ds-ply\"></div><div class=\"ds-front\"><span class=\"ds-serial\">INV/A/2026/0005</span><span class=\"ds-stamp\">DITERIMA (DEMO)</span><div class=\"ds-line\"><span>Net</span><span>Rp 800.000</span></div></div></div><button class=\"ds-hist\">1 versi sebelumnya</button>",
-      "css": ".ds-stack { font-family: Roboto, 'SF Pro Text', system-ui, sans-serif; position: relative; padding-bottom: 5px; } .ds-ply { position: absolute; top: 5px; left: 4px; right: 4px; bottom: 0; border-radius: 6px; border: 1px solid #AEBBCD; background: #F6D5DE; } .ds-front { position: relative; background: #FFFFFF; border: 1px solid #AEBBCD; border-radius: 6px; padding: 16px; box-shadow: 0 1px 3px rgba(8,42,86,0.06); display: flex; flex-direction: column; gap: 8px; } .ds-serial { font-family: Menlo, monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.4px; color: #C42032; } .ds-stamp { align-self: flex-end; transform: rotate(-6deg); border: 2px solid #1A6B3C; outline: 1px solid #1A6B3C; outline-offset: -5px; padding: 6px 12px; color: #1A6B3C; font-size: 13px; font-weight: 700; letter-spacing: 2px; border-radius: 4px; } .ds-line { display: flex; justify-content: space-between; font-size: 16px; color: #0D1B2E; font-variant-numeric: tabular-nums; } .ds-hist { font-family: Roboto, 'SF Pro Text', system-ui, sans-serif; margin-top: 4px; min-height: 44px; padding: 0 8px; background: transparent; border: 0; border-radius: 8px; color: #1136D6; font-size: 14px; font-weight: 600; } .ds-hist:hover, .ds-hist:active { background: #E8EDFD; } .ds-hist:focus-visible { outline: 2px solid #1136D6; }"
+      "refersTo": "demo-strip",
+      "description": "Pita kuning permanen di atas semua layar, sama di kedua tema; membuka pemilih akun demo lokal.",
+      "html": "<div class=\"ds-demo\"><b>DEMO — SIMULASI FRONTEND</b><span>· Owner · Angkut Demo</span><em>Ganti</em></div>",
+      "css": ".ds-demo { font-family: Roboto, -apple-system, 'SF Pro Text', system-ui, sans-serif; display: flex; align-items: center; gap: 6px; max-width: 380px; min-height: 40px; padding: 4px 16px; background: #FFD84D; color: #3A2C00; font-size: 12px; line-height: 16px; } .ds-demo b { font-weight: 800; letter-spacing: 0.3px; } .ds-demo span { flex: 1; font-weight: 600; white-space: nowrap; overflow: hidden; } .ds-demo em { font-style: normal; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: rgba(58,44,0,0.1); cursor: pointer; } .ds-demo em:hover { background: rgba(58,44,0,0.18); }"
     }
   ],
   "narrative": {
-    "northStar": "Nota Rangkap",
-    "overview": "Tovv adalah buku nota karbon rangkap / surat jalan yang dipegang operator towing: setiap pekerjaan adalah dokumen bernomor seri dan berversi. Dunia itu hanya menyumbang palet, tipografi sel, kepadatan, dan dua gerakan khas (lembar rangkap, cap status); navigasi, tab, back gesture, safe area, keyboard dan ukuran teks tetap native. Satu bahasa desain dipakai di Android dan iOS, tema terang saja (dibaca di bawah matahari siang), font sistem, satu keluarga ikon (MaterialCommunityIcons), salinan UI Bahasa Indonesia.\n\nMode Operate: layar dibuka dengan apa yang tertahan (daftar tindakan harian), lalu dokumen, lalu satu aksi berikutnya di area ibu jari. Uang selalu duduk di sel nota dengan angka tabular sejajar kanan; nilai yang belum diketahui ditulis \"—\" plus keterangan, tidak pernah nol.",
+    "northStar": "Kartu Saldo Super-App",
+    "overview": "Tovv memakai bahasa yang sudah dikenal pengguna Indonesia dari Gojek/GoPay, Grab/Tokopedia, dan Bank Jago/Jenius: header gradien biru merek di puncak layar akar, kartu ringkasan putih yang melayang menimpa tepi bawah header dengan satu angka uang besar, grid pintasan berikon, lalu daftar kartu membulat. Setiap kartu menjawab satu pertanyaan dalam bahasa sehari-hari dan dapat diketuk untuk diselesaikan.\n\nBiru merek diturunkan dari logo Solveit (#1136D6 → #19B8F2). Gradien hanya hidup di header; isi layar duduk di latar dingin dengan kartu putih (terang) atau permukaan biru-arang (gelap). Tema mengikuti sistem kecuali pengguna memilih lain di Lainnya → Tampilan; kedua palet berkunci sama dan diuji kontrasnya. Font sistem, satu keluarga ikon (MaterialCommunityIcons) dalam tile ikon membulat, salinan Bahasa Indonesia. Navigasi, back gesture, safe area, keyboard dan ukuran teks tetap native.\n\nGerak terasa fisik tetapi pendek: header bergerak setengah kecepatan saat digulir lalu menyerahkan judul ke bar ringkas, kartu masuk bertahap, kartu yang ditekan turun dan miring halus ke arah jari, angka ringkasan menghitung naik sekali, pil tab meluncur. Semua di UI thread (Reanimated); \"kurangi gerakan\" berarti tanpa gerak.",
     "keyCharacteristics": [
-      "Latar dingin, lembar putih bergaris rambut, shell navy, tinta karbon untuk aksi.",
-      "Status = teks + ikon + bentuk garis (utuh/putus-putus/coret); warna hanya penguat.",
-      "Nomor dokumen monospace merah, satu-satunya pemakaian merah seri.",
-      "Datar; kedalaman berasal dari garis dan tumpukan lembar, bukan bayangan.",
-      "Pita \"DEMO — SIMULASI FRONTEND\" kuning permanen di atas semua layar."
+      "Header gradien biru (diagonal `heroFrom` → `heroTo`, cahaya `heroGlow` di kanan atas) dengan sudut bawah 28, hanya di layar akar.",
+      "Kartu ringkasan menimpa header (−72 dp), angka uang `figureXl` tabular yang menghitung naik sekali.",
+      "Kartu membulat 16–20: bayangan lembut ke bawah di terang, garis tipis `line` di gelap.",
+      "Status = teks + ikon + bentuk garis (utuh/putus-putus/coret) dalam chip pil; warna hanya penguat.",
+      "Pita kuning \"DEMO — SIMULASI FRONTEND\" permanen di atas semua layar, sama di kedua tema."
     ],
     "rules": [
       {
-        "name": "The Red Serial Rule",
-        "body": "`serial` hanya untuk nomor dokumen dan badge hitungan; bahaya memakai `dangerInk`.",
+        "name": "The Same Keys Rule",
+        "body": "Palet terang dan gelap memiliki kunci yang identik (`Palette` diketik dari `light`); layar dan komponen hanya membaca `useColors()`/`makeStyles`, tidak pernah hex mentah. Pasangan teks diuji ≥ 4,5:1 di `tokens.test.ts`.",
         "section": "colors"
       },
       {
-        "name": "The No Raw Hex Rule",
-        "body": "Layar tidak menulis hex; semua warna lewat token `color` (pasangan teks diuji ≥ 4,5:1 di `tokens.test.ts` dengan `contrast.ts`).",
+        "name": "The Header-Only Gradient Rule",
+        "body": "Gradien biru hanya dipakai `HeroBackground` di header akar dan bar ringkasnya; kartu, tombol dan latar isi selalu warna datar.",
         "section": "colors"
       },
       {
-        "name": "The Cell Label Rule",
-        "body": "Huruf kapital kecil `label` hanya menamai sel/field/kolom berisi nilai; tidak dipakai sebagai kicker di atas judul.",
+        "name": "The Ink-On-Own-Wash Rule",
+        "body": "Warna status muncul sebagai pasangan ink di atas wash-nya; tidak ada teks status berwarna di atas permukaan putih tanpa ikon dan label.",
+        "section": "colors"
+      },
+      {
+        "name": "The Sentence-Case Label Rule",
+        "body": "`label` ditulis huruf biasa dan selalu menamai nilai di bawahnya; tidak ada kicker/eyebrow kapital di atas judul.",
         "section": "typography"
       },
       {
         "name": "The Unlocked Size Rule",
-        "body": "Ukuran teks mengikuti pengaturan sistem; `maxFontSizeMultiplier` (1,2–1,4) hanya untuk pita DEMO, cap, badge, legenda dan pita QR yang sempit.",
+        "body": "Ukuran teks mengikuti pengaturan sistem; `maxFontSizeMultiplier` (1,2–1,4) hanya untuk pita DEMO, badge, cap hasil dan legenda yang sempit.",
         "section": "typography"
       },
       {
-        "name": "The One Sheet Rule",
-        "body": "Satu tingkat lembar: tidak ada lembar di dalam lembar, tidak ada kartu bersarang.",
+        "name": "The Shadow-Light, Line-Dark Rule",
+        "body": "Permukaan kartu selalu memakai `cardChrome(c, scheme, level)`: bayangan di terang, garis `line` di gelap; jangan menulis bayangan per layar.",
+        "section": "elevation"
+      },
+      {
+        "name": "The One Card Level Rule",
+        "body": "Satu tingkat kartu: tidak ada kartu di dalam kartu. Panel tonal di dalam kartu (kotak \"Berikutnya\", tile ikon) boleh, kartu berbayangan tidak.",
         "section": "elevation"
       }
     ],
     "dos": [
+      "**Do** ambil setiap warna dari palet aktif (`useColors`/`makeStyles`) dan tambahkan token baru ke `light` dan `dark` sekaligus dengan kunci yang sama.",
+      "**Do** bungkus permukaan kartu dengan `cardChrome()` (bayangan di terang, garis di gelap) dan sudut `lg`/`xl`.",
       "**Do** bawa setiap status sebagai teks + ikon MaterialCommunityIcons + bentuk garis dari `core/i18n/status.ts`.",
-      "**Do** tampilkan uang dengan `Money` (tabular, rata kanan) dan tulis nilai belum diketahui sebagai \"—\" + keterangan.",
-      "**Do** tulis nomor dokumen dengan `Serial` (monospace, `serial`).",
-      "**Do** taruh aksi utama di footer `Screen`, 48 dp minimum, `lg` 56 dp untuk tugas lapangan.",
-      "**Do** tampilkan ply `DocumentStack` hanya sebanyak versi sebelumnya yang nyata, dan `Stamp` hanya saat status tercapai.",
-      "**Do** biarkan teks mengikuti ukuran sistem dan biarkan grid sel turun ke satu kolom."
+      "**Do** tampilkan uang dengan `Money`/`CountUpMoney` (tabular) dan tulis nilai belum diketahui sebagai \"—\" + keterangan.",
+      "**Do** pakai tile ikon membulat dengan pasangan ink/wash untuk pintasan dan baris daftar.",
+      "**Do** buat elemen yang dapat ditekan lewat `PressableScale` dan gerak lewat `motion.ts` agar \"kurangi gerakan\" dihormati.",
+      "**Do** jaga target sentuh minimum 48 dp dan biarkan teks mengikuti ukuran sistem."
     ],
     "donts": [
       "**Don't** menulis hex mentah di layar atau memakai keluarga ikon lain / emoji sebagai ikon.",
-      "**Don't** memakai kartu ikon-judul-angka seragam, angka hero tanpa transaksi, kartu bersarang, gradien/glass dekoratif.",
-      "**Don't** menaruh kicker/eyebrow huruf kapital di atas judul; `label` hanya untuk sel/field/kolom.",
-      "**Don't** memakai `serial` sebagai warna bahaya atau dekorasi.",
-      "**Don't** menyembunyikan atau mengecilkan pita \"DEMO — SIMULASI FRONTEND\".",
-      "**Don't** menambah bayangan di luar lembar depan `DocumentStack` dan snackbar, atau gerakan yang mengabaikan \"kurangi gerakan\"."
+      "**Don't** memakai gradien di luar header akar dan bar ringkasnya, atau kartu di dalam kartu.",
+      "**Don't** menaruh kicker/eyebrow kapital di atas judul; `label` hanya menamai nilai.",
+      "**Don't** menyampaikan status hanya dengan warna.",
+      "**Don't** menyembunyikan, mengecilkan atau mewarnai ulang pita \"DEMO — SIMULASI FRONTEND\" per tema.",
+      "**Don't** menambah gerak yang berjalan di JS thread, berulang tanpa alasan, atau mengabaikan \"kurangi gerakan\"."
     ]
   }
 }
