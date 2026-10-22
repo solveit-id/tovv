@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { color, space } from '@/core/design/tokens';
+import { space } from '@/core/design/tokens';
+import { makeStyles, useColors } from '@/core/design/theme';
 import { Screen } from '@/components/layout/screen';
 import { RootHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Segmented } from '@/components/ui/form';
-import { Money, Serial, Sheet } from '@/components/ui/nota';
+import { Money, Serial, Card } from '@/components/ui/surface';
 import { StatusTag } from '@/components/ui/status-tag';
 import { EmptyBlock, QueryView } from '@/components/ui/states';
 import { useTovvQuery } from '@/data/api/hooks';
@@ -23,6 +24,8 @@ type Tab = 'proofs' | 'invoices' | 'all';
  * manual; tidak ada rekonsiliasi bank otomatis.
  */
 export function FinanceQueueScreen({ title = 'Keuangan' }: { title?: string }) {
+  const color = useColors();
+  const styles = useStyles();
   const router = useRouter();
   const qc = useQueryClient();
   const [tab, setTab] = useState<Tab>('proofs');
@@ -33,21 +36,21 @@ export function FinanceQueueScreen({ title = 'Keuangan' }: { title?: string }) {
     <Screen headerScrolls
       onRefresh={() => qc.invalidateQueries()}
       header={
-        <RootHeader title={title} subtitle="Pemeriksaan manual · DEMO nonpayable">
+        <RootHeader title={title} subtitle="Bukti bayar diperiksa manual · simulasi">
           <View style={{ flexDirection: 'row', gap: space.sm }}>
-            <Button variant="onNavy" icon="cash-check" label="Biaya & uang jalan" compact onPress={() => router.push('/finance/expenses')} style={{ flex: 1 }} />
-            <Button variant="onNavy" icon="chart-box-outline" label="Laporan" compact onPress={() => router.push('/reports')} style={{ flex: 1 }} />
+            <Button variant="onHero" icon="cash-check" label="Biaya & uang jalan" compact onPress={() => router.push('/finance/expenses')} style={{ flex: 1 }} />
+            <Button variant="onHero" icon="chart-box-outline" label="Laporan" compact onPress={() => router.push('/reports')} style={{ flex: 1 }} />
           </View>
         </RootHeader>
       }
     >
       <Segmented value={tab} onChange={setTab} options={[{ value: 'proofs', label: 'Bukti', count: proofs.data?.length }, { value: 'invoices', label: 'Terbuka', count: open.data?.length }, { value: 'all', label: 'Semua', count: all.data?.length }]} />
-      <Sheet padded={false}>
+      <Card padded={false}>
         {tab === 'proofs' ? (
           <QueryView q={proofs}>
             {(list) =>
               list.length ? list.map((p, i) => (
-                <Pressable key={p.id} onPress={() => router.push(`/proof/${p.id}`)} accessibilityRole="button" style={({ pressed }) => [styles.row, i < list.length - 1 && styles.divider, pressed && { backgroundColor: color.carbonTint }]}>
+                <Pressable key={p.id} onPress={() => router.push(`/proof/${p.id}`)} accessibilityRole="button" style={({ pressed }) => [styles.row, i < list.length - 1 && styles.divider, pressed && { backgroundColor: color.accentSoft }]}>
                   <View style={{ flex: 1, gap: 4 }}>
                     <Serial>{`${p.alias} · ${p.invoiceNumber}`}</Serial>
                     <StatusTag look={proofStatus[p.status]} size="sm" />
@@ -64,7 +67,7 @@ export function FinanceQueueScreen({ title = 'Keuangan' }: { title?: string }) {
           <QueryView q={tab === 'invoices' ? open : all}>
             {(list) =>
               list.length ? list.map((inv, i) => (
-                <Pressable key={inv.id} onPress={() => router.push(`/invoice/${inv.id}`)} accessibilityRole="button" style={({ pressed }) => [styles.row, i < list.length - 1 && styles.divider, pressed && { backgroundColor: color.carbonTint }]}>
+                <Pressable key={inv.id} onPress={() => router.push(`/invoice/${inv.id}`)} accessibilityRole="button" style={({ pressed }) => [styles.row, i < list.length - 1 && styles.divider, pressed && { backgroundColor: color.accentSoft }]}>
                   <View style={{ flex: 1, gap: 4 }}>
                     <Serial>{inv.number}</Serial>
                     <StatusTag look={collectionStatus[inv.collection]} size="sm" />
@@ -80,12 +83,12 @@ export function FinanceQueueScreen({ title = 'Keuangan' }: { title?: string }) {
             }
           </QueryView>
         )}
-      </Sheet>
+      </Card>
     </Screen>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((color) => ({
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg },
-  divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.rule },
-});
+  divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.line },
+}));

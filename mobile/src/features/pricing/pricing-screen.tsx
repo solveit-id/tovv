@@ -6,7 +6,7 @@ import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Button } from '@/components/ui/button';
 import { Field, MoneyField } from '@/components/ui/form';
-import { SectionTitle, Sheet } from '@/components/ui/nota';
+import { SectionTitle, Card } from '@/components/ui/surface';
 import { evaluatePrice, F01, F02 } from '@/domain/pricing';
 import { PricingResultView } from './pricing-result';
 
@@ -44,8 +44,8 @@ export function PricingScreen() {
   return (
     <Screen header={<DetailHeader title="Hitung harga" subtitle="Simulasi negosiasi · tidak membuat penawaran" />}>
       <View style={{ flexDirection: 'row', gap: space.sm, marginBottom: space.lg }}>
-        <Button label="Muat F-01" variant="secondary" compact style={{ flex: 1 }} onPress={() => load('F01')} />
-        <Button label="Muat F-02 (persen)" variant="secondary" compact style={{ flex: 1 }} onPress={() => load('F02')} />
+        <Button label="Contoh 1: nominal" variant="secondary" compact style={{ flex: 1 }} onPress={() => load('F01')} />
+        <Button label="Contoh 2: persentase" variant="secondary" compact style={{ flex: 1 }} onPress={() => load('F02')} />
       </View>
       <MoneyField label="Harga ke pelanggan (P)" value={price} onChange={setPrice} />
       <MoneyField label="Biaya langsung (D)" value={direct} onChange={setDirect} helper="Approach, muat, reposisi, BBM, tol, personel atau quote mitra. Kosongkan bila belum diketahui." />
@@ -54,7 +54,7 @@ export function PricingScreen() {
         <View style={{ flex: 1 }}><MoneyField label="Cadangan (R)" value={reserve} onChange={setReserve} /></View>
       </View>
       <View style={{ flex: 1, flexDirection: 'row', gap: space.sm }}>
-        <View style={{ flex: 1 }}><MoneyField label="Biaya SaaS per layanan" value={fee} onChange={setFee} /></View>
+        <View style={{ flex: 1 }}><MoneyField label="Biaya layanan Tovv per pekerjaan" value={fee} onChange={setFee} /></View>
         <View style={{ flex: 1 }}><MoneyField label="Penanganan internal" value={admin} onChange={setAdmin} helper="Ilustratif, bukan fee gateway" /></View>
       </View>
       <View style={{ flexDirection: 'row', gap: space.sm }}>
@@ -62,7 +62,7 @@ export function PricingScreen() {
         <View style={{ flex: 1 }}><Field label="Biaya komersial % dari P" value={pct} onChangeText={setPct} keyboardType="decimal-pad" suffix="%" error={validPct ? null : 'Harus 0 sampai di bawah 100%'} /></View>
       </View>
       <SectionTitle title="Hasil" />
-      <Sheet>{r ? <PricingResultView r={r} price={price ?? 0} /> : <Txt variant="bodySm" tone="dangerInk">Persentase tidak valid.</Txt>}</Sheet>
+      <Card>{r ? <PricingResultView r={r} price={price ?? 0} /> : <Txt variant="bodySm" tone="dangerInk">Persentase tidak valid.</Txt>}</Card>
       <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.md }}>
         Kontribusi = P − D − F; surplus = kontribusi − A − R. Harga target dengan persen = ceil((D+A+R+f+T)/(1−r)), lalu dihitung ulang. Override harga tidak meloloskan unit yang tidak layak.
       </Txt>

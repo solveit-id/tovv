@@ -2,12 +2,13 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { color, space } from '@/core/design/tokens';
+import { space } from '@/core/design/tokens';
+import { makeStyles } from '@/core/design/theme';
 import { Screen } from '@/components/layout/screen';
 import { DetailHeader, RootHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Button } from '@/components/ui/button';
-import { LineItem, Money, SectionTitle, Sheet } from '@/components/ui/nota';
+import { LineItem, Money, SectionTitle, Card } from '@/components/ui/surface';
 import { StatusTag } from '@/components/ui/status-tag';
 import { EmptyBlock, QueryView } from '@/components/ui/states';
 import { useTovvMutation, useTovvQuery } from '@/data/api/hooks';
@@ -20,6 +21,7 @@ import { formatShortDateTime } from '@/core/format/time';
  * menghasilkan biaya 420.000 saja. Driver melihat biaya sendiri; finance menyetujui.
  */
 export function ExpensesScreen({ asTab = false }: { asTab?: boolean }) {
+  const styles = useStyles();
   const router = useRouter();
   const qc = useQueryClient();
   const session = useSession();
@@ -37,21 +39,21 @@ export function ExpensesScreen({ asTab = false }: { asTab?: boolean }) {
           list.length ? (
             <View style={{ gap: space.sm }}>
               {list.map((a) => (
-                <Sheet key={a.id}>
+                <Card key={a.id}>
                   <Txt variant="bodyStrong">{`${a.alias} · ${a.driverName}`}</Txt>
                   <LineItem label="Uang muka" value={<Money value={a.amount} />} />
                   <LineItem label="Dipakai untuk biaya disetujui" value={<Money value={a.spent} />} />
                   <LineItem label="Dikembalikan" value={<Money value={a.returned} />} />
                   <LineItem label="Sisa dipertanggungjawabkan" emphasis value={<Money value={a.outstanding} tone={a.outstanding === '0' ? 'okInk' : 'warnInk'} />} />
                   <Txt variant="caption" tone="inkSecondary">{a.settled ? 'Selesai: uang muka tidak dihitung sebagai biaya.' : 'Belum diselesaikan.'}</Txt>
-                </Sheet>
+                </Card>
               ))}
             </View>
           ) : <EmptyBlock icon="cash" title="Tidak ada uang jalan" />
         }
       </QueryView>
       <SectionTitle title="Biaya aktual" count={ex.data?.length} />
-      <Sheet padded={false}>
+      <Card padded={false}>
         <QueryView q={ex}>
           {(list) =>
             list.length ? list.map((e, i) => (
@@ -72,13 +74,13 @@ export function ExpensesScreen({ asTab = false }: { asTab?: boolean }) {
             )) : <EmptyBlock icon="receipt" title="Belum ada biaya" />
           }
         </QueryView>
-      </Sheet>
+      </Card>
       {!approver ? <Button label="Catat biaya dari tugas aktif" variant="secondary" icon="plus" onPress={() => router.push('/driver')} style={{ marginTop: space.md }} /> : null}
     </Screen>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((color) => ({
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: space.md, padding: space.lg },
-  divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.rule },
-});
+  divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.line },
+}));

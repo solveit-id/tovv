@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Svg, { Circle, G, Line, Rect } from 'react-native-svg';
-import { color, radius, space } from '@/core/design/tokens';
+import { radius, space } from '@/core/design/tokens';
+import { makeStyles, useColors } from '@/core/design/theme';
 import { Txt } from '@/components/ui/txt';
 import type { Place } from '@/domain/types';
 
@@ -29,6 +30,8 @@ export function RouteSchematic({
   accuracyM: number | null;
   height?: number;
 }) {
+  const color = useColors();
+  const styles = useStyles();
   const [w, setW] = useState(0);
   const onLayout = (e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width);
   const pad = 28;
@@ -68,22 +71,22 @@ export function RouteSchematic({
         <Svg width={w} height={height}>
           <G opacity={0.55}>
             {Array.from({ length: Math.ceil(w / 24) }).map((_, i) => (
-              <Line key={`v${i}`} x1={i * 24} y1={0} x2={i * 24} y2={height} stroke={color.rule} strokeWidth={0.75} />
+              <Line key={`v${i}`} x1={i * 24} y1={0} x2={i * 24} y2={height} stroke={color.line} strokeWidth={0.75} />
             ))}
             {Array.from({ length: Math.ceil(height / 24) }).map((_, i) => (
-              <Line key={`h${i}`} x1={0} y1={i * 24} x2={w} y2={i * 24} stroke={color.rule} strokeWidth={0.75} />
+              <Line key={`h${i}`} x1={0} y1={i * 24} x2={w} y2={i * 24} stroke={color.line} strokeWidth={0.75} />
             ))}
           </G>
-          <Line x1={A.x} y1={A.y} x2={B.x} y2={B.y} stroke={color.ruleStrong} strokeWidth={3} strokeDasharray="6 6" strokeLinecap="round" />
-          {P ? <Line x1={A.x} y1={A.y} x2={P.x} y2={P.y} stroke={color.carbon} strokeWidth={4} strokeLinecap="round" /> : null}
-          <Circle cx={A.x} cy={A.y} r={8} fill={color.navy} />
-          <Circle cx={A.x} cy={A.y} r={3} fill={color.sheet} />
-          <Rect x={B.x - 7} y={B.y - 7} width={14} height={14} fill={color.sheet} stroke={color.navy} strokeWidth={3} />
+          <Line x1={A.x} y1={A.y} x2={B.x} y2={B.y} stroke={color.lineStrong} strokeWidth={3} strokeDasharray="6 6" strokeLinecap="round" />
+          {P ? <Line x1={A.x} y1={A.y} x2={P.x} y2={P.y} stroke={color.accent} strokeWidth={4} strokeLinecap="round" /> : null}
+          <Circle cx={A.x} cy={A.y} r={8} fill={color.ink} />
+          <Circle cx={A.x} cy={A.y} r={3} fill={color.surface} />
+          <Rect x={B.x - 7} y={B.y - 7} width={14} height={14} fill={color.surface} stroke={color.ink} strokeWidth={3} />
           {P ? (
             <G>
-              {halo ? <Circle cx={P.x} cy={P.y} r={halo} fill={color.carbon} opacity={0.12} /> : null}
-              <Circle cx={P.x} cy={P.y} r={10} fill={stale ? color.sheet : color.carbon} stroke={color.carbon} strokeWidth={3} strokeDasharray={stale ? '3 3' : undefined} />
-              <Circle cx={P.x} cy={P.y} r={3.5} fill={stale ? color.carbon : color.sheet} />
+              {halo ? <Circle cx={P.x} cy={P.y} r={halo} fill={color.accent} opacity={0.12} /> : null}
+              <Circle cx={P.x} cy={P.y} r={10} fill={stale ? color.surface : color.accent} stroke={color.accent} strokeWidth={3} strokeDasharray={stale ? '3 3' : undefined} />
+              <Circle cx={P.x} cy={P.y} r={3.5} fill={stale ? color.accent : color.surface} />
             </G>
           ) : null}
         </Svg>
@@ -97,7 +100,7 @@ export function RouteSchematic({
   );
 }
 
-const styles = StyleSheet.create({
-  box: { backgroundColor: color.sheetSunk, borderRadius: radius.sheet, overflow: 'hidden', borderWidth: StyleSheet.hairlineWidth * 2, borderColor: color.rule },
-  legend: { position: 'absolute', left: space.sm, bottom: space.xs, backgroundColor: color.legendWash, paddingHorizontal: 4, borderRadius: 2 },
-});
+const useStyles = makeStyles((color) => ({
+  box: { backgroundColor: color.surfaceAlt, borderRadius: radius.lg, overflow: 'hidden', borderWidth: StyleSheet.hairlineWidth * 2, borderColor: color.line },
+  legend: { position: 'absolute', left: space.sm, bottom: space.sm, backgroundColor: color.legendWash, paddingHorizontal: 8, paddingVertical: 2, borderRadius: radius.pill },
+}));

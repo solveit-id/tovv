@@ -48,7 +48,8 @@ Pindai QR dengan kamera iPhone. Semua modul yang dipakai (kamera, lokasi, galeri
 ## Mode demo
 
 - Layar **Mulai → Pilih akun demo**: akun fixture F-05 (tenant A "Operator Angkut Demo", tenant B "Operator Mobilitas Demo"). Akun dengan beberapa kemampuan (owner-A juga driver) memilih konteks secara eksplisit.
-- **Lainnya → Mode demo & tentang**: simulasi offline, gagal baca sekali, penyimpanan penuh, jeda replay lokasi (menjadi "posisi lama" setelah 90 detik), paket SaaS kedaluwarsa, reset ke F-09.
+- **Lainnya → Mode demo & tentang**: simulasi offline, gagal baca sekali, penyimpanan penuh, jeda replay lokasi (menjadi "posisi lama" setelah 90 detik), paket langganan kedaluwarsa, reset ke F-09.
+- **Lainnya → Tampilan**: ikut sistem, terang, atau gelap (disimpan di perangkat).
 - Jam bisnis demo = C0 `2026-10-21T05:00Z` (12.00 WIB) + waktu nyata sejak reset. Penawaran A13 kedaluwarsa tepat di C0 sesuai PRD §8.1.
 - State demo (transaksi, antrean sinkronisasi, sesi demo) disimpan di SQLite key-value perangkat; foto disalin ke `Paths.document/tovv-media/`.
 
@@ -59,8 +60,11 @@ mobile/src/
   app/                 Route Expo Router (tipis; re-export layar fitur)
   features/<domain>/   Layar per domain: owner, admin, driver, customer, orders, trips, camera,
                        requests, quotes, pricing, finance, reports, more, work, home, identity
-  components/          ui (primitif), nota (komponen khas), layout, brand, feedback
-  core/                design (token, motion), format (uang, waktu, CSV), i18n (label status), hooks
+  components/          ui (primitif: teks, tombol, kartu, form, ringkasan), business (komponen
+                       khas: tindakan harian, tahap perjalanan, riwayat versi, QR internal),
+                       layout (layar, header parallax, tab), brand, feedback
+  core/                design (token terang/gelap, tema, motion), format (uang, waktu, CSV),
+                       i18n (label status), hooks
   domain/              Tipe kanonik, rumus harga, ledger, analytics M-01–M-12 (+ uji oracle)
   data/api/            Kontrak DTO, adapter demo, provider, hook query/mutation
   data/demo/           Store demo, simulasi kebijakan server, proyeksi, operasi per domain
@@ -72,3 +76,19 @@ Mengganti sumber data: implementasikan objek dengan tipe `TovvApi` (`data/api/de
 ## Ikon dan splash
 
 `node scripts/generate-brand-assets.mjs` membuat `assets/icon.png`, ikon adaptif Android, monochrome, favicon, dan splash dari geometri wordmark sementara (deterministik, tanpa dependensi gambar).
+
+## Tema dan gerak
+
+- Dua palet (terang/gelap) dengan kunci sama di `core/design/tokens.ts`; `ThemeProvider` memilih sesuai sistem atau preferensi pengguna. Gaya bergantung warna dibuat lewat `makeStyles((c, scheme) => …)` dan di-cache per skema.
+- Semua animasi memakai Reanimated di UI thread: header parallax (`RootHeader` + `Screen headerScrolls`), kartu masuk bertahap (`useEnter`, hanya 8 item pertama), tekan 3D (`PressableScale`), angka menghitung naik sekali (`CountUpMoney`), pil tab dan segmen. "Kurangi gerakan" mematikan semuanya.
+
+## Penyesuaian struktur repository
+
+Standar struktur repository Solveit ditulis untuk website (React + Vite, admin, Laravel). Untuk Tovv:
+
+- Aplikasi mobile di `mobile/` (ARCHITECTURE §2), route Expo Router di `mobile/src/app/`, fitur di `mobile/src/features/`.
+- Paket spesifikasi 2.1 di `docs/spec/`; root hanya berisi `README.md`, `AGENTS.md`, `CLAUDE.md`.
+- Aset merek sekali di `mobile/assets/brand/`.
+- `backend/`, `contracts/`, `tools/admin-harness/`, `infra/`, `.github/workflows/` belum dibuat karena belum ada isinya.
+- Commit `(jenis) deskripsi` dalam Bahasa Indonesia, tanpa baris co-author/atribusi AI.
+- Screenshot mentah di `.impeccable/review/` (diabaikan Git), dirangkum di [`qa-report.md`](qa-report.md).

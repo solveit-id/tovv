@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { color, space } from '@/core/design/tokens';
+import { radius, space, cardChrome } from '@/core/design/tokens';
+import { makeStyles } from '@/core/design/theme';
+import { useEnter } from '@/core/design/motion';
+import { PressableScale } from '@/components/ui/pressable-scale';
 import { Screen } from '@/components/layout/screen';
 import { RootHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Segmented } from '@/components/ui/form';
-import { Money, Serial, Sheet } from '@/components/ui/nota';
+import { Money, Card } from '@/components/ui/surface';
 import { StatusTag } from '@/components/ui/status-tag';
 import { EmptyBlock, QueryView } from '@/components/ui/states';
 import { useTovvQuery } from '@/data/api/hooks';
@@ -19,34 +23,46 @@ import { formatShortDateTime } from '@/core/format/time';
 import { OrderRow } from '@/features/orders/order-row';
 import { HeaderActions } from '@/features/home/header-actions';
 
-export function RequestRow({ r, last }: { r: RequestSummary; last?: boolean }) {
+/** Kartu permintaan: kode + status, pelanggan, rute, kekurangan data, kanal, dan penawaran terakhir. */
+export function RequestRow({ r, index = 0 }: { r: RequestSummary; last?: boolean; index?: number }) {
+  const styles = useStyles();
   const router = useRouter();
+  const entering = useEnter(index);
+  const q = r.latestQuote;
   return (
-    <Pressable
-      onPress={() => router.push(`/request/${r.id}`)}
-      accessibilityRole="button"
-      accessibilityLabel={`Permintaan ${r.alias}, ${requestStatus[r.status].label}, ${r.customerLabel}`}
-      style={({ pressed }) => [styles.row, !last && styles.divider, pressed && { backgroundColor: color.carbonTint }]}
-    >
-      <View style={styles.head}>
-        <Serial>{`R-${r.alias}`}</Serial>
-        <StatusTag look={requestStatus[r.status]} size="sm" />
-        <View style={{ flex: 1 }} />
-        <Icon name="chevron-right" size={20} tone="inkSecondary" />
-      </View>
-      <Txt variant="bodyStrong" numberOfLines={2}>{r.customerLabel}</Txt>
-      <Txt variant="bodySm" tone="inkSecondary" numberOfLines={2}>{`${r.vehicleLabel} · ${r.pickupLabel} → ${r.dropoffLabel}`}</Txt>
-      {r.needsReviewReasons.length ? <Txt variant="caption" tone="warnInk">{r.needsReviewReasons.join(' · ')}</Txt> : null}
-      <View style={styles.head}>
-        <Txt variant="caption" tone="inkSecondary" style={{ flex: 1 }}>{`${channelLabel[r.channel]} · ${formatShortDateTime(r.createdAt)}`}</Txt>
-        {r.latestQuote ? (
-          <View style={{ alignItems: 'flex-end' }}>
-            <Txt variant="caption" tone={r.latestQuote.status === 'expired' ? 'dangerInk' : r.latestQuote.status === 'sent' ? 'warnInk' : 'inkSecondary'}>{`v${r.latestQuote.version} · ${quoteStatus[r.latestQuote.status].label}${r.latestQuote.status === 'expired' && r.status === 'quoted' ? ' · perlu penawaran ulang' : ''}`}</Txt>
-            <Money value={r.latestQuote.amount} size="sm" />
+    <Animated.View entering={entering}>
+      <PressableScale
+        onPress={() => router.push(`/request/${r.id}`)}
+        accessibilityRole="button"
+        accessibilityLabel={`Permintaan ${r.alias}, ${requestStatus[r.status].label}, ${r.customerLabel}`}
+        style={styles.card}
+      >
+        <View style={styles.head}>
+          <Txt variant="titleSm">{r.alias}</Txt>
+          <StatusTag look={requestStatus[r.status]} size="sm" />
+          <View style={{ flex: 1 }} />
+          <Icon name="chevron-right" size={20} tone="inkMuted" />
+        </View>
+        <Txt variant="bodyStrong" numberOfLines={1}>{r.customerLabel}</Txt>
+        <Txt variant="bodySm" tone="inkSecondary" numberOfLines={2}>{`${r.vehicleLabel} · ${r.pickupLabel} → ${r.dropoffLabel}`}</Txt>
+        {r.needsReviewReasons.length ? (
+          <View style={styles.missing}>
+            <Icon name="alert-circle-outline" size={15} tone="warnInk" />
+            <Txt variant="caption" tone="warnInk" style={{ flex: 1 }}>{`Belum lengkap: ${r.needsReviewReasons.join(', ')}`}</Txt>
           </View>
         ) : null}
-      </View>
-    </Pressable>
+        <View style={styles.head}>
+          <Icon name="phone-outline" size={14} tone="inkSecondary" />
+          <Txt variant="caption" tone="inkSecondary" style={{ flex: 1 }}>{`${channelLabel[r.channel]} · ${formatShortDateTime(r.createdAt)}`}</Txt>
+          {q ? (
+            <View style={{ alignItems: 'flex-end' }}>
+              <Txt variant="caption" tone={q.status === 'expired' ? 'dangerInk' : q.status === 'sent' ? 'warnInk' : 'inkSecondary'} bold>{`Penawaran v${q.version} · ${quoteStatus[q.status].label}${q.status === 'expired' && r.status === 'quoted' ? ' · buat ulang' : ''}`}</Txt>
+              <Money value={q.amount} size="sm" />
+            </View>
+          ) : null}
+        </View>
+      </PressableScale>
+    </Animated.View>
   );
 }
 
@@ -65,7 +81,7 @@ export function WorkListScreen({ title = 'Pekerjaan', initial = 'active', canCre
       onRefresh={() => qc.invalidateQueries()}
       header={
         <RootHeader title={title} right={<HeaderActions />}>
-          {canCreate ? <Button variant="onNavy" icon="phone-plus-outline" label={createLabel} onPress={() => router.push('/request/new')} /> : null}
+          {canCreate ? <Button variant="onHero" compact icon="phone-plus-outline" label={createLabel} style={{ alignSelf: 'flex-start' }} onPress={() => router.push('/request/new')} /> : null}
         </RootHeader>
       }
     >
@@ -78,23 +94,21 @@ export function WorkListScreen({ title = 'Pekerjaan', initial = 'active', canCre
           { value: 'history', label: 'Riwayat', count: history.data?.length },
         ]}
       />
-      <Sheet padded={false}>
-        {tab === 'requests' ? (
+      {tab === 'requests' ? (
           <QueryView q={requests}>
-            {(list) => (list.length ? list.map((r, i) => <RequestRow key={r.id} r={r} last={i === list.length - 1} />) : <EmptyBlock icon="phone-incoming-outline" title="Tidak ada permintaan terbuka" />)}
+            {(list) => (list.length ? list.map((r, i) => <RequestRow key={r.id} r={r} index={i} />) : <Card><EmptyBlock icon="phone-incoming-outline" title="Tidak ada permintaan terbuka" /></Card>)}
           </QueryView>
         ) : (
           <QueryView q={tab === 'active' ? active : history}>
-            {(list) => (list.length ? list.map((o, i) => <OrderRow key={o.id} o={o} last={i === list.length - 1} showMoney />) : <EmptyBlock icon="tow-truck" title={tab === 'active' ? 'Tidak ada pekerjaan berjalan' : 'Belum ada riwayat'} />)}
+            {(list) => (list.length ? list.map((o, i) => <OrderRow key={`${tab}-${o.id}`} o={o} index={i} showMoney />) : <Card><EmptyBlock icon="tow-truck" title={tab === 'active' ? 'Tidak ada pekerjaan berjalan' : 'Belum ada riwayat'} /></Card>)}
           </QueryView>
         )}
-      </Sheet>
     </Screen>
   );
 }
 
-const styles = StyleSheet.create({
-  row: { padding: space.lg, gap: space.xs + 2 },
-  divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.rule },
+const useStyles = makeStyles((c, scheme) => ({
+  card: { padding: space.lg, gap: space.xs + 2, borderRadius: radius.xl, backgroundColor: c.surface, marginBottom: space.md, ...cardChrome(c, scheme) },
   head: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-});
+  missing: { flexDirection: 'row', gap: 6, alignItems: 'flex-start', backgroundColor: c.warnWash, borderRadius: radius.sm, paddingHorizontal: space.sm, paddingVertical: 6 },
+}));

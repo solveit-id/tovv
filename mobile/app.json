@@ -6,8 +6,8 @@
     "scheme": "tovv-demo",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "backgroundColor": "#F6F8FB",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#F4F6FA",
     "ios": {
       "bundleIdentifier": "id.solveit.tovv",
       "supportsTablet": true,

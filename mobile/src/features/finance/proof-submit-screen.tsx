@@ -8,7 +8,7 @@ import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Button } from '@/components/ui/button';
 import { Choice, Field, MoneyField } from '@/components/ui/form';
-import { Sheet } from '@/components/ui/nota';
+import { Card } from '@/components/ui/surface';
 import { QueryView } from '@/components/ui/states';
 import { useApi, useSession } from '@/data/api/provider';
 import { errorMessage, useTovvQuery } from '@/data/api/hooks';
@@ -82,10 +82,10 @@ export function ProofSubmitScreen() {
       <QueryView q={inv}>
         {(d) => (
           <>
-            <Sheet style={{ marginBottom: space.lg }}>
+            <Card style={{ marginBottom: space.lg }}>
               <Txt variant="bodySm">{`Sisa tagihan ${formatRupiah(d.outstanding)}${active ? ` · permintaan aktif ${active.reference} ${formatRupiah(active.requestedAmount)}` : ' · tidak ada permintaan aktif (bukti tetap ditinjau)'}`}</Txt>
               <Txt variant="caption" tone="inkSecondary" style={{ marginTop: 4 }}>{`Tujuan DEMO: ${d.instruction.account}. Jangan mengirim uang nyata.`}</Txt>
-            </Sheet>
+            </Card>
             <MoneyField label="Nominal dibayar" value={amount ?? (active ? parseMoneyString(active.requestedAmount) : parseMoneyString(d.outstanding))} onChange={setAmount} />
             <Choice label="Metode" value={method} onChange={setMethod} options={[{ value: 'transfer_demo', label: 'Transfer (demo)' }, { value: 'cash_demo', label: 'Tunai ke petugas (demo)', hint: 'Penguasaan uang dicatat terpisah dari penerimaan finance' }]} />
             <Field label="Referensi transfer / nomor kuitansi" value={ref} onChangeText={setRef} autoCapitalize="characters" placeholder="mis. TRF-DEMO-1234" />

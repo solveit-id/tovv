@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { color, space } from '@/core/design/tokens';
+import { View } from 'react-native';
+import { space } from '@/core/design/tokens';
+import { makeStyles } from '@/core/design/theme';
 import { Txt } from '@/components/ui/txt';
-import { LineItem, Money, Rule, Serial } from '@/components/ui/nota';
+import { LineItem, Money, Rule } from '@/components/ui/surface';
 import { StatusTag } from '@/components/ui/status-tag';
-import { Stamp } from '@/components/nota/stamp';
-import { DocumentStack } from '@/components/nota/document-stack';
+import { Stamp } from '@/components/business/stamp';
+import { DocumentStack } from '@/components/business/document-stack';
 import type { QuoteDoc } from '@/data/api/contract';
 import { quoteStatus } from '@/core/i18n/status';
 import { formatDateTime, formatShortDateTime, formatTime, formatUntil } from '@/core/format/time';
@@ -28,11 +29,12 @@ function stampFor(q: QuoteDoc) {
 
 /** Satu lembar penawaran. Bagian internal (biaya, target) hanya ada bila DTO membawanya (staf). */
 export function QuoteSheet({ q, now, compact }: { q: QuoteDoc; now: string; compact?: boolean }) {
+  const styles = useStyles();
   return (
     <View style={{ gap: space.xs }}>
       <View style={styles.head}>
         <View style={{ gap: 4, flex: 1 }}>
-          <Serial>{`PENAWARAN ${q.id.replace('Q-', '').replace(/-v\d+$/, '')} · v${q.version}`}</Serial>
+          <Txt variant="label" tone="inkSecondary">{`Penawaran ${q.id.replace('Q-', '').replace(/-v\d+$/, '')} · v${q.version}`}</Txt>
           <StatusTag look={quoteStatus[q.status]} size="sm" />
         </View>
         {stampFor(q)}
@@ -79,6 +81,7 @@ export function QuoteSheet({ q, now, compact }: { q: QuoteDoc; now: string; comp
 
 /** Tumpukan versi penawaran: versi terbaru di depan, versi lama di belakang (gerakan khas lembar rangkap). */
 export function QuoteStack({ quotes, now }: { quotes: QuoteDoc[]; now: string }) {
+  const styles = useStyles();
   const [latest, ...older] = quotes;
   if (!latest) return null;
   return (
@@ -95,8 +98,8 @@ export function QuoteStack({ quotes, now }: { quotes: QuoteDoc[]; now: string })
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((color) => ({
   head: { flexDirection: 'row', alignItems: 'flex-start', gap: space.md },
-  internal: { marginTop: space.md, paddingTop: space.md, borderTopWidth: 1, borderStyle: 'dashed', borderColor: color.ruleStrong, gap: 2 },
-  old: { padding: space.md, borderWidth: 1, borderColor: color.rule, borderRadius: 6, backgroundColor: color.sheet, opacity: 0.92 },
-});
+  internal: { marginTop: space.md, paddingTop: space.md, borderTopWidth: 1, borderStyle: 'dashed', borderColor: color.lineStrong, gap: 2 },
+  old: { padding: space.md, borderWidth: 1, borderColor: color.line, borderRadius: 6, backgroundColor: color.surface, opacity: 0.92 },
+}));

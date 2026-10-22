@@ -1,11 +1,13 @@
 import React from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, type ViewStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { color, radius, space, touch } from '@/core/design/tokens';
+import { radius, space, touch, elevation, type ColorToken } from '@/core/design/tokens';
+import { makeStyles, useColors } from '@/core/design/theme';
+import { PressableScale } from './pressable-scale';
 import { Txt } from './txt';
 import { Icon } from './icon';
 
-type Variant = 'primary' | 'secondary' | 'quiet' | 'danger' | 'onNavy';
+type Variant = 'primary' | 'secondary' | 'quiet' | 'danger' | 'onHero';
 
 export interface ButtonProps {
   label: string;
@@ -21,19 +23,26 @@ export interface ButtonProps {
   compact?: boolean;
 }
 
-const FILL: Record<Variant, { bg: string; fg: 'onNavy' | 'carbon' | 'dangerInk' | 'ink'; border: string }> = {
-  primary: { bg: color.carbon, fg: 'onNavy', border: color.carbon },
-  secondary: { bg: color.sheet, fg: 'carbon', border: color.carbon },
-  quiet: { bg: 'transparent', fg: 'carbon', border: 'transparent' },
-  danger: { bg: color.sheet, fg: 'dangerInk', border: color.dangerInk },
-  onNavy: { bg: color.navyRaised, fg: 'onNavy', border: color.onNavySecondary },
+const INK: Record<Variant, ColorToken> = {
+  primary: 'onAccent',
+  secondary: 'accentInk',
+  quiet: 'accentInk',
+  danger: 'dangerInk',
+  onHero: 'onHero',
 };
 
+/**
+ * Tombol: primary terisi biru merek (dengan bayangan lembut), secondary tonal, quiet teks saja,
+ * danger tonal merah, onHero untuk di atas header gradien. Tekan = turun skala di UI thread.
+ */
 export function Button({ label, onPress, variant = 'primary', icon, loading, disabled, size = 'md', accessibilityHint, style, compact }: ButtonProps) {
-  const f = FILL[variant];
+  const c = useColors();
+  const s = useStyles();
   const inactive = disabled || loading;
+  const fg: ColorToken = inactive && variant !== 'primary' ? 'inkMuted' : INK[variant];
   return (
-    <Pressable
+    <PressableScale
+      depth="subtle"
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
@@ -44,42 +53,46 @@ export function Button({ label, onPress, variant = 'primary', icon, loading, dis
         onPress();
       }}
       hitSlop={compact ? 6 : 0}
-      style={({ pressed }) => [
-        styles.base,
-        size === 'lg' && styles.lg,
-        compact && styles.compact,
-        { backgroundColor: variant === 'primary' && pressed ? color.carbonPressed : f.bg, borderColor: inactive ? color.rule : f.border },
-        inactive && variant === 'primary' && { backgroundColor: color.inkDisabled, borderColor: color.inkDisabled },
-        pressed && variant !== 'primary' && { backgroundColor: variant === 'onNavy' ? color.navy : color.carbonTint },
-        pressed && { transform: [{ scale: 0.985 }] },
+      style={[
+        s.base,
+        size === 'lg' && s.lg,
+        compact && s.compact,
+        s[variant],
+        inactive && (variant === 'primary' ? s.primaryOff : s.off),
         style,
       ]}
     >
-      <View style={styles.row}>
+      <View style={s.row}>
         {loading ? (
-          <ActivityIndicator color={variant === 'primary' ? color.onNavy : color.carbon} size="small" />
+          <ActivityIndicator color={variant === 'primary' ? c.onAccent : c.accentInk} size="small" />
         ) : icon ? (
-          <Icon name={icon} size={size === 'lg' ? 22 : 18} tone={inactive && variant !== 'primary' ? 'inkDisabled' : f.fg} />
+          <Icon name={icon} size={size === 'lg' ? 22 : 18} tone={fg} />
         ) : null}
-        <Txt variant={size === 'lg' ? 'titleSm' : 'bodyStrong'} tone={inactive && variant !== 'primary' ? 'inkDisabled' : f.fg} numberOfLines={2} style={styles.label}>
+        <Txt variant={size === 'lg' ? 'titleSm' : 'bodyStrong'} tone={fg} numberOfLines={2} style={s.label}>
           {label}
         </Txt>
       </View>
-    </Pressable>
+    </PressableScale>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => ({
   base: {
     minHeight: touch.min,
-    borderRadius: radius.control,
-    borderWidth: 1.5,
+    borderRadius: radius.md,
     paddingHorizontal: space.lg,
     paddingVertical: space.sm,
     justifyContent: 'center',
   },
-  lg: { minHeight: 56, paddingVertical: space.md },
-  compact: { minHeight: 40, paddingHorizontal: space.md },
+  lg: { minHeight: 56, paddingVertical: space.md, borderRadius: radius.lg },
+  compact: { minHeight: 40, paddingHorizontal: space.md, borderRadius: radius.pill },
+  primary: { backgroundColor: c.accent, ...elevation(1, c) },
+  secondary: { backgroundColor: c.accentSoft },
+  quiet: { backgroundColor: 'transparent' },
+  danger: { backgroundColor: c.dangerWash },
+  onHero: { backgroundColor: c.heroChip, borderWidth: StyleSheet.hairlineWidth * 2, borderColor: 'rgba(255,255,255,0.28)' },
+  primaryOff: { backgroundColor: c.inkMuted, boxShadow: 'none' },
+  off: { backgroundColor: c.surfaceAlt },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.sm },
   label: { textAlign: 'center', flexShrink: 1 },
-});
+}));

@@ -1,27 +1,14 @@
 # Dokumentasi Tovv
 
-Paket spesifikasi 2.1 berada di root repository dan tetap menjadi sumber kebenaran: [PRD](../PRD.md), [ARCHITECTURE](../ARCHITECTURE.md), [INTEGRATION_PLAN](../INTEGRATION_PLAN.md), [IMPLEMENTATION_PLAN](../IMPLEMENTATION_PLAN.md), [TEST_PLAN](../TEST_PLAN.md), [VALIDATION_PLAN](../VALIDATION_PLAN.md). Dokumen di folder ini hanya melengkapi tahap implementasi dan tidak menyalin PRD.
-
 | Dokumen | Isi |
 |---|---|
+| [`spec/`](spec/) | Paket spesifikasi 2.1 — sumber kebenaran scope dan aturan bisnis: [PRD](spec/PRD.md), [ARCHITECTURE](spec/ARCHITECTURE.md), [INTEGRATION_PLAN](spec/INTEGRATION_PLAN.md), [IMPLEMENTATION_PLAN](spec/IMPLEMENTATION_PLAN.md), [TEST_PLAN](spec/TEST_PLAN.md), [VALIDATION_PLAN](spec/VALIDATION_PLAN.md) |
 | [`PRODUCT.md`](PRODUCT.md) | Ringkasan produk untuk keputusan desain (merujuk PRD) |
-| [`design/visual-direction.md`](design/visual-direction.md) | Arah visual "Nota Rangkap", token, komponen, motion, referensi |
-| [`DESIGN.md`](DESIGN.md) | Sistem desain yang terkirim (token, tipografi, komponen, aturan) — diturunkan dari kode |
-| [`product/screen-inventory.md`](product/screen-inventory.md) | Inventaris layar vs requirement PROTO: tersedia / disimulasikan / belum |
-| [`development/mobile-development.md`](development/mobile-development.md) | Versi, cara menjalankan Android/iOS, mode demo, struktur kode |
-| [`qa/qa-report.md`](qa/qa-report.md) | Hasil pemeriksaan per putaran (perangkat, mode, bukti, blocker) |
-| [`project-structure.md`](project-structure.md) | Aturan struktur repository Solveit (disalin dari standar) |
+| [`DESIGN.md`](DESIGN.md) | Sistem desain yang terkirim: token terang/gelap, tipografi, komponen, gerak |
+| [`screen-inventory.md`](screen-inventory.md) | Inventaris layar vs requirement PROTO: tersedia / disimulasikan / belum |
+| [`development.md`](development.md) | Versi, cara menjalankan Android/iOS, mode demo, struktur kode |
+| [`qa-report.md`](qa-report.md) | Hasil pemeriksaan per putaran (perangkat, mode, bukti, blocker) |
 
-## Catatan penamaan
+Dokumen di luar `spec/` hanya melengkapi tahap implementasi dan tidak menyalin PRD. Status kerja dan serah terima antar-sesi ada di [`../.ai/project-status.md`](../.ai/project-status.md).
 
-Nama produk tampil adalah **Tovv**; riwayat nama sebelumnya (Solveit Tow / Solveit Trow) tercatat di PRD §10. Paket dokumen 2.1 sudah konsisten memakai Tovv sejak diterima, sehingga tahap frontend tidak mengubah requirement ID, aturan bisnis, atau scope. Solveit Indonesia tampil sebagai pemilik/pengembang (halaman Tentang), bukan judul layar.
-
-## Penyesuaian terhadap `project-structure.md`
-
-`project-structure.md` ditulis untuk repository website (frontend React + Vite, admin, backend Laravel). Untuk Tovv diadaptasi sebagai berikut:
-
-- Aplikasi mobile berada di `mobile/` sesuai ARCHITECTURE §2, bukan `frontend/`. Route Expo Router di `mobile/src/app/` (konvensi Expo SDK 57), fitur di `mobile/src/features/`, utilitas inti di `mobile/src/core/`, adapter data di `mobile/src/data/`.
-- Aset merek berada sekali di `mobile/assets/brand/` (tidak ada `frontend/public/brand/`).
-- `backend/`, `contracts/`, `tools/admin-harness/`, `infra/`, dan `.github/workflows/` belum dibuat karena belum ada isinya; folder kosong tidak dibuat.
-- Format commit mengikuti instruksi pengguna terbaru: `(jenis) deskripsi` dalam Bahasa Indonesia (dokumen struktur menyebut bahasa Inggris).
-- Bukti mentah (screenshot) disimpan di `.impeccable/review/` yang diabaikan Git dan dirangkum di `qa/qa-report.md`.
+Nama produk tampil adalah **Tovv** (riwayat nama di PRD §10). Solveit Indonesia tampil sebagai pemilik/pengembang di halaman Tentang, bukan judul layar.

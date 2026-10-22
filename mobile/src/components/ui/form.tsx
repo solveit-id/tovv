@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import { Pressable, StyleSheet, Switch, TextInput, View, type KeyboardTypeOptions } from 'react-native';
-import { color, radius, space, touch, type } from '@/core/design/tokens';
+import React, { useEffect, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Switch, TextInput, View, type KeyboardTypeOptions, type LayoutChangeEvent } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import { radius, space, touch, type } from '@/core/design/tokens';
+import { makeStyles, useColors, useTheme } from '@/core/design/theme';
+import { glideSpring, useReducedMotion } from '@/core/design/motion';
 import { formatInputRupiah, parseRupiahInput } from '@/core/format/money';
 import { Txt } from './txt';
 import { Icon } from './icon';
@@ -21,13 +24,16 @@ export interface FieldProps {
   testID?: string;
 }
 
+/** Kolom isian: label di atas, kotak membulat; fokus = garis biru 2 dp yang menyala halus. */
 export function Field({ label, value, onChangeText, placeholder, helper, error, multiline, keyboardType, prefix, suffix, autoCapitalize = 'sentences', editable = true, testID }: FieldProps) {
+  const { c, scheme } = useTheme();
+  const s = useStyles();
   const [focus, setFocus] = useState(false);
   return (
-    <View style={styles.field}>
+    <View style={s.field}>
       <Txt variant="label" tone="inkSecondary" nativeID={`${testID ?? label}-label`}>{label}</Txt>
-      <View style={[styles.inputBox, focus && styles.focus, !!error && styles.errorBox, !editable && styles.readonly, multiline && { alignItems: 'flex-start' }]}>
-        {prefix ? <Txt variant="body" tone="inkSecondary">{prefix}</Txt> : null}
+      <View style={[s.inputBox, focus && s.focus, !!error && s.errorBox, !editable && s.readonly, multiline && { alignItems: 'flex-start' }]}>
+        {prefix ? <Txt variant="bodyStrong" tone="inkSecondary">{prefix}</Txt> : null}
         <TextInput
           testID={testID}
           accessibilityLabel={label}
@@ -35,22 +41,23 @@ export function Field({ label, value, onChangeText, placeholder, helper, error, 
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={color.inkSecondary}
+          placeholderTextColor={c.inkMuted}
           multiline={multiline}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
           editable={editable}
           onFocus={() => setFocus(true)}
           onBlur={() => setFocus(false)}
-          selectionColor={color.carbon}
-          cursorColor={color.carbon}
-          style={[styles.input, multiline && styles.multiline, (keyboardType === 'number-pad' || keyboardType === 'numeric') && { fontVariant: ['tabular-nums'] }]}
+          selectionColor={c.accent}
+          cursorColor={c.accent}
+          keyboardAppearance={scheme}
+          style={[s.input, multiline && s.multiline, (keyboardType === 'number-pad' || keyboardType === 'numeric') && { fontVariant: ['tabular-nums'] }]}
         />
         {suffix ? <Txt variant="body" tone="inkSecondary">{suffix}</Txt> : null}
       </View>
       {error ? (
-        <View style={styles.msg} accessibilityLiveRegion="polite">
-          <Icon name="alert-circle-outline" size={14} tone="dangerInk" />
+        <View style={s.msg} accessibilityLiveRegion="polite">
+          <Icon name="alert-circle" size={15} tone="dangerInk" />
           <Txt variant="caption" tone="dangerInk" style={{ flex: 1 }}>{error}</Txt>
         </View>
       ) : helper ? (
@@ -65,12 +72,13 @@ export function MoneyField({ value, onChange, ...rest }: Omit<FieldProps, 'value
   return <Field {...rest} prefix="Rp" keyboardType="number-pad" value={formatInputRupiah(value)} onChangeText={(t) => onChange(parseRupiahInput(t))} />;
 }
 
-/** `hideLabel` bila grup sudah diberi SectionTitle; label tetap dibacakan pembaca layar. */
+/** Pilihan tunggal sebagai kartu radio. `hideLabel` bila grup sudah diberi SectionTitle; label tetap dibacakan. */
 export function Choice<T extends string>({ label, options, value, onChange, helper, hideLabel }: { label: string; options: { value: T; label: string; hint?: string }[]; value: T; onChange: (v: T) => void; helper?: string; hideLabel?: boolean }) {
+  const s = useStyles();
   return (
-    <View style={styles.field} accessibilityRole="radiogroup" accessibilityLabel={label}>
+    <View style={s.field} accessibilityRole="radiogroup" accessibilityLabel={label}>
       {hideLabel ? null : <Txt variant="label" tone="inkSecondary">{label}</Txt>}
-      <View style={styles.choices}>
+      <View style={s.choices}>
         {options.map((o) => {
           const on = o.value === value;
           return (
@@ -80,11 +88,11 @@ export function Choice<T extends string>({ label, options, value, onChange, help
               accessibilityRole="radio"
               accessibilityState={{ checked: on }}
               accessibilityLabel={o.hint ? `${o.label}. ${o.hint}` : o.label}
-              style={({ pressed }) => [styles.choice, on && styles.choiceOn, pressed && { opacity: 0.85 }]}
+              style={({ pressed }) => [s.choice, on && s.choiceOn, pressed && !on && s.choicePressed]}
             >
-              <Icon name={on ? 'radiobox-marked' : 'radiobox-blank'} size={18} tone={on ? 'carbon' : 'inkSecondary'} />
-              <View style={{ flexShrink: 1 }}>
-                <Txt variant="bodySm" tone={on ? 'carbon' : 'ink'} style={{ fontWeight: on ? '700' : '500' }}>{o.label}</Txt>
+              <View style={[s.radio, on && s.radioOn]}>{on ? <View style={s.radioDot} /> : null}</View>
+              <View style={{ flexShrink: 1, flex: 1 }}>
+                <Txt variant="bodyStrong" tone={on ? 'accentInk' : 'ink'}>{o.label}</Txt>
                 {o.hint ? <Txt variant="caption" tone="inkSecondary">{o.hint}</Txt> : null}
               </View>
             </Pressable>
@@ -97,46 +105,37 @@ export function Choice<T extends string>({ label, options, value, onChange, help
 }
 
 export function Toggle({ label, value, onChange, hint }: { label: string; value: boolean; onChange: (v: boolean) => void; hint?: string }) {
+  const c = useColors();
+  const s = useStyles();
   return (
-    <Pressable onPress={() => onChange(!value)} accessibilityRole="switch" accessibilityState={{ checked: value }} accessibilityLabel={label} accessibilityHint={hint} style={styles.toggle}>
+    <Pressable onPress={() => onChange(!value)} accessibilityRole="switch" accessibilityState={{ checked: value }} accessibilityLabel={label} accessibilityHint={hint} style={s.toggle}>
       <View style={{ flex: 1 }}>
-        <Txt variant="body">{label}</Txt>
+        <Txt variant="bodyStrong">{label}</Txt>
         {hint ? <Txt variant="caption" tone="inkSecondary">{hint}</Txt> : null}
       </View>
-      <Switch value={value} onValueChange={onChange} trackColor={{ true: color.carbon, false: color.ruleStrong }} thumbColor={color.sheet} importantForAccessibility="no-hide-descendants" />
+      <Switch value={value} onValueChange={onChange} trackColor={{ true: c.accent, false: c.lineStrong }} thumbColor="#FFFFFF" ios_backgroundColor={c.lineStrong} importantForAccessibility="no-hide-descendants" />
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
-  field: { gap: space.xs, marginBottom: space.lg },
-  inputBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.sm,
-    minHeight: touch.min,
-    borderWidth: 1.5,
-    borderColor: color.ruleStrong,
-    borderRadius: radius.control,
-    paddingHorizontal: space.md,
-    backgroundColor: color.sheet,
-  },
-  focus: { borderColor: color.carbon, borderWidth: 2 },
-  errorBox: { borderColor: color.dangerInk },
-  readonly: { backgroundColor: color.sheetSunk },
-  input: { flex: 1, ...(type.body as object), color: color.ink, paddingVertical: space.sm },
-  multiline: { minHeight: 88, textAlignVertical: 'top' },
-  msg: { flexDirection: 'row', gap: 4, alignItems: 'flex-start' },
-  choices: { gap: space.xs },
-  choice: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: touch.min, paddingHorizontal: space.md, paddingVertical: space.sm, borderWidth: 1.5, borderColor: color.rule, borderRadius: radius.control, backgroundColor: color.sheet },
-  choiceOn: { borderColor: color.carbon, backgroundColor: color.carbonTint },
-  toggle: { flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: touch.min, paddingVertical: space.sm },
-});
-
-/** Kontrol segmen untuk menyaring daftar (bukan navigasi). */
+/**
+ * Kontrol segmen untuk menyaring daftar (bukan navigasi). Pil putih meluncur ke segmen aktif
+ * dengan pegas di UI thread; tanpa gerak saat "kurangi gerakan".
+ */
 export function Segmented<T extends string>({ value, onChange, options }: { value: T; onChange: (v: T) => void; options: { value: T; label: string; count?: number }[] }) {
+  const s = useStyles();
+  const reduced = useReducedMotion();
+  const [w, setW] = useState(0);
+  const idx = Math.max(0, options.findIndex((o) => o.value === value));
+  const x = useSharedValue(0);
+  const seg = w > 0 ? (w - 6) / options.length : 0;
+  useEffect(() => {
+    x.value = reduced ? idx * seg : withSpring(idx * seg, glideSpring);
+  }, [idx, seg, reduced, x]);
+  const pill = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }], width: seg, opacity: withTiming(seg > 0 ? 1 : 0) }));
   return (
-    <View style={segStyles.wrap} accessibilityRole="tablist">
+    <View style={s.segWrap} accessibilityRole="tablist" onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)}>
+      <Animated.View style={[s.segPill, pill]} pointerEvents="none" />
       {options.map((o) => {
         const on = o.value === value;
         return (
@@ -146,11 +145,11 @@ export function Segmented<T extends string>({ value, onChange, options }: { valu
             accessibilityRole="tab"
             accessibilityState={{ selected: on }}
             accessibilityLabel={o.count !== undefined ? `${o.label}, ${o.count}` : o.label}
-            style={[segStyles.item, on && segStyles.on]}
+            style={s.segItem}
           >
-            <Txt variant="bodySm" tone={on ? 'onNavy' : 'ink'} style={{ fontWeight: '600' }} numberOfLines={1}>
+            <Txt variant="bodySm" tone={on ? 'ink' : 'inkSecondary'} style={{ fontWeight: on ? '700' : '500' }} numberOfLines={1}>
               {o.label}
-              {o.count !== undefined ? ` ${o.count}` : ''}
+              {o.count !== undefined ? <Txt variant="bodySm" tone={on ? 'accentInk' : 'inkMuted'} bold>{`  ${o.count}`}</Txt> : null}
             </Txt>
           </Pressable>
         );
@@ -159,8 +158,56 @@ export function Segmented<T extends string>({ value, onChange, options }: { valu
   );
 }
 
-const segStyles = StyleSheet.create({
-  wrap: { flexDirection: 'row', backgroundColor: color.sheetSunk, borderRadius: radius.control, padding: 3, gap: 3, marginBottom: space.md },
-  item: { flex: 1, minHeight: 42, alignItems: 'center', justifyContent: 'center', borderRadius: radius.control - 2, paddingHorizontal: space.sm },
-  on: { backgroundColor: color.navy },
-});
+/** Baris chip filter yang dapat digeser (mis. pilih pelanggan bisnis). Satu pilihan aktif. */
+export function ChipRow<T extends string>({ label, value, onChange, options }: { label: string; value: T; onChange: (v: T) => void; options: { value: T; label: string }[] }) {
+  const s = useStyles();
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityRole="radiogroup" accessibilityLabel={label} contentContainerStyle={s.chips} style={s.chipScroll}>
+      {options.map((o) => {
+        const on = o.value === value;
+        return (
+          <Pressable key={o.value} onPress={() => onChange(o.value)} accessibilityRole="radio" accessibilityState={{ checked: on }} style={({ pressed }) => [s.chip, on && s.chipOn, pressed && !on && s.choicePressed]}>
+            {on ? <Icon name="check" size={16} tone="onAccent" /> : null}
+            <Txt variant="bodySm" tone={on ? 'onAccent' : 'ink'} style={{ fontWeight: '600' }} numberOfLines={1}>{o.label}</Txt>
+          </Pressable>
+        );
+      })}
+    </ScrollView>
+  );
+}
+
+const useStyles = makeStyles((c, scheme) => ({
+  chipScroll: { marginHorizontal: -space.lg, marginBottom: space.md },
+  chips: { gap: space.sm, paddingHorizontal: space.lg },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 40, paddingHorizontal: space.md + 2, borderRadius: radius.pill, borderWidth: 1.5, borderColor: c.line, backgroundColor: c.surface },
+  chipOn: { backgroundColor: c.accent, borderColor: c.accent },
+  field: { gap: space.xs + 2, marginBottom: space.lg },
+  inputBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
+    minHeight: 52,
+    borderWidth: 1.5,
+    borderColor: c.line,
+    borderRadius: radius.md,
+    paddingHorizontal: space.md + 2,
+    backgroundColor: c.surface,
+  },
+  focus: { borderColor: c.accent, borderWidth: 2, backgroundColor: c.surface },
+  errorBox: { borderColor: c.dangerInk, backgroundColor: c.dangerWash },
+  readonly: { backgroundColor: c.surfaceAlt, borderColor: c.surfaceAlt },
+  input: { flex: 1, ...(type.body as object), color: c.ink, paddingVertical: space.sm },
+  multiline: { minHeight: 96, textAlignVertical: 'top', paddingTop: space.md },
+  msg: { flexDirection: 'row', gap: 4, alignItems: 'flex-start' },
+  choices: { gap: space.sm },
+  choice: { flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: 56, paddingHorizontal: space.md + 2, paddingVertical: space.sm, borderWidth: 1.5, borderColor: c.line, borderRadius: radius.md, backgroundColor: c.surface },
+  choiceOn: { borderColor: c.accent, backgroundColor: c.accentSoft },
+  choicePressed: { backgroundColor: c.surfacePressed },
+  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: c.lineStrong, alignItems: 'center', justifyContent: 'center' },
+  radioOn: { borderColor: c.accent },
+  radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: c.accent },
+  toggle: { flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: touch.min, paddingVertical: space.sm },
+  segWrap: { flexDirection: 'row', backgroundColor: c.surfaceAlt, borderRadius: radius.pill, padding: 3, marginBottom: space.md },
+  segPill: { position: 'absolute', top: 3, bottom: 3, left: 3, borderRadius: radius.pill, backgroundColor: scheme === 'dark' ? c.accentSoft : c.surface, borderWidth: StyleSheet.hairlineWidth * 2, borderColor: scheme === 'dark' ? c.accent : c.line },
+  segItem: { flex: 1, minHeight: 42, alignItems: 'center', justifyContent: 'center', paddingHorizontal: space.sm },
+}));
