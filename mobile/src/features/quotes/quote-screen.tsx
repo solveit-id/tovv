@@ -7,7 +7,7 @@ import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Button } from '@/components/ui/button';
 import { Field, Toggle } from '@/components/ui/form';
-import { Sheet } from '@/components/ui/nota';
+import { Card } from '@/components/ui/surface';
 import { QueryView } from '@/components/ui/states';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { useApi } from '@/data/api/provider';
@@ -72,7 +72,7 @@ export function QuoteScreen() {
         {(d) => (
           <>
             <QuoteStack quotes={req.data?.quotes.length ? [d, ...req.data.quotes.filter((x) => x.id !== d.id)] : [d]} now={now} />
-            {d.approvalNote ? <Sheet style={{ marginTop: space.md }}><Txt variant="bodySm" tone="warnInk">{d.approvalNote}</Txt></Sheet> : null}
+            {d.approvalNote ? <Card style={{ marginTop: space.md }}><Txt variant="bodySm" tone="warnInk">{d.approvalNote}</Txt></Card> : null}
             {canDecide && req.data?.businessAccount ? (
               <View style={{ marginTop: space.lg }}>
                 <Field label="Nomor PO / referensi internal" value={po} onChangeText={setPo} helper={needPo ? `Wajib untuk ${req.data.businessAccount.name}.` : req.data.poRef ? `Tercatat: ${req.data.poRef}` : 'Opsional.'} />

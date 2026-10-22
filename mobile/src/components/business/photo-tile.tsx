@@ -2,7 +2,8 @@ import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import Svg, { Line } from 'react-native-svg';
-import { color, radius, space } from '@/core/design/tokens';
+import { radius, space } from '@/core/design/tokens';
+import { makeStyles, useColors } from '@/core/design/theme';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import type { MediaItem } from '@/data/api/contract';
@@ -13,10 +14,12 @@ import { locationSourceLabel } from '@/core/i18n/status';
  * berlabel SIMULASI, bukan foto stok, agar tidak disangka hasil kamera. Foto perangkat memakai thumbnail overlay.
  */
 export function PhotoTile({ item, label, onPress, size = 104 }: { item: MediaItem | null; label: string; onPress?: () => void; size?: number }) {
+  const c = useColors();
+  const styles = useStyles();
   const uri = item?.overlayUri ?? item?.originalUri ?? null;
   const pending = item && (item.status === 'pending_upload' || item.syncStatus === 'pending');
   const a11y = item
-    ? `${label}. ${item.synthetic ? 'Foto simulasi fixture' : item.captureOrigin === 'camera' ? 'Diambil kamera aplikasi' : 'Diimpor dari galeri'}. Lokasi: ${locationSourceLabel[item.locationSource]}.${pending ? ' Belum terkirim.' : ''}`
+    ? `${label}. ${item.synthetic ? 'Foto contoh simulasi' : item.captureOrigin === 'camera' ? 'Diambil kamera aplikasi' : 'Diimpor dari galeri'}. Lokasi: ${locationSourceLabel[item.locationSource]}.${pending ? ' Belum terkirim.' : ''}`
     : `${label}. Belum ada foto.`;
   return (
     <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : 'image'} accessibilityLabel={a11y} style={({ pressed }) => [{ width: size }, pressed && { opacity: 0.85 }]}>
@@ -27,7 +30,7 @@ export function PhotoTile({ item, label, onPress, size = 104 }: { item: MediaIte
           <>
             <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
               {Array.from({ length: 12 }).map((_, i) => (
-                <Line key={i} x1={i * 14 - size} y1={size} x2={i * 14} y2={0} stroke={color.rule} strokeWidth={1.5} />
+                <Line key={i} x1={i * 14 - size} y1={size} x2={i * 14} y2={0} stroke={c.line} strokeWidth={1.5} />
               ))}
             </Svg>
             <Icon name="image-outline" size={26} tone="inkSecondary" />
@@ -35,13 +38,13 @@ export function PhotoTile({ item, label, onPress, size = 104 }: { item: MediaIte
           </>
         ) : (
           <>
-            <Icon name="camera-plus-outline" size={26} tone="carbon" />
-            <Txt variant="caption" tone="carbon" maxFontSizeMultiplier={1.2}>Ambil foto</Txt>
+            <Icon name="camera-plus-outline" size={26} tone="accentInk" />
+            <Txt variant="caption" tone="accentInk" bold maxFontSizeMultiplier={1.2}>Ambil foto</Txt>
           </>
         )}
         {item ? (
-          <View style={[styles.badge, pending && { backgroundColor: color.warnInk }]}>
-            <Icon name={pending ? 'cloud-upload-outline' : item.captureOrigin === 'camera' ? 'camera' : 'image-multiple'} size={12} tone="onNavy" />
+          <View style={[styles.badge, pending && styles.badgePending]}>
+            <Icon name={pending ? 'cloud-upload-outline' : item.captureOrigin === 'camera' ? 'camera' : 'image-multiple'} size={12} tone="onInverse" />
           </View>
         ) : null}
       </View>
@@ -50,19 +53,20 @@ export function PhotoTile({ item, label, onPress, size = 104 }: { item: MediaIte
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => ({
   frame: {
-    borderRadius: radius.cell,
-    backgroundColor: color.sheetSunk,
+    borderRadius: radius.md,
+    backgroundColor: c.surfaceAlt,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
     gap: 2,
     borderWidth: StyleSheet.hairlineWidth * 2,
-    borderColor: color.ruleStrong,
+    borderColor: c.line,
   },
-  empty: { borderStyle: 'dashed', borderWidth: 1.5, borderColor: color.carbon, backgroundColor: color.carbonTint },
-  badge: { position: 'absolute', right: 4, bottom: 4, backgroundColor: color.navy, borderRadius: 3, padding: 2 },
-});
+  empty: { borderStyle: 'dashed', borderWidth: 1.5, borderColor: c.accent, backgroundColor: c.accentSoft },
+  badge: { position: 'absolute', right: 6, bottom: 6, backgroundColor: c.inverse, borderRadius: radius.pill, padding: 4 },
+  badgePending: { backgroundColor: c.warnInk },
+}));
 
 export const PHOTO_GAP = space.sm;

@@ -1,42 +1,45 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import Animated, { Keyframe } from 'react-native-reanimated';
-import { color, duration } from '@/core/design/tokens';
+import { View } from 'react-native';
+import Animated, { ZoomIn } from 'react-native-reanimated';
+import { radius, space, type ColorToken } from '@/core/design/tokens';
+import { makeStyles, useColors } from '@/core/design/theme';
+import { useReducedMotion } from '@/core/design/motion';
 import { Txt } from '@/components/ui/txt';
+import { Icon } from '@/components/ui/icon';
 
-const press = new Keyframe({
-  0: { opacity: 0, transform: [{ scale: 1.28 }, { rotate: '-6deg' }] },
-  100: { opacity: 1, transform: [{ scale: 1 }, { rotate: '-6deg' }] },
-}).duration(duration.stamp);
-
-const TONE = { ok: color.okInk, danger: color.dangerInk, neutral: color.neutralInk, carbon: color.carbon } as const;
+const TONE: Record<'ok' | 'danger' | 'neutral' | 'carbon', { ink: ColorToken; wash: ColorToken; icon: string }> = {
+  ok: { ink: 'okInk', wash: 'okWash', icon: 'check-decagram' },
+  danger: { ink: 'dangerInk', wash: 'dangerWash', icon: 'close-octagon' },
+  neutral: { ink: 'neutralInk', wash: 'neutralWash', icon: 'swap-horizontal-circle' },
+  carbon: { ink: 'accentInk', wash: 'accentSoft', icon: 'shield-check' },
+};
 
 /**
- * Cap status (DIPERIKSA, DITOLAK, DIGANTI, DISETUJUI). Hanya dirender saat status benar-benar tercapai
- * di sumber data; animasi tekan sekali saat muncul, dilewati bila "kurangi gerakan" aktif.
+ * Lencana hasil (DISETUJUI, DITOLAK, DIGANTI, DIPERIKSA). Hanya dirender saat status benar-benar tercapai
+ * di sumber data; muncul dengan pegas sekali, dilewati bila "kurangi gerakan" aktif.
  */
 export function Stamp({ label, tone = 'ok', detail }: { label: string; tone?: keyof typeof TONE; detail?: string }) {
-  const ink = TONE[tone];
+  const s = useStyles();
+  const c = useColors();
+  const reduced = useReducedMotion();
+  const t = TONE[tone];
   return (
-    <Animated.View entering={press} style={styles.wrap} accessible accessibilityLabel={`Cap ${label}${detail ? `, ${detail}` : ''}`}>
-      <View style={[styles.outer, { borderColor: ink }]}>
-        <View style={[styles.inner, { borderColor: ink }]}>
-          <Txt variant="label" style={{ color: ink, letterSpacing: 2, fontSize: 13 }} maxFontSizeMultiplier={1.3}>
-            {label}
+    <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(14)} style={[s.wrap, { backgroundColor: c[t.wash] }]} accessible accessibilityLabel={`Status ${label}${detail ? `, ${detail}` : ''}`}>
+      <Icon name={t.icon} size={22} tone={t.ink} />
+      <View style={{ flexShrink: 1 }}>
+        <Txt variant="label" tone={t.ink} style={{ letterSpacing: 1, fontWeight: '800' }} maxFontSizeMultiplier={1.3}>
+          {label}
+        </Txt>
+        {detail ? (
+          <Txt variant="caption" tone={t.ink} maxFontSizeMultiplier={1.3}>
+            {detail}
           </Txt>
-          {detail ? (
-            <Txt variant="caption" style={{ color: ink }} maxFontSizeMultiplier={1.3}>
-              {detail}
-            </Txt>
-          ) : null}
-        </View>
+        ) : null}
       </View>
     </Animated.View>
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: { alignSelf: 'flex-start', transform: [{ rotate: '-6deg' }] },
-  outer: { borderWidth: 2, borderRadius: 4, padding: 2 },
-  inner: { borderWidth: 1, borderRadius: 2, paddingHorizontal: 10, paddingVertical: 4, alignItems: 'center' },
-});
+const useStyles = makeStyles(() => ({
+  wrap: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: space.sm, borderRadius: radius.pill, paddingVertical: space.xs + 2, paddingLeft: space.sm, paddingRight: space.md },
+}));

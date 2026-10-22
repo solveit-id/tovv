@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { color, radius, space } from '@/core/design/tokens';
+import { radius, space } from '@/core/design/tokens';
+import { makeStyles, useColors } from '@/core/design/theme';
 import { Screen } from '@/components/layout/screen';
 import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
-import { Sheet, SectionTitle } from '@/components/ui/nota';
+import { Card, SectionTitle } from '@/components/ui/surface';
 import { QueryView } from '@/components/ui/states';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ import type { DemoAccount } from '@/data/api/contract';
 import type { ViewGroup } from '@/domain/types';
 
 const VIEW = {
-  owner: { label: 'Owner', icon: 'briefcase-outline', hint: 'Harga, delegasi, laporan, paket SaaS' },
+  owner: { label: 'Owner', icon: 'briefcase-outline', hint: 'Harga, delegasi, laporan, paket langganan' },
   admin: { label: 'Admin', icon: 'clipboard-text-outline', hint: 'Permintaan, jadwal, penugasan, invoice' },
   driver: { label: 'Driver', icon: 'steering', hint: 'Hanya tugas sendiri; tanpa margin' },
   customer: { label: 'Pelanggan', icon: 'account-outline', hint: 'Permintaan, penawaran, tagihan sendiri' },
@@ -27,6 +28,8 @@ const VIEW = {
  * Mengganti akun/konteks menghapus cache data akun sebelumnya.
  */
 export function DemoAccountScreen() {
+  const color = useColors();
+  const styles = useStyles();
   const { api, setSession, session } = useApiState();
   const router = useRouter();
   const q = useQuery({ queryKey: ['demo-accounts'], queryFn: () => api.listDemoAccounts() });
@@ -64,12 +67,12 @@ export function DemoAccountScreen() {
 
   return (
     <Screen header={<DetailHeader title="Pilih akun demo" subtitle="Hanya mode demo lokal · bukan login produksi" />}>
-      <Sheet style={{ backgroundColor: color.demoWash, borderColor: color.demoRule }}>
+      <Card style={{ backgroundColor: color.demoWash, borderColor: color.demoRule }}>
         <Txt variant="bodySm" tone="demoInk">
           Akun di bawah adalah fixture sintetis F-05. Tidak ada kata sandi karena ini simulasi; aplikasi nyata memakai sesi
           perangkat dari server, dan peran tidak bisa diubah dari ponsel.
         </Txt>
-      </Sheet>
+      </Card>
       <QueryView q={q} loadingLabel="Memuat akun demo…">
         {(accounts) =>
           (['tenant-a', 'tenant-b'] as const).map((t) => {
@@ -77,7 +80,7 @@ export function DemoAccountScreen() {
             return (
               <View key={t}>
                 <SectionTitle title={list[0]?.tenantName ?? t} count={list.length} />
-                <Sheet padded={false}>
+                <Card padded={false}>
                   {list.map((a, i) => {
                     const active = session?.userId === a.userId;
                     return (
@@ -86,21 +89,21 @@ export function DemoAccountScreen() {
                         onPress={() => (a.views.length > 1 ? setPick(a) : void enter(a, a.views[0]!))}
                         accessibilityRole="button"
                         accessibilityLabel={`${a.name}, ${a.roleLabel}. ${a.note}${active ? '. Sedang aktif' : ''}`}
-                        style={({ pressed }) => [styles.row, i < list.length - 1 && styles.divider, pressed && { backgroundColor: color.carbonTint }]}
+                        style={({ pressed }) => [styles.row, i < list.length - 1 && styles.divider, pressed && { backgroundColor: color.accentSoft }]}
                       >
                         <View style={styles.avatar}>
-                          <Txt variant="bodyStrong" tone="onNavy">{a.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}</Txt>
+                          <Txt variant="bodyStrong" tone="onHero">{a.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}</Txt>
                         </View>
                         <View style={{ flex: 1, gap: 2 }}>
                           <Txt variant="bodyStrong">{a.name}{active ? '  · aktif' : ''}</Txt>
-                          <Txt variant="bodySm" tone="carbon">{a.roleLabel}</Txt>
+                          <Txt variant="bodySm" tone="accentInk">{a.roleLabel}</Txt>
                           {a.note ? <Txt variant="caption" tone="inkSecondary">{a.note}</Txt> : null}
                         </View>
                         <Icon name="chevron-right" tone="inkSecondary" />
                       </Pressable>
                     );
                   })}
-                </Sheet>
+                </Card>
               </View>
             );
           })
@@ -120,8 +123,8 @@ export function DemoAccountScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((color) => ({
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg, minHeight: 64 },
-  divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.rule },
-  avatar: { width: 40, height: 40, borderRadius: radius.control, backgroundColor: color.navy, alignItems: 'center', justifyContent: 'center' },
-});
+  divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.line },
+  avatar: { width: 40, height: 40, borderRadius: radius.md, backgroundColor: color.heroFrom, alignItems: 'center', justifyContent: 'center' },
+}));

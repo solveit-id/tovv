@@ -1,10 +1,11 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Pressable, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Pressable, View } from 'react-native';
 import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { color, radius, space } from '@/core/design/tokens';
+import { radius, space, elevation, type ColorToken } from '@/core/design/tokens';
+import { makeStyles } from '@/core/design/theme';
 import { Txt } from '@/components/ui/txt';
-import { Icon } from '@/components/ui/icon';
+import { IconTile } from '@/components/ui/icon';
 
 type Tone = 'ok' | 'danger' | 'info';
 interface ToastMsg {
@@ -16,11 +17,18 @@ interface ToastMsg {
 const ToastContext = createContext<{ show: (text: string, tone?: Tone) => void }>({ show: () => undefined });
 export const useToast = () => useContext(ToastContext);
 
+const LOOK: Record<Tone, { icon: string; ink: ColorToken; wash: ColorToken }> = {
+  ok: { icon: 'check', ink: 'okInk', wash: 'okWash' },
+  danger: { icon: 'alert-circle-outline', ink: 'dangerInk', wash: 'dangerWash' },
+  info: { icon: 'information-variant', ink: 'accentInk', wash: 'accentSoft' },
+};
+
 /** Snackbar hasil tindakan di bawah pita DEMO, agar tidak menutupi tombol aksi utama di area ibu jari. Diumumkan ke pembaca layar. */
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [msg, setMsg] = useState<ToastMsg | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const insets = useSafeAreaInsets();
+  const s = useStyles();
 
   const show = useCallback((text: string, tone: Tone = 'info') => {
     if (timer.current) clearTimeout(timer.current);
@@ -33,15 +41,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     if (timer.current) clearTimeout(timer.current);
   }, []);
 
+  const look = msg ? LOOK[msg.tone] : null;
   return (
     <ToastContext.Provider value={{ show }}>
       {children}
-      {msg ? (
-        <Animated.View key={msg.id} entering={FadeInUp.duration(220)} exiting={FadeOutUp.duration(160)} style={[styles.wrap, { top: insets.top + 36 }]} pointerEvents="box-none">
-          <Pressable onPress={() => setMsg(null)} accessibilityRole="alert" accessibilityLabel={msg.text} style={[styles.toast, msg.tone === 'danger' && styles.danger, msg.tone === 'ok' && styles.ok]}>
-            <Icon name={msg.tone === 'danger' ? 'alert-circle-outline' : msg.tone === 'ok' ? 'check-circle-outline' : 'information-outline'} tone="onNavy" />
+      {msg && look ? (
+        <Animated.View key={msg.id} entering={FadeInUp.springify().damping(18)} exiting={FadeOutUp.duration(160)} style={[s.wrap, { top: insets.top + 44 }]} pointerEvents="box-none">
+          <Pressable onPress={() => setMsg(null)} accessibilityRole="alert" accessibilityLabel={msg.text} style={s.toast}>
+            <IconTile name={look.icon} size={32} tone={look.ink} wash={look.wash} shape="circle" />
             <View style={{ flex: 1 }}>
-              <Txt variant="bodySm" tone="onNavy">{msg.text}</Txt>
+              <Txt variant="bodySm" tone="onInverse" style={{ fontWeight: '500' }}>{msg.text}</Txt>
             </View>
           </Pressable>
         </Animated.View>
@@ -50,21 +59,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => ({
   wrap: { position: 'absolute', left: space.lg, right: space.lg },
   toast: {
     flexDirection: 'row',
-    gap: space.sm,
-    alignItems: 'flex-start',
-    backgroundColor: color.navy,
-    borderRadius: radius.control,
-    padding: space.md,
-    shadowColor: color.shadow,
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 4,
+    gap: space.md,
+    alignItems: 'center',
+    backgroundColor: c.inverse,
+    borderRadius: radius.lg,
+    paddingVertical: space.md,
+    paddingHorizontal: space.md,
+    ...elevation(3, c),
   },
-  ok: { backgroundColor: color.okInk },
-  danger: { backgroundColor: color.dangerInk },
-});
+}));

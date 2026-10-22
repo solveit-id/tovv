@@ -103,10 +103,10 @@ function summaryFrom(a: AnalyticsResult): OwnerSummary {
     formulaVersion: a.formulaVersion,
     periodLabel: '22 Sep – 21 Okt 2026 (WIB)',
     money: [
-      m('invoice_net', 'Nilai invoice net', a.invoiceNet, 'Invoice terbit dalam periode − kredit. Bukan kas.'),
-      m('receipts', 'Penerimaan demo diperiksa', a.netReceipts, 'Penerimaan tercatat − pembalikan − refund. Bukan saldo bank.'),
-      m('receivable', 'Piutang', a.receivable, 'Sisa invoice terbit sampai waktu laporan.', a.receivableInvoiceIds),
-      m('unapplied', 'Belum dialokasikan', a.unapplied, 'Lebih bayar yang menunggu keputusan; bukan dompet.'),
+      m('invoice_net', 'Total tagihan', a.invoiceNet, 'Invoice yang terbit periode ini dikurangi nota kredit. Belum tentu sudah dibayar.'),
+      m('receipts', 'Uang diterima', a.netReceipts, 'Pembayaran yang sudah diperiksa petugas, dikurangi pembalikan dan refund. Simulasi, bukan saldo bank.'),
+      m('receivable', 'Belum dibayar', a.receivable, 'Sisa tagihan pelanggan yang belum lunas sampai saat ini.', a.receivableInvoiceIds),
+      m('unapplied', 'Kelebihan bayar', a.unapplied, 'Uang melebihi tagihan; menunggu keputusan dikembalikan atau dipakai tagihan lain.'),
     ],
     contribution: {
       final: toMoneyString(a.contributionFinalTotal),

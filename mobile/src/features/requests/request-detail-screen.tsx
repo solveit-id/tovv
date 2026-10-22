@@ -8,11 +8,11 @@ import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Button } from '@/components/ui/button';
 import { Field, Toggle } from '@/components/ui/form';
-import { LineItem, SectionTitle, Serial, Sheet } from '@/components/ui/nota';
+import { LineItem, SectionTitle, Card } from '@/components/ui/surface';
 import { StatusTag } from '@/components/ui/status-tag';
 import { QueryView, EmptyBlock } from '@/components/ui/states';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
-import { PhotoTile } from '@/components/nota/photo-tile';
+import { PhotoTile } from '@/components/business/photo-tile';
 import { useApi, useSession } from '@/data/api/provider';
 import { errorMessage, useTovvQuery } from '@/data/api/hooks';
 import { useToast } from '@/components/feedback/toast';
@@ -70,15 +70,15 @@ export function RequestDetailScreen() {
   return (
     <Screen
       onRefresh={() => qc.invalidateQueries()}
-      header={<DetailHeader serial={d ? `R-${d.alias}` : undefined} title={d?.customerLabel ?? 'Permintaan'} subtitle={d ? requestStatus[d.status].label : undefined} />}
+      header={<DetailHeader serial={d ? `Permintaan ${d.alias}` : undefined} title={d?.customerLabel ?? 'Permintaan'} />}
       footer={footer}
     >
       <QueryView q={q}>
         {(r) => (
           <>
-            <Sheet>
+            <Card>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: space.sm }}>
-                <Serial>{`PERMINTAAN R-${r.alias}`}</Serial>
+                <Txt variant="label" tone="inkSecondary">{`Permintaan ${r.alias}`}</Txt>
                 <Txt variant="caption" tone="inkSecondary">{channelLabel[r.channel]}</Txt>
               </View>
               <View style={{ marginTop: space.sm }}><StatusTag look={requestStatus[r.status]} /></View>
@@ -95,29 +95,29 @@ export function RequestDetailScreen() {
                 <LineItem label="Jemput" hint={r.pickup.address} value={<Txt variant="bodySm">{r.pickup.label}</Txt>} />
                 <LineItem label="Tujuan" hint={r.dropoff.address} value={<Txt variant="bodySm">{r.dropoff.label}</Txt>} />
                 <LineItem label="Waktu" value={<Txt variant="bodySm">{`${timingLabel[r.timing.kind]} · ${r.timing.start ? formatShortDateTime(r.timing.start) : 'segera'}${r.timing.end ? `–${formatShortDateTime(r.timing.end)}` : ''}`}</Txt>} />
-                <LineItem label="Pihak" hint={`Penyerah ${r.parties.sender} · penerima ${r.parties.receiver}`} value={<Txt variant="bodySm">{`Bayar: ${r.parties.payer}`}</Txt>} />
+                <LineItem label="Pihak" hint={`Diserahkan oleh ${r.parties.sender} · diterima oleh ${r.parties.receiver}`} value={<Txt variant="bodySm">{`Bayar: ${r.parties.payer}`}</Txt>} />
                 {r.businessAccount ? <LineItem label="Akun bisnis" hint={`Syarat ${r.businessAccount.termsVersion}${r.businessAccount.poRequired ? ' · PO wajib' : ''}`} value={<Txt variant="bodySm">{r.poRef ?? 'PO belum ada'}</Txt>} /> : null}
                 <LineItem label="Dicatat" value={<Txt variant="bodySm">{`${r.createdByName} · ${formatDateTime(r.createdAt)}`}</Txt>} />
               </View>
-            </Sheet>
+            </Card>
 
             {staff ? (
-              <Sheet style={{ marginTop: space.md }}>
+              <Card style={{ marginTop: space.md }}>
                 <Txt variant="label" tone="inkSecondary">Tarif berlaku</Txt>
                 <Txt variant="bodyStrong" tone={r.rate.source === 'account' ? 'okInk' : 'warnInk'}>{r.rate.amount ? formatRupiah(r.rate.amount) : '—'}</Txt>
                 <Txt variant="bodySm" tone="inkSecondary">{r.rate.note}</Txt>
-              </Sheet>
+              </Card>
             ) : null}
 
             <SectionTitle title="Foto kondisi" />
-            <Sheet>
+            <Card>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.md }}>
                 {r.media.map((m) => <PhotoTile key={m.id} item={m} label={`Kondisi · ${m.slot}`} />)}
                 {r.allowedActions.includes('capture') ? (
                   <PhotoTile item={null} label="Tambah foto kondisi" onPress={() => router.push({ pathname: '/camera', params: { requestId: r.id, stage: 'request_condition', slot: `RC${r.media.length + 1}` } })} />
                 ) : null}
               </View>
-            </Sheet>
+            </Card>
 
             <SectionTitle title="Penawaran" count={r.quotes.length} />
             {r.quotes.length ? (
@@ -127,7 +127,7 @@ export function RequestDetailScreen() {
                 {latest?.approvalNote ? <Txt variant="bodySm" tone="warnInk" style={{ marginTop: space.sm }}>{latest.approvalNote}</Txt> : null}
               </>
             ) : (
-              <Sheet><EmptyBlock icon="file-outline" title="Belum ada penawaran" body={staff ? 'Lengkapi data lalu susun penawaran. Penawaran tidak menahan slot unit.' : 'Operator akan meninjau data dan mengirim penawaran.'} /></Sheet>
+              <Card><EmptyBlock icon="file-outline" title="Belum ada penawaran" body={staff ? 'Lengkapi data lalu susun penawaran. Penawaran tidak menahan slot unit.' : 'Operator akan meninjau data dan mengirim penawaran.'} /></Card>
             )}
 
             {r.allowedActions.includes('cancel') ? <Button label="Batalkan permintaan" variant="danger" icon="cancel" onPress={() => setSheet('cancel')} style={{ marginTop: space.xxl }} /> : null}

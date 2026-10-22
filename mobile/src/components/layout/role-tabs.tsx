@@ -1,8 +1,11 @@
-import React from 'react';
-import { Platform } from 'react-native';
+import React, { useEffect } from 'react';
+import { Platform, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { Redirect, Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { color } from '@/core/design/tokens';
+import { radius } from '@/core/design/tokens';
+import { makeStyles, useColors } from '@/core/design/theme';
+import { glideSpring, useReducedMotion } from '@/core/design/motion';
 import { Icon } from '@/components/ui/icon';
 import { useSession } from '@/data/api/provider';
 import type { ViewGroup } from '@/domain/types';
@@ -15,27 +18,46 @@ export interface TabDef {
   badge?: number;
 }
 
+/** Ikon tab dengan pil indikator aktif yang mekar (gaya navigation bar Material 3 / super-app). */
+function TabIcon({ icon, focused }: { icon: string; focused: boolean }) {
+  const s = useStyles();
+  const reduced = useReducedMotion();
+  const p = useSharedValue(focused ? 1 : 0);
+  useEffect(() => {
+    p.value = reduced ? (focused ? 1 : 0) : withSpring(focused ? 1 : 0, glideSpring);
+  }, [focused, reduced, p]);
+  const pill = useAnimatedStyle(() => ({ opacity: p.value, transform: [{ scaleX: 0.5 + p.value * 0.5 }] }));
+  return (
+    <View style={s.iconWrap}>
+      <Animated.View style={[s.pill, pill]} />
+      <Icon name={focused ? icon.replace('-outline', '') : icon} size={22} tone={focused ? 'accentInk' : 'inkSecondary'} />
+    </View>
+  );
+}
+
 /** Tab bawah per kelompok tampilan. Konteks yang tidak cocok dialihkan, bukan dirender diam-diam. */
 export function RoleTabs({ view, tabs }: { view: ViewGroup; tabs: TabDef[] }) {
   const session = useSession();
   const insets = useSafeAreaInsets();
+  const c = useColors();
   if (!session) return <Redirect href="/mulai" />;
   if (session.view !== view) return <Redirect href={`/${session.view}`} />;
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: color.carbon,
-        tabBarInactiveTintColor: color.inkSecondary,
+        tabBarActiveTintColor: c.accentInk,
+        tabBarInactiveTintColor: c.inkSecondary,
         tabBarStyle: {
-          backgroundColor: color.sheet,
-          borderTopColor: color.rule,
-          minHeight: 60 + insets.bottom,
-          paddingTop: 6,
+          backgroundColor: c.surface,
+          borderTopColor: c.line,
+          minHeight: 64 + insets.bottom,
+          paddingTop: 8,
         },
-        tabBarLabelStyle: { fontSize: 12, fontWeight: '600', marginBottom: Platform.OS === 'android' ? 6 : 0 },
+        tabBarLabelStyle: { fontSize: 12, fontWeight: '600', marginTop: 2, marginBottom: Platform.OS === 'android' ? 6 : 0 },
         tabBarAllowFontScaling: true,
-        sceneStyle: { backgroundColor: color.ground },
+        sceneStyle: { backgroundColor: c.bg },
+        animation: 'shift',
       }}
     >
       {tabs.map((t) => (
@@ -46,12 +68,17 @@ export function RoleTabs({ view, tabs }: { view: ViewGroup; tabs: TabDef[] }) {
             title: t.title,
             href: t.hidden ? null : undefined,
             tabBarBadge: t.badge ? t.badge : undefined,
-            tabBarBadgeStyle: { backgroundColor: color.serial, fontSize: 11 },
+            tabBarBadgeStyle: { backgroundColor: c.badge, fontSize: 11 },
             tabBarAccessibilityLabel: t.badge ? `${t.title}, ${t.badge} perlu perhatian` : t.title,
-            tabBarIcon: ({ focused }) => <Icon name={focused ? t.icon.replace('-outline', '') : t.icon} size={24} tone={focused ? 'carbon' : 'inkSecondary'} />,
+            tabBarIcon: ({ focused }) => <TabIcon icon={t.icon} focused={focused} />,
           }}
         />
       ))}
     </Tabs>
   );
 }
+
+const useStyles = makeStyles((c) => ({
+  iconWrap: { width: 60, height: 30, alignItems: 'center', justifyContent: 'center' },
+  pill: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, borderRadius: radius.pill, backgroundColor: c.accentSoft },
+}));

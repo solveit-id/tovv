@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { space, color } from '@/core/design/tokens';
+import { space } from '@/core/design/tokens';
+import { useColors } from '@/core/design/theme';
 import { Screen } from '@/components/layout/screen';
 import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Choice, Field, MoneyField } from '@/components/ui/form';
-import { LineItem, Sheet } from '@/components/ui/nota';
+import { LineItem, Card } from '@/components/ui/surface';
 import { StatusTag } from '@/components/ui/status-tag';
 import { EmptyBlock, QueryView } from '@/components/ui/states';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
@@ -36,6 +37,7 @@ const STATUS: Record<string, StatusLook> = {
 
 /** Delegasi terbatas (FIN-04): template izin tetap, batas nominal, masa ≤ 8 jam, cabut kapan saja. Tidak bisa didelegasikan ulang. */
 export function DelegationsScreen() {
+  const color = useColors();
   const api = useApi();
   const q = useTovvQuery(['delegations'], (a) => a.listDelegations());
   const admins = useTovvQuery(['admins'], (a) => a.listAdmins());
@@ -63,13 +65,13 @@ export function DelegationsScreen() {
   };
 
   return (
-    <Screen header={<DetailHeader title="Delegasi" subtitle="Mandat terbatas saat owner tidak tersedia" />} footer={<Button label="Beri delegasi" icon="account-key-outline" size="lg" onPress={() => setOpen(true)} />}>
+    <Screen header={<DetailHeader title="Delegasi" subtitle="Wewenang harga terbatas saat owner tidak tersedia" />} footer={<Button label="Beri delegasi" icon="account-key-outline" size="lg" onPress={() => setOpen(true)} />}>
       <QueryView q={q}>
         {(list) =>
           list.length ? (
             <View style={{ gap: space.md }}>
               {list.map((d) => (
-                <Sheet key={d.id}>
+                <Card key={d.id}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: space.sm }}>
                     <Txt variant="bodyStrong">{d.delegateName}</Txt>
                     <StatusTag look={STATUS[d.status]!} size="sm" />
@@ -81,7 +83,7 @@ export function DelegationsScreen() {
                   <LineItem label="Batas diskon dari target" value={<Txt variant="figure">{formatRupiah(d.limit)}</Txt>} />
                   <LineItem label="Berlaku" value={<Txt variant="caption">{`${formatDateTime(d.effectiveAt)} – ${formatDateTime(d.expiresAt)}`}</Txt>} />
                   {d.status === 'active' ? <Button label="Cabut sekarang" variant="danger" compact loading={revoke.isPending} onPress={() => revoke.mutate(d.id)} style={{ alignSelf: 'flex-start', marginTop: space.sm }} /> : null}
-                </Sheet>
+                </Card>
               ))}
             </View>
           ) : <EmptyBlock icon="account-key-outline" title="Belum ada delegasi" />
@@ -95,8 +97,8 @@ export function DelegationsScreen() {
           {SCOPES.map((s) => {
             const on = scopes.includes(s.value);
             return (
-              <Pressable key={s.value} onPress={() => setScopes((cur) => (on ? cur.filter((x) => x !== s.value) : [...cur, s.value]))} accessibilityRole="checkbox" accessibilityState={{ checked: on }} style={{ flexDirection: 'row', gap: space.sm, alignItems: 'center', minHeight: 48, paddingHorizontal: space.sm, borderRadius: 8, backgroundColor: on ? color.carbonTint : 'transparent' }}>
-                <Icon name={on ? 'checkbox-marked' : 'checkbox-blank-outline'} tone={on ? 'carbon' : 'inkSecondary'} />
+              <Pressable key={s.value} onPress={() => setScopes((cur) => (on ? cur.filter((x) => x !== s.value) : [...cur, s.value]))} accessibilityRole="checkbox" accessibilityState={{ checked: on }} style={{ flexDirection: 'row', gap: space.sm, alignItems: 'center', minHeight: 48, paddingHorizontal: space.sm, borderRadius: 8, backgroundColor: on ? color.accentSoft : 'transparent' }}>
+                <Icon name={on ? 'checkbox-marked' : 'checkbox-blank-outline'} tone={on ? 'accentInk' : 'inkSecondary'} />
                 <View style={{ flex: 1 }}><Txt variant="bodySm" style={{ fontWeight: '600' }}>{s.label}</Txt><Txt variant="caption" tone="inkSecondary">{s.hint}</Txt></View>
               </Pressable>
             );

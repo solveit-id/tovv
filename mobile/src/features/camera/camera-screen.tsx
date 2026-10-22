@@ -7,7 +7,8 @@ import { Image } from 'expo-image';
 import { captureRef } from 'react-native-view-shot';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSafeBack } from '@/core/hooks/use-safe-back';
-import { color, radius, space } from '@/core/design/tokens';
+import { radius, space } from '@/core/design/tokens';
+import { makeStyles } from '@/core/design/theme';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ interface Shot {
  * Galeri selalu berlabel impor. Lokasi yang tidak ada ditulis "lokasi tidak tersedia", tidak dikarang.
  */
 export function CameraScreen() {
+  const styles = useStyles();
   const p = useLocalSearchParams<{ requestId: string; orderId?: string; stage: MediaStage; slot: string }>();
   const goBack = useSafeBack(p.orderId ? `/order/${p.orderId}` : `/request/${p.requestId}`);
   const api = useApi();
@@ -186,14 +188,14 @@ export function CameraScreen() {
         <View ref={overlayRef} collapsable={false} style={[styles.preview, { aspectRatio: aspect }]}>
           <Image source={{ uri: shot.uri }} style={StyleSheet.absoluteFill} contentFit="cover" />
           <View style={styles.overlay} accessible accessibilityLabel={`Overlay: DEMO, ${shot.origin === 'gallery' ? 'impor galeri' : 'kamera aplikasi'}, ${locText}, sumber ${locationSourceLabel[l.source]}`}>
-            <Txt variant="caption" tone="onNavy" style={styles.ovBold} maxFontSizeMultiplier={1}>{`DEMO · TOVV · ${shot.origin === 'gallery' ? 'IMPOR GALERI' : 'KAMERA APLIKASI'}`}</Txt>
-            <Txt variant="caption" tone="onNavy" maxFontSizeMultiplier={1}>
+            <Txt variant="caption" tone="onHero" style={styles.ovBold} maxFontSizeMultiplier={1}>{`DEMO · TOVV · ${shot.origin === 'gallery' ? 'IMPOR GALERI' : 'KAMERA APLIKASI'}`}</Txt>
+            <Txt variant="caption" tone="onHero" maxFontSizeMultiplier={1}>
               {shot.deviceCapturedAt ? `${formatDateTime(shot.deviceCapturedAt)} · jam perangkat · Asia/Jakarta` : 'Waktu ambil tidak diketahui (galeri)'}
             </Txt>
-            <Txt variant="caption" tone="onNavy" maxFontSizeMultiplier={1}>
+            <Txt variant="caption" tone="onHero" maxFontSizeMultiplier={1}>
               {`${locText} · ${locationSourceLabel[l.source]}${l.accuracyM !== null ? ` ±${l.accuracyM} m` : ''}${l.source === 'stale' && l.capturedAt ? ` · ${formatAge(l.capturedAt, now)}` : ''}`}
             </Txt>
-            <Txt variant="caption" tone="onNavy" maxFontSizeMultiplier={1}>{`${req.data?.alias ?? ''}${p.orderId ? ` · ${p.orderId}` : ''} · ${stageLabel[p.stage] ?? p.stage}`}</Txt>
+            <Txt variant="caption" tone="onHero" maxFontSizeMultiplier={1}>{`${req.data?.alias ?? ''}${p.orderId ? ` · ${p.orderId}` : ''} · ${stageLabel[p.stage] ?? p.stage}`}</Txt>
           </View>
         </View>
         <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.sm }}>
@@ -225,32 +227,32 @@ export function CameraScreen() {
       <View style={{ flex: 1 }}>
         <CameraView ref={camRef} style={StyleSheet.absoluteFill} facing="back" onCameraReady={() => setReady(true)} onMountError={(e) => setError(`Kamera tidak dapat dibuka: ${e.message}`)} />
         <View style={styles.locChip} accessibilityLiveRegion="polite">
-          <Icon name={l.source === 'device' ? 'crosshairs-gps' : l.source === 'stale' ? 'map-marker-alert-outline' : 'map-marker-off-outline'} size={16} tone="onNavy" />
-          <Txt variant="caption" tone="onNavy" maxFontSizeMultiplier={1.3}>
+          <Icon name={l.source === 'device' ? 'crosshairs-gps' : l.source === 'stale' ? 'map-marker-alert-outline' : 'map-marker-off-outline'} size={16} tone="onHero" />
+          <Txt variant="caption" tone="onHero" maxFontSizeMultiplier={1.3}>
             {loc ? `${locationSourceLabel[l.source]}${l.accuracyM !== null ? ` ±${l.accuracyM} m` : ''}` : 'Mencari lokasi… (foto tetap bisa diambil)'}
           </Txt>
         </View>
       </View>
       <View style={[styles.controls, { paddingBottom: insets.bottom + space.lg }]}>
-        {error ? <Txt variant="bodySm" tone="onNavy" align="center">{error}</Txt> : null}
+        {error ? <Txt variant="bodySm" tone="onHero" align="center">{error}</Txt> : null}
         <View style={styles.controlRow}>
-          <Button label="Galeri" icon="image-multiple-outline" variant="onNavy" compact onPress={() => void importGallery()} />
+          <Button label="Galeri" icon="image-multiple-outline" variant="onHero" compact onPress={() => void importGallery()} />
           <Button label="Ambil foto" icon="camera" size="lg" disabled={!ready} onPress={() => void take()} style={{ flex: 1 }} />
         </View>
-        <Txt variant="caption" tone="onNavySecondary" align="center">{`Kamera DEMO · ${req.data?.vehicle.plate ?? ''}`}</Txt>
+        <Txt variant="caption" tone="onHeroSecondary" align="center">{`Kamera DEMO · ${req.data?.vehicle.plate ?? ''}`}</Txt>
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((color) => ({
   camRoot: { flex: 1, backgroundColor: color.cameraGround },
   denied: { alignItems: 'center', gap: space.md, paddingVertical: space.xxl },
-  preview: { width: '100%', borderRadius: radius.sheet, overflow: 'hidden', backgroundColor: color.navy },
+  preview: { width: '100%', borderRadius: radius.lg, overflow: 'hidden', backgroundColor: color.cameraGround },
   overlay: { position: 'absolute', left: 0, right: 0, bottom: 0, padding: space.sm, backgroundColor: color.overlayInk, gap: 1 },
   ovBold: { fontWeight: '700', letterSpacing: 0.4 },
-  locChip: { position: 'absolute', top: space.md, left: space.md, flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: color.overlayInk, paddingHorizontal: space.sm, paddingVertical: 4, borderRadius: radius.cell },
-  controls: { backgroundColor: color.navy, paddingHorizontal: space.lg, paddingTop: space.md, gap: space.sm },
+  locChip: { position: 'absolute', top: space.md, left: space.md, flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: color.overlayInk, paddingHorizontal: space.sm, paddingVertical: 4, borderRadius: radius.sm },
+  controls: { backgroundColor: color.cameraGround, paddingHorizontal: space.lg, paddingTop: space.md, gap: space.sm },
   controlRow: { flexDirection: 'row', gap: space.md, alignItems: 'center' },
-});
+}));
 

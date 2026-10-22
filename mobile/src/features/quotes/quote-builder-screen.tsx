@@ -1,15 +1,16 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useSafeBack } from '@/core/hooks/use-safe-back';
-import { color, radius, space } from '@/core/design/tokens';
+import { radius, space } from '@/core/design/tokens';
+import { makeStyles } from '@/core/design/theme';
 import { Screen } from '@/components/layout/screen';
 import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Choice, Field, MoneyField, Toggle } from '@/components/ui/form';
-import { Money, SectionTitle, Sheet } from '@/components/ui/nota';
+import { Money, SectionTitle, Card } from '@/components/ui/surface';
 import { QueryView } from '@/components/ui/states';
 import { useApi } from '@/data/api/provider';
 import { errorMessage, useTovvQuery } from '@/data/api/hooks';
@@ -21,6 +22,7 @@ import { addMinutes, formatDateTime, timePresets } from '@/core/format/time';
 import { PricingResultView } from '@/features/pricing/pricing-result';
 
 function UnitOption({ c, on, onPress }: { c: UnitCandidate; on: boolean; onPress: () => void }) {
+  const styles = useStyles();
   const selectable = c.eligible && !c.conflict;
   return (
     <Pressable
@@ -32,15 +34,19 @@ function UnitOption({ c, on, onPress }: { c: UnitCandidate; on: boolean; onPress
       style={({ pressed }) => [styles.unit, on && styles.unitOn, !selectable && styles.unitOff, pressed && { opacity: 0.85 }]}
     >
       <View style={styles.unitHead}>
-        <Icon name={!c.eligible ? 'close-octagon-outline' : c.conflict ? 'calendar-alert' : on ? 'radiobox-marked' : 'radiobox-blank'} tone={!c.eligible ? 'dangerInk' : c.conflict ? 'warnInk' : on ? 'carbon' : 'inkSecondary'} />
+        <Icon name={!c.eligible ? 'close-octagon-outline' : c.conflict ? 'calendar-alert' : on ? 'radiobox-marked' : 'radiobox-blank'} tone={!c.eligible ? 'dangerInk' : c.conflict ? 'warnInk' : on ? 'accentInk' : 'inkSecondary'} />
         <Txt variant="bodyStrong" style={{ flex: 1 }} strike={!c.eligible}>{`${c.code} · ${c.label}${c.ownership === 'partner' ? ` (mitra ${c.partnerName})` : ''}`}</Txt>
-        {c.rank ? <Txt variant="caption" tone="carbon" style={{ fontWeight: '700' }}>{`#${c.rank}`}</Txt> : null}
+        {c.rank ? (
+          <View style={[styles.rank, c.rank === 1 && styles.rankTop]}>
+            <Txt variant="caption" tone={c.rank === 1 ? 'okInk' : 'inkSecondary'} bold>{c.rank === 1 ? 'Rekomendasi' : `Pilihan ${c.rank}`}</Txt>
+          </View>
+        ) : null}
       </View>
       <Txt variant="bodySm" tone={!c.eligible ? 'dangerInk' : c.conflict ? 'warnInk' : 'ink'}>{c.reason}</Txt>
       <Txt variant="caption" tone="inkSecondary">
-        {`${formatNumber(c.capacityKg)} kg · dek ${c.deck} · ${c.distanceKm !== null ? `${c.distanceKm} km garis lurus` : 'jarak tidak diketahui'} · posisi ${c.positionAge}${c.positionFreshness === 'stale' ? ' (lama)' : ''}`}
+        {`Kapasitas ${formatNumber(c.capacityKg)} kg · dek ${c.deck.replace(/\d{4,}/g, (n) => formatNumber(Number(n)))} · ${c.distanceKm !== null ? `${String(c.distanceKm).replace('.', ',')} km garis lurus` : 'jarak tidak diketahui'} · posisi ${c.positionAge}${c.positionFreshness === 'stale' ? ' (lama)' : ''}`}
       </Txt>
-      {c.estimatedDirect ? <Txt variant="caption" tone="inkSecondary">{`Estimasi biaya langsung ${formatRupiah(c.estimatedDirect)}`}</Txt> : null}
+      {c.estimatedDirect && !c.reason.includes(formatRupiah(c.estimatedDirect)) ? <Txt variant="caption" tone="inkSecondary">{`Estimasi biaya langsung ${formatRupiah(c.estimatedDirect)}`}</Txt> : null}
     </Pressable>
   );
 }
@@ -50,6 +56,7 @@ function UnitOption({ c, on, onPress }: { c: UnitCandidate; on: boolean; onPress
  * Penawaran tidak menahan slot; reservasi baru terjadi saat disetujui.
  */
 export function QuoteBuilderScreen() {
+  const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const goBack = useSafeBack(`/request/${id}`);
   const api = useApi();
@@ -116,7 +123,7 @@ export function QuoteBuilderScreen() {
 
   return (
     <Screen
-      header={<DetailHeader serial={req.data ? `R-${req.data.alias}` : undefined} title="Susun penawaran" subtitle={req.data ? `${req.data.vehicleLabel} · ${req.data.pickupLabel} → ${req.data.dropoffLabel}` : undefined} />}
+      header={<DetailHeader serial={req.data ? `Permintaan ${req.data.alias}` : undefined} title="Susun penawaran" subtitle={req.data ? `${req.data.vehicleLabel} · ${req.data.pickupLabel} → ${req.data.dropoffLabel}` : undefined} />}
       footer={
         <>
           {err ? <Txt variant="bodySm" tone="dangerInk" accessibilityLiveRegion="polite">{err}</Txt> : null}
@@ -125,9 +132,9 @@ export function QuoteBuilderScreen() {
       }
     >
       {session.data?.delegation ? (
-        <Sheet style={{ marginBottom: space.md }}>
+        <Card style={{ marginBottom: space.md }}>
           <Txt variant="bodySm">{`Delegasi dari ${session.data.delegation.delegatorName}: diskon sampai ${formatRupiah(session.data.delegation.limit)} di bawah target, berlaku sampai ${formatDateTime(session.data.delegation.expiresAt)}.`}</Txt>
-        </Sheet>
+        </Card>
       ) : null}
       <SectionTitle title="Jadwal" />
       <Choice label="Jadwal" hideLabel helper="Rentang ±2,5 jam ditambah buffer 30 menit." value={slot} onChange={(v) => { setSlot(v); setUnitId(null); }} options={presets.map((p, i) => ({ value: String(i), label: p.label }))} />
@@ -155,9 +162,9 @@ export function QuoteBuilderScreen() {
       {priority ? <MoneyField label="Biaya prioritas" value={priorityFee} onChange={setPriorityFee} /> : null}
       {below ? <Field label="Alasan harga di bawah target" value={reason} onChangeText={setReason} multiline /> : null}
       <Choice label="Masa berlaku" value={valid} onChange={setValid} options={[{ value: '4', label: '4 jam' }, { value: '24', label: '24 jam' }, { value: '48', label: '48 jam' }]} />
-      <Sheet>
+      <Card>
         <PricingResultView r={result} price={pEff + (priority ? priorityFee ?? 0 : 0)} />
-      </Sheet>
+      </Card>
       {selected ? (
         <View style={styles.sel}>
           <Txt variant="caption" tone="inkSecondary">Unit terpilih</Txt>
@@ -169,10 +176,12 @@ export function QuoteBuilderScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  unit: { borderWidth: 1.5, borderColor: color.rule, borderRadius: radius.control, padding: space.md, gap: 4, backgroundColor: color.sheet },
-  unitOn: { borderColor: color.carbon, backgroundColor: color.carbonTint },
-  unitOff: { backgroundColor: color.sheetSunk },
+const useStyles = makeStyles((color) => ({
+  unit: { borderWidth: 1.5, borderColor: color.line, borderRadius: radius.md, padding: space.md, gap: 4, backgroundColor: color.surface },
+  unitOn: { borderColor: color.accent, backgroundColor: color.accentSoft },
+  unitOff: { backgroundColor: color.surfaceAlt },
   unitHead: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   sel: { marginTop: space.md, gap: 2 },
-});
+  rank: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2, backgroundColor: color.surfaceAlt },
+  rankTop: { backgroundColor: color.okWash },
+}));

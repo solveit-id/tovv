@@ -2,20 +2,21 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { color, radius, space } from '@/core/design/tokens';
+import { radius, space } from '@/core/design/tokens';
+import { makeStyles, useColors } from '@/core/design/theme';
 import { Screen } from '@/components/layout/screen';
 import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Choice, Field, MoneyField } from '@/components/ui/form';
-import { LineItem, Money, Rule, SectionTitle, Serial, Sheet } from '@/components/ui/nota';
+import { LineItem, Money, Rule, SectionTitle, Serial, Card } from '@/components/ui/surface';
 import { StatusTag } from '@/components/ui/status-tag';
 import { QueryView } from '@/components/ui/states';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
-import { DocumentStack } from '@/components/nota/document-stack';
-import { Stamp } from '@/components/nota/stamp';
-import { InternalQr } from '@/components/nota/internal-qr';
+import { DocumentStack } from '@/components/business/document-stack';
+import { Stamp } from '@/components/business/stamp';
+import { InternalQr } from '@/components/business/internal-qr';
 import { useApi, useSession } from '@/data/api/provider';
 import { errorMessage, useTovvQuery } from '@/data/api/hooks';
 import { useToast } from '@/components/feedback/toast';
@@ -31,6 +32,8 @@ type SheetK = 'request' | 'credit' | { refund: string } | null;
  * tidak mengubah sisa. Instruksi hanya rekening DEMO-NONPAYABLE; QR internal bukan QRIS.
  */
 export function InvoiceScreen() {
+  const color = useColors();
+  const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const api = useApi();
@@ -92,10 +95,10 @@ export function InvoiceScreen() {
             <DocumentStack
               historyLabel="nota kredit"
               history={inv.credits.map((c) => (
-                <Sheet key={c.id}>
+                <Card key={c.id}>
                   <Serial>{c.id}</Serial>
                   <LineItem label={c.reason} hint={formatDateTime(c.postedAt)} value={<Money value={`-${c.amount}`} />} />
-                </Sheet>
+                </Card>
               ))}
             >
               <View style={styles.head}>
@@ -116,16 +119,16 @@ export function InvoiceScreen() {
               <Rule />
               {inv.items.map((it) => <LineItem key={it.label} label={it.label} value={<Money value={it.amount} />} />)}
               <Rule />
-              <LineItem label="Bruto" value={<Money value={inv.gross} />} />
+              <LineItem label="Subtotal" value={<Money value={inv.gross} />} />
               {inv.credits.length ? <LineItem label="Kredit" value={<Money value={`-${inv.credits.reduce((s, c) => s + Number(c.amount), 0)}`} />} /> : null}
-              <LineItem label="Net" value={<Money value={inv.net} />} />
-              <LineItem label="Diterima & dialokasikan (demo)" value={<Money value={inv.allocated} tone="okInk" />} />
+              <LineItem label="Total tagihan" hint="Setelah nota kredit, bila ada" value={<Money value={inv.net} />} />
+              <LineItem label="Sudah dibayar (demo)" value={<Money value={inv.allocated} tone="okInk" />} />
               <Rule strong />
               <LineItem label="Sisa tagihan" emphasis value={<Money value={inv.outstanding} size="lg" tone={outstanding ? 'ink' : 'okInk'} />} />
             </DocumentStack>
 
             <SectionTitle title="Instruksi pembayaran (DEMO)" />
-            <Sheet style={{ backgroundColor: color.demoWash, borderColor: color.demoRule }}>
+            <Card style={{ backgroundColor: color.demoWash, borderColor: color.demoRule }}>
               <View style={{ flexDirection: 'row', gap: space.sm }}>
                 <Icon name="bank-off-outline" tone="demoInk" />
                 <View style={{ flex: 1, gap: 2 }}>
@@ -134,13 +137,13 @@ export function InvoiceScreen() {
                   <Txt variant="caption" tone="demoInk">Bukan rekening nyata. Jangan mentransfer uang. Tidak ada gateway, QRIS live, atau pemeriksaan bank otomatis.</Txt>
                 </View>
               </View>
-            </Sheet>
+            </Card>
 
             <SectionTitle title="Permintaan pembayaran" count={inv.paymentRequests.length} action={staff && inv.allowedActions.includes('create_payment_request') ? <Button label="Buat" variant="quiet" compact icon="plus" onPress={() => open('request', outstanding)} /> : null} />
             {inv.paymentRequests.length ? (
               <View style={{ gap: space.sm }}>
                 {inv.paymentRequests.map((pr) => (
-                  <Sheet key={pr.id}>
+                  <Card key={pr.id}>
                     <View style={styles.head}>
                       <View style={{ flex: 1, gap: 4 }}>
                         <Serial>{pr.reference}</Serial>
@@ -152,17 +155,17 @@ export function InvoiceScreen() {
                       {`Sisa saat dibuat ${formatRupiah(pr.outstandingSnapshot)} · ${pr.status === 'active' ? `berlaku ${formatUntil(pr.expiresAt, now)}` : `berakhir ${formatShortDateTime(pr.expiresAt)}`}. Status permintaan tidak membuktikan ada/tidaknya dana.`}
                     </Txt>
                     {pr.status === 'active' ? <View style={{ marginTop: space.md, alignItems: 'center' }}><InternalQr uri={pr.deepLink} /></View> : null}
-                  </Sheet>
+                  </Card>
                 ))}
               </View>
             ) : (
-              <Sheet><Txt variant="bodySm" tone="inkSecondary">Belum ada permintaan pembayaran.</Txt></Sheet>
+              <Card><Txt variant="bodySm" tone="inkSecondary">Belum ada permintaan pembayaran.</Txt></Card>
             )}
 
             <SectionTitle title="Bukti pembayaran" count={inv.proofs.length} />
-            <Sheet padded={false}>
+            <Card padded={false}>
               {inv.proofs.length ? inv.proofs.map((p, i) => (
-                <Pressable key={p.id} onPress={() => router.push(`/proof/${p.id}`)} accessibilityRole="button" style={({ pressed }) => [styles.row, i < inv.proofs.length - 1 && styles.divider, pressed && { backgroundColor: color.carbonTint }]}>
+                <Pressable key={p.id} onPress={() => router.push(`/proof/${p.id}`)} accessibilityRole="button" style={({ pressed }) => [styles.row, i < inv.proofs.length - 1 && styles.divider, pressed && { backgroundColor: color.accentSoft }]}>
                   <View style={{ flex: 1, gap: 4 }}>
                     <Txt variant="bodyStrong">{`${p.referenceClaimed} · ${p.method === 'cash_demo' ? 'tunai (demo)' : 'transfer (demo)'}`}</Txt>
                     <StatusTag look={proofStatus[p.status]} size="sm" />
@@ -172,14 +175,14 @@ export function InvoiceScreen() {
                   <Icon name="chevron-right" tone="inkSecondary" />
                 </Pressable>
               )) : <View style={{ padding: space.lg }}><Txt variant="bodySm" tone="inkSecondary">Belum ada bukti diajukan.</Txt></View>}
-            </Sheet>
+            </Card>
 
             {inv.receipts.length ? (
               <>
                 <SectionTitle title="Penerimaan tercatat (demo)" count={inv.receipts.length} />
                 <View style={{ gap: space.sm }}>
                   {inv.receipts.map((r) => (
-                    <Sheet key={r.id}>
+                    <Card key={r.id}>
                       <View style={styles.head}>
                         <View style={{ flex: 1, gap: 2 }}>
                           <Serial>{r.id}</Serial>
@@ -187,10 +190,10 @@ export function InvoiceScreen() {
                         </View>
                         <Money value={r.amount} />
                       </View>
-                      {r.unapplied !== '0' ? <LineItem label="Belum dialokasikan" hint="Lebih bayar menunggu keputusan; bukan dompet" value={<Money value={r.unapplied} tone="warnInk" />} /> : null}
+                      {r.unapplied !== '0' ? <LineItem label="Kelebihan bayar" hint="Melebihi tagihan; menunggu keputusan dikembalikan atau dipakai tagihan lain" value={<Money value={r.unapplied} tone="warnInk" />} /> : null}
                       {r.refunds.map((f, i) => <LineItem key={i} label="Refund tercatat (demo)" hint={f.recordedAt ? formatShortDateTime(f.recordedAt) : f.status} value={<Money value={`-${f.amount}`} />} />)}
                       {staff && r.unapplied !== '0' ? <Button label="Catat refund demo" variant="secondary" compact onPress={() => open({ refund: r.id }, parseMoneyString(r.unapplied))} style={{ alignSelf: 'flex-start', marginTop: space.sm }} /> : null}
-                    </Sheet>
+                    </Card>
                   ))}
                 </View>
               </>
@@ -244,10 +247,10 @@ export function InvoiceScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((color) => ({
   head: { flexDirection: 'row', alignItems: 'flex-start', gap: space.md },
   dates: { flexDirection: 'row', gap: space.md, marginVertical: space.md },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg },
-  divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.rule },
-  radius: { borderRadius: radius.sheet },
-});
+  divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.line },
+  radius: { borderRadius: radius.lg },
+}));

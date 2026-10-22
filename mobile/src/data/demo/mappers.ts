@@ -112,7 +112,7 @@ const NEXT_STEP: Record<ExecutionStatus, string> = {
   handed_over: 'Terbitkan invoice',
   closed: 'Selesai',
   canceled: 'Dibatalkan',
-  aborted: 'Dihentikan; lihat custody',
+  aborted: 'Dihentikan; cek penguasaan kendaraan',
 };
 
 export function orderSummary(db: DemoDb, order: Order, now: string): OrderSummary {
