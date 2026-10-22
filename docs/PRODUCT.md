@@ -2,7 +2,7 @@
 
 <!-- impeccable:product-schema 1 -->
 
-Ringkasan kerja untuk desain. Sumber kebenaran scope, requirement, aturan bisnis dan fixture tetap `PRD.md` di root; bila berbeda, PRD yang berlaku.
+Ringkasan kerja untuk desain. Sumber kebenaran scope, requirement, aturan bisnis dan fixture tetap [`spec/PRD.md`](spec/PRD.md); bila berbeda, PRD yang berlaku.
 
 ## Platform
 
@@ -53,6 +53,7 @@ Tovv mengelola operasi satu operator (unit sendiri dan mitra kelolaan), bukan ma
 - Belum ada logo Tovv; wordmark sementara dibuat dan ditandai SEMENTARA sampai logo resmi tersedia.
 - Logo Solveit (`mobile/assets/brand/`) memakai biru #1136D6–#19B8F2 dan navy #082A56; palet Tovv diturunkan dari sini.
 - Bahasa antarmuka Indonesia. Label "DEMO — SIMULASI FRONTEND" wajib terlihat.
+- Gaya visual: standar super-app/fintech Indonesia yang akrab bagi pengguna, dengan patokan kualitas Gojek/GoPay, Grab/Tokopedia dan Bank Jago/Jenius (keputusan pengguna 2026-10-22, menggantikan arah "Nota Rangkap"). Tema terang dan gelap mengikuti pengaturan sistem.
 
 ## Evidence on Hand
 

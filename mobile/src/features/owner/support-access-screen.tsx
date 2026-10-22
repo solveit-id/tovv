@@ -6,7 +6,7 @@ import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Button } from '@/components/ui/button';
 import { Choice, Field } from '@/components/ui/form';
-import { LineItem, Sheet } from '@/components/ui/nota';
+import { LineItem, Card } from '@/components/ui/surface';
 import { StatusTag } from '@/components/ui/status-tag';
 import { EmptyBlock, QueryView } from '@/components/ui/states';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
@@ -34,15 +34,15 @@ export function SupportAccessScreen() {
   const revoke = useTovvMutation((a, id: string) => a.revokeSupportGrant(id), { success: 'Akses dicabut; permintaan berikutnya ditolak.' });
   return (
     <Screen header={<DetailHeader title="Akses dukungan Solveit" subtitle="ADMIN STUB · integrasi aktual BLOCKED" />} footer={<Button label="Setujui akses sementara" icon="shield-account-outline" size="lg" onPress={() => setOpen(true)} />}>
-      <Sheet style={{ marginBottom: space.md }}>
-        <Txt variant="bodySm">Staf platform hanya melihat ringkasan kesehatan/usage tanpa grant. Detail perjalanan atau lokasi memerlukan persetujuan owner dengan cakupan dan masa berlaku; semua akses tercatat.</Txt>
-      </Sheet>
+      <Card style={{ marginBottom: space.md }}>
+        <Txt variant="bodySm">Staf platform hanya melihat ringkasan kesehatan dan pemakaian tanpa izin khusus. Detail perjalanan atau lokasi memerlukan persetujuan owner dengan cakupan dan masa berlaku; semua akses tercatat.</Txt>
+      </Card>
       <QueryView q={q}>
         {(list) =>
           list.length ? (
             <View style={{ gap: space.md }}>
               {list.map((g) => (
-                <Sheet key={g.id}>
+                <Card key={g.id}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: space.sm }}>
                     <Txt variant="bodyStrong" style={{ flex: 1 }}>{g.actorLabel}</Txt>
                     <StatusTag look={LOOK[g.status]!} size="sm" />
@@ -51,7 +51,7 @@ export function SupportAccessScreen() {
                   <LineItem label="Alasan" value={<Txt variant="bodySm">{g.reason}</Txt>} />
                   <LineItem label="Berlaku sampai" value={<Txt variant="bodySm">{formatDateTime(g.expiresAt)}</Txt>} />
                   {g.status === 'active' ? <Button label="Cabut" variant="danger" compact onPress={() => revoke.mutate(g.id)} style={{ alignSelf: 'flex-start' }} /> : null}
-                </Sheet>
+                </Card>
               ))}
             </View>
           ) : <EmptyBlock icon="shield-outline" title="Belum ada akses dukungan" />

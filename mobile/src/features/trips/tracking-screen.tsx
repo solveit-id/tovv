@@ -1,17 +1,18 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { useIsFocused, useLocalSearchParams, useRouter } from 'expo-router';
-import { color, radius, space } from '@/core/design/tokens';
+import { radius, space } from '@/core/design/tokens';
+import { makeStyles } from '@/core/design/theme';
 import { Screen } from '@/components/layout/screen';
 import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
-import { SectionTitle, Sheet } from '@/components/ui/nota';
+import { SectionTitle, Card } from '@/components/ui/surface';
 import { StatusTag } from '@/components/ui/status-tag';
 import { ErrorBlock, LoadingBlock } from '@/components/ui/states';
-import { StageLine } from '@/components/nota/stage-line';
-import { RouteSchematic } from '@/components/nota/route-schematic';
+import { StageLine } from '@/components/business/stage-line';
+import { RouteSchematic } from '@/components/business/route-schematic';
 import { useTovvQuery } from '@/data/api/hooks';
 import { executionStatus } from '@/core/i18n/status';
 import { formatAge, formatTime, formatDateTime, addMinutes } from '@/core/format/time';
@@ -22,6 +23,7 @@ import { useDemoNow } from '@/core/hooks/use-demo-now';
  * akurasi lokasi selalu terlihat; lebih dari 90 detik = "posisi lama", tidak pernah disebut live.
  */
 export function TrackingScreen() {
+  const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const focused = useIsFocused();
@@ -41,7 +43,7 @@ export function TrackingScreen() {
     >
       {t.isPending || order.isPending ? <LoadingBlock label="Mengambil posisi terakhir…" /> : t.isError ? <ErrorBlock error={t.error} onRetry={() => void t.refetch()} /> : snap && d ? (
         <>
-          <Sheet>
+          <Card>
             <StatusTag look={executionStatus[d.summary.status]} />
             {snap.visible && snap.eta ? (
               <View style={styles.eta}>
@@ -55,15 +57,15 @@ export function TrackingScreen() {
             ) : (
               <Txt variant="body" style={{ marginTop: space.md }}>{snap.hiddenReason ?? 'Lokasi belum tersedia.'}</Txt>
             )}
-          </Sheet>
+          </Card>
 
           {snap.visible ? (
             <>
               <View style={[styles.fresh, snap.freshness === 'stale' && styles.stale]} accessibilityRole="text" accessibilityLiveRegion="polite">
-                <Icon name={snap.freshness === 'stale' ? 'map-marker-alert-outline' : snap.source === 'device' ? 'crosshairs-gps' : 'play-box-outline'} size={20} tone={snap.freshness === 'stale' ? 'warnInk' : 'carbon'} />
+                <Icon name={snap.freshness === 'stale' ? 'map-marker-alert-outline' : snap.source === 'device' ? 'crosshairs-gps' : 'play-box-outline'} size={20} tone={snap.freshness === 'stale' ? 'warnInk' : 'accentInk'} />
                 <View style={{ flex: 1 }}>
                   <Txt variant="bodyStrong" tone={snap.freshness === 'stale' ? 'warnInk' : 'ink'}>
-                    {snap.freshness === 'stale' ? 'Posisi lama — bukan posisi saat ini' : snap.source === 'device' ? 'Lokasi dari perangkat petugas' : 'Lokasi simulasi (replay F-06)'}
+                    {snap.freshness === 'stale' ? 'Posisi lama — bukan posisi saat ini' : snap.source === 'device' ? 'Lokasi dari perangkat petugas' : 'Lokasi simulasi (rekaman perjalanan contoh)'}
                   </Txt>
                   <Txt variant="caption" tone="inkSecondary">
                     {`Diperbarui ${snap.capturedAt ? formatAge(snap.capturedAt, now) : '—'} · ${snap.capturedAt ? formatDateTime(snap.capturedAt) : ''} · akurasi ${snap.accuracyM !== null ? `±${snap.accuracyM} m` : 'tidak diketahui'}`}
@@ -86,20 +88,20 @@ export function TrackingScreen() {
           ) : null}
 
           <SectionTitle title="Unit & petugas" />
-          <Sheet style={styles.unit}>
+          <Card style={styles.unit}>
             <View style={styles.unitIcon}>
-              <Icon name="tow-truck" size={26} tone="onNavy" />
+              <Icon name="tow-truck" size={26} tone="onHero" />
             </View>
             <View style={{ flex: 1 }}>
               <Txt variant="bodyStrong">{`Unit ${d.summary.unitCode} · ${d.summary.driverName ?? 'petugas belum ditetapkan'}`}</Txt>
               <Txt variant="bodySm" tone="inkSecondary">{`${d.summary.pickup.label} → ${d.summary.dropoff.label}`}</Txt>
             </View>
-          </Sheet>
+          </Card>
 
           <SectionTitle title="Tahap" />
-          <Sheet>
+          <Card>
             <StageLine entries={d.timeline} />
-          </Sheet>
+          </Card>
           <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.md }}>
             Lokasi hanya dibagikan dari berangkat ke lokasi jemput sampai tiba di tujuan, dan berhenti saat serah-terima.
           </Txt>
@@ -109,11 +111,11 @@ export function TrackingScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((color) => ({
   eta: { marginTop: space.md, gap: 2 },
   etaRow: { flexDirection: 'row', alignItems: 'baseline', gap: space.md, flexWrap: 'wrap' },
-  fresh: { flexDirection: 'row', gap: space.md, padding: space.md, marginTop: space.md, borderRadius: radius.sheet, backgroundColor: color.carbonTint },
+  fresh: { flexDirection: 'row', gap: space.md, padding: space.md, marginTop: space.md, borderRadius: radius.lg, backgroundColor: color.accentSoft },
   stale: { backgroundColor: color.warnWash, borderWidth: 1.5, borderStyle: 'dashed', borderColor: color.warnInk },
   unit: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  unitIcon: { width: 48, height: 48, borderRadius: radius.control, backgroundColor: color.navy, alignItems: 'center', justifyContent: 'center' },
-});
+  unitIcon: { width: 48, height: 48, borderRadius: radius.md, backgroundColor: color.heroFrom, alignItems: 'center', justifyContent: 'center' },
+}));

@@ -8,7 +8,7 @@ import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Button } from '@/components/ui/button';
 import { Choice, Field, Toggle } from '@/components/ui/form';
-import { SectionTitle, Sheet } from '@/components/ui/nota';
+import { SectionTitle, Card } from '@/components/ui/surface';
 import { useApi, useSession } from '@/data/api/provider';
 import { errorMessage, useTovvQuery } from '@/data/api/hooks';
 import { useToast } from '@/components/feedback/toast';
@@ -171,10 +171,10 @@ export function NewRequestScreen() {
       {timing === 'immediate' && staff ? <Toggle label="Unit dan petugas dikonfirmasi sanggup segera" value={immediateOk} onChange={setImmediateOk} /> : null}
 
       <SectionTitle title="Pihak" />
-      <Sheet style={{ marginBottom: space.lg }}>
+      <Card style={{ marginBottom: space.lg }}>
         <Txt variant="bodySm" tone="inkSecondary">{`Pemesan: ${ordererName || '—'}${bizName ? ` · ${bizName}` : ''}. Penerima bukan otomatis pembayar; isi bila berbeda.`}</Txt>
-      </Sheet>
-      <Field label="Penyerah di lokasi jemput" value={sender} onChangeText={setSender} placeholder={ordererName} />
+      </Card>
+      <Field label="Yang menyerahkan kendaraan saat dijemput" value={sender} onChangeText={setSender} placeholder={ordererName} />
       <Field label="Penerima di tujuan" value={receiver} onChangeText={setReceiver} placeholder={ordererName} />
       <Field label="Pembayar" value={payer} onChangeText={setPayer} placeholder={bizName || ordererName} />
       {bizName ? <Field label="Nomor PO / referensi internal" value={po} onChangeText={setPo} helper={cust?.poRequired ? 'Wajib untuk akun ini sebelum konfirmasi.' : 'Opsional untuk akun ini.'} /> : null}

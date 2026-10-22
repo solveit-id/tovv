@@ -1,11 +1,12 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { color, space } from '@/core/design/tokens';
+import { space } from '@/core/design/tokens';
+import { makeStyles } from '@/core/design/theme';
 import { Screen } from '@/components/layout/screen';
 import { DetailHeader, RootHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Button } from '@/components/ui/button';
-import { Sheet } from '@/components/ui/nota';
+import { Card } from '@/components/ui/surface';
 import { StatusTag } from '@/components/ui/status-tag';
 import { EmptyBlock, QueryView } from '@/components/ui/states';
 import { useTovvMutation, useTovvQuery } from '@/data/api/hooks';
@@ -17,6 +18,7 @@ import { formatShortDateTime } from '@/core/format/time';
  * ditutup. "Diterima" di sini = diterima adapter demo, bukan bukti upload ke server nyata.
  */
 export function SyncScreen({ asTab = false }: { asTab?: boolean }) {
+  const styles = useStyles();
   const q = useTovvQuery(['outbox'], (a) => a.listOutbox());
   const faults = useTovvQuery(['faults'], (a) => a.getFaults());
   const sync = useTovvMutation((a) => a.syncOutbox(), { success: (r) => `Antrean diproses: ${r.filter((x) => x.status === 'synced').length} diterima, ${r.filter((x) => x.status === 'needs_review').length} perlu ditinjau.` });
@@ -31,7 +33,7 @@ export function SyncScreen({ asTab = false }: { asTab?: boolean }) {
           <Txt variant="bodySm" tone="dangerInk" style={{ fontWeight: '600' }}>Simulasi offline aktif. Item tetap aman di ponsel; matikan di Mode demo untuk mengirim.</Txt>
         </View>
       ) : null}
-      <Sheet padded={false}>
+      <Card padded={false}>
         <QueryView q={q}>
           {(list) =>
             list.length ? list.map((x, i) => (
@@ -46,7 +48,7 @@ export function SyncScreen({ asTab = false }: { asTab?: boolean }) {
             )) : <EmptyBlock icon="cloud-check-outline" title="Tidak ada antrean" body="Status, foto, dan biaya yang dicatat saat offline akan muncul di sini." />
           }
         </QueryView>
-      </Sheet>
+      </Card>
       <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.md }}>
         Pengiriman ulang memakai ID unik yang sama sehingga tidak menggandakan status, foto, atau biaya. Persetujuan harga, reservasi, dan verifikasi pembayaran tidak pernah final saat offline.
       </Txt>
@@ -54,8 +56,8 @@ export function SyncScreen({ asTab = false }: { asTab?: boolean }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((color) => ({
   row: { flexDirection: 'row', padding: space.lg, gap: space.md },
-  divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.rule },
+  divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.line },
   offline: { backgroundColor: color.dangerWash, padding: space.md, borderRadius: 6, marginBottom: space.md },
-});
+}));

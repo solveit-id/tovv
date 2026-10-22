@@ -7,11 +7,11 @@ import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Button } from '@/components/ui/button';
 import { Choice, Field, MoneyField } from '@/components/ui/form';
-import { LineItem, Money, SectionTitle, Serial, Sheet } from '@/components/ui/nota';
+import { LineItem, Money, SectionTitle, Serial, Card } from '@/components/ui/surface';
 import { StatusTag } from '@/components/ui/status-tag';
 import { QueryView } from '@/components/ui/states';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
-import { Stamp } from '@/components/nota/stamp';
+import { Stamp } from '@/components/business/stamp';
 import { useApi, useSession } from '@/data/api/provider';
 import { errorMessage, useTovvQuery } from '@/data/api/hooks';
 import { useToast } from '@/components/feedback/toast';
@@ -48,7 +48,7 @@ export function ProofScreen() {
     try {
       if (mode === 'verify') {
         await api.verifyProof({ proofId: id, amountVerified: amount ?? parseMoneyString(p.amountClaimed), receivedEventAt: p.eventAt, custody, reason, duplicateResolution: dup || null });
-        toast.show('Diterima (demo). Penerimaan dan alokasi dicatat; sisa dihitung ulang dari ledger.', 'ok');
+        toast.show('Diterima (demo). Pembayaran dicatat dan sisa tagihan dihitung ulang.', 'ok');
       } else if (mode === 'reject') {
         await api.rejectProof(id, reason);
         toast.show('Bukti ditolak dengan alasan; saldo tidak berubah.', 'ok');
@@ -80,7 +80,7 @@ export function ProofScreen() {
       <QueryView q={q}>
         {(d) => (
           <>
-            <Sheet>
+            <Card>
               <View style={{ flexDirection: 'row', gap: space.md, alignItems: 'flex-start' }}>
                 <View style={{ flex: 1, gap: 4 }}>
                   <Serial>{d.id}</Serial>
@@ -100,17 +100,17 @@ export function ProofScreen() {
                 <LineItem label="Sisa invoice saat ini" value={<Money value={d.outstandingNow} />} />
               </View>
               {d.similarReferences.length ? <Txt variant="caption" tone="warnInk">{`Referensi mirip: ${d.similarReferences.join(', ')}. Mirip bukan berarti penipuan; putuskan dengan alasan.`}</Txt> : null}
-            </Sheet>
+            </Card>
             {d.review ? (
               <>
                 <SectionTitle title="Hasil pemeriksaan" />
-                <Sheet>
+                <Card>
                   <LineItem label="Pemeriksa" value={<Txt variant="bodySm">{d.review.byName}</Txt>} />
                   <LineItem label="Waktu" value={<Txt variant="bodySm">{formatDateTime(d.review.at)}</Txt>} />
                   {d.review.amountVerified ? <LineItem label="Jumlah diterima (demo)" value={<Money value={d.review.amountVerified} tone="okInk" />} /> : null}
                   {d.review.custody ? <LineItem label="Penguasaan dana" value={<Txt variant="bodySm">{d.review.custody === 'driver_demo' ? 'Di driver' : 'Diterima operator'}</Txt>} /> : null}
                   <Txt variant="bodySm" tone="inkSecondary">{d.review.reason}</Txt>
-                </Sheet>
+                </Card>
               </>
             ) : null}
             {d.blockedReason ? <Txt variant="bodySm" tone="warnInk" style={{ marginTop: space.md, fontWeight: '600' }}>{d.blockedReason}</Txt> : null}

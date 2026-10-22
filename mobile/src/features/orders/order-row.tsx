@@ -1,15 +1,21 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
-import { color, space } from '@/core/design/tokens';
+import { radius, space, cardChrome } from '@/core/design/tokens';
+import { makeStyles } from '@/core/design/theme';
+import { useEnter } from '@/core/design/motion';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
-import { Serial } from '@/components/ui/nota';
+import { PressableScale } from '@/components/ui/pressable-scale';
 import { StatusTag } from '@/components/ui/status-tag';
-import { StageTicks } from '@/components/nota/stage-line';
+import { StageTicks } from '@/components/business/stage-line';
 import type { OrderSummary, TimelineEntry } from '@/data/api/contract';
 import { executionStatus, EXECUTION_FLOW } from '@/core/i18n/status';
 import { formatShortDateTime, formatTime } from '@/core/format/time';
+
+/** Langkah berikutnya yang hanya keterangan (tidak ada yang perlu dilakukan pengguna ini). */
+const PASSIVE = /^(Menunggu|Tagihan tercatat|Tugas selesai|Selesai|Dibatalkan|Dihentikan)/;
 
 export function ticksFor(status: OrderSummary['status']): TimelineEntry[] {
   const idx = EXECUTION_FLOW.indexOf(status);
@@ -21,51 +27,95 @@ export function ticksFor(status: OrderSummary['status']): TimelineEntry[] {
   }));
 }
 
-/** Baris order ringkas untuk daftar: nomor seri, status, rute, tahap, dan langkah berikutnya. */
-export function OrderRow({ o, last, showMoney }: { o: OrderSummary; last?: boolean; showMoney?: boolean }) {
+/**
+ * Kartu pekerjaan (gaya pelacakan pesanan): kode + status, pelanggan, rute jemput → antar,
+ * progres tahap, jadwal/unit/driver, lalu langkah berikutnya yang disorot.
+ */
+export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: boolean; showMoney?: boolean; index?: number }) {
   const router = useRouter();
+  const s = useStyles();
+  const entering = useEnter(index);
   const look = executionStatus[o.status];
   const terminal = ['canceled', 'aborted'].includes(o.status);
+  const owes = showMoney && o.outstanding && o.outstanding !== '0';
+  const passive = PASSIVE.test(o.nextStep);
+  const ticks = ticksFor(o.status);
+  const stageNo = ticks.findIndex((t) => t.state === 'current') + 1;
   return (
-    <Pressable
-      onPress={() => router.push(`/order/${o.id}`)}
-      accessibilityRole="button"
-      accessibilityLabel={`Order ${o.alias}, ${look.label}. ${o.customerLabel}. ${o.pickup.label} ke ${o.dropoff.label}. Berikutnya: ${o.nextStep}.`}
-      style={({ pressed }) => [styles.row, !last && styles.divider, pressed && { backgroundColor: color.carbonTint }]}
-    >
-      <View style={styles.head}>
-        <Serial>{`O-${o.alias}`}</Serial>
-        <StatusTag look={look} size="sm" />
-        <View style={{ flex: 1 }} />
-        {o.incidentOpen ? <Icon name="alert-octagon-outline" size={18} tone="dangerInk" /> : null}
-        {o.changeOrderPending ? <Icon name="cash-plus" size={18} tone="warnInk" /> : null}
-        <Icon name="chevron-right" size={20} tone="inkSecondary" />
-      </View>
-      <Txt variant="bodyStrong" numberOfLines={2}>{o.customerLabel}</Txt>
-      <Txt variant="bodySm" tone="inkSecondary" numberOfLines={2}>
-        {`${o.vehicleLabel} · ${o.plate} · ${o.pickup.label} → ${o.dropoff.label}`}
-      </Txt>
-      {!terminal ? <StageTicks entries={ticksFor(o.status)} /> : null}
-      <View style={styles.meta}>
-        <Txt variant="caption" tone="inkSecondary" style={{ flex: 1 }}>
-          {`${formatShortDateTime(o.scheduleStart)}–${formatTime(o.scheduleEnd)} · ${o.unitCode}${o.driverName ? ` · ${o.driverName}` : ''}`}
-        </Txt>
-        {showMoney && o.outstanding && o.outstanding !== '0' ? (
-          <Txt variant="caption" tone="warnInk" style={{ fontWeight: '700' }}>Piutang</Txt>
+    <Animated.View entering={entering}>
+      <PressableScale
+        onPress={() => router.push(`/order/${o.id}`)}
+        accessibilityRole="button"
+        accessibilityLabel={`Pekerjaan ${o.alias}, ${look.label}. ${o.customerLabel}. Dari ${o.pickup.label} ke ${o.dropoff.label}. Berikutnya: ${o.nextStep}.`}
+        style={s.card}
+      >
+        <View style={s.head}>
+          <Txt variant="titleSm">{o.alias}</Txt>
+          <StatusTag look={look} size="sm" />
+          <View style={{ flex: 1 }} />
+          {o.incidentOpen ? <Icon name="alert-octagon" size={18} tone="dangerInk" /> : null}
+          {o.changeOrderPending ? <Icon name="cash-plus" size={18} tone="warnInk" /> : null}
+          <Icon name="chevron-right" size={20} tone="inkMuted" />
+        </View>
+        <Txt variant="bodyStrong" numberOfLines={1}>{o.customerLabel}</Txt>
+
+        <View style={s.route}>
+          <View style={s.routeRail}>
+            <View style={s.dotFrom} />
+            <View style={s.railLine} />
+            <Icon name="map-marker" size={16} tone="dangerInk" />
+          </View>
+          <View style={{ flex: 1, gap: space.sm }}>
+            <Txt variant="bodySm" numberOfLines={1}>{o.pickup.label}</Txt>
+            <Txt variant="bodySm" numberOfLines={1}>{o.dropoff.label}</Txt>
+          </View>
+        </View>
+
+        <Txt variant="caption" tone="inkSecondary" numberOfLines={1}>{`${o.vehicleLabel} · ${o.plate}`}</Txt>
+        {!terminal ? (
+          <View style={{ gap: 4 }}>
+            <StageTicks entries={ticks} />
+            {stageNo > 0 ? <Txt variant="caption" tone="inkSecondary">{`Tahap ${stageNo} dari ${ticks.length} · ${look.label}`}</Txt> : null}
+          </View>
         ) : null}
-      </View>
-      <View style={styles.next}>
-        <Icon name="arrow-right-bottom" size={16} tone="carbon" />
-        <Txt variant="bodySm" tone="carbon" style={{ fontWeight: '600', flex: 1 }}>{o.nextStep}</Txt>
-      </View>
-    </Pressable>
+
+        <View style={s.meta}>
+          <Icon name="clock-outline" size={14} tone="inkSecondary" />
+          <Txt variant="caption" tone="inkSecondary" style={{ flex: 1 }} numberOfLines={2}>
+            {`${formatShortDateTime(o.scheduleStart)}–${formatTime(o.scheduleEnd)} · ${o.unitCode}${o.driverName ? ` · ${o.driverName}` : ''}`}
+          </Txt>
+          {owes ? (
+            <View style={s.owe}>
+              <Txt variant="caption" tone="warnInk" bold>Ada tagihan terbuka</Txt>
+            </View>
+          ) : null}
+        </View>
+
+        {passive ? (
+          <View style={s.passive}>
+            <Icon name="information-outline" size={16} tone="inkSecondary" />
+            <Txt variant="bodySm" tone="inkSecondary" style={{ flex: 1 }}>{o.nextStep}</Txt>
+          </View>
+        ) : (
+          <View style={s.next}>
+            <Icon name="arrow-right-circle" size={18} tone="accentInk" />
+            <Txt variant="bodySm" tone="accentInk" style={{ fontWeight: '700', flex: 1 }}>{`Berikutnya: ${o.nextStep}`}</Txt>
+          </View>
+        )}
+      </PressableScale>
+    </Animated.View>
   );
 }
 
-const styles = StyleSheet.create({
-  row: { padding: space.lg, gap: space.xs + 2 },
-  divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.rule },
+const useStyles = makeStyles((c, scheme) => ({
+  card: { padding: space.lg, gap: space.sm, borderRadius: radius.xl, backgroundColor: c.surface, marginBottom: space.md, ...cardChrome(c, scheme) },
   head: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  meta: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  next: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-});
+  route: { flexDirection: 'row', gap: space.md, paddingVertical: space.xs },
+  routeRail: { width: 16, alignItems: 'center', paddingTop: 4 },
+  dotFrom: { width: 10, height: 10, borderRadius: 5, borderWidth: 2.5, borderColor: c.accent, backgroundColor: c.surface },
+  railLine: { width: 2, flex: 1, minHeight: 10, backgroundColor: c.line, marginVertical: 2 },
+  meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  owe: { backgroundColor: c.warnWash, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
+  passive: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 },
+  next: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: c.accentSoft, borderRadius: radius.md, paddingHorizontal: space.md, paddingVertical: space.sm + 2, marginTop: 2 },
+}));

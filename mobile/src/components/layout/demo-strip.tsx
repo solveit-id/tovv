@@ -1,8 +1,9 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { color, space, touch } from '@/core/design/tokens';
+import { radius, space, touch } from '@/core/design/tokens';
+import { makeStyles } from '@/core/design/theme';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import { useTovvQuery } from '@/data/api/hooks';
@@ -10,57 +11,62 @@ import { useTovvQuery } from '@/data/api/hooks';
 const VIEW_LABEL = { owner: 'Owner', admin: 'Admin', driver: 'Driver', customer: 'Pelanggan' } as const;
 
 /**
- * Pita permanen "DEMO — SIMULASI FRONTEND" (PRO-01). Menyebut tenant dan konteks tampilan aktif.
+ * Pita permanen "DEMO — SIMULASI FRONTEND" (PRO-01). Menyebut peran dan usaha aktif.
  * Ketuk untuk membuka pemilih akun demo — hanya ada pada mode demo lokal, bukan autentikasi produksi.
- * Tinggi 40 + hitSlop vertikal 4 = target sentuh 48 dp; peran ditulis sebelum tenant agar tidak terpotong.
+ * Tinggi 40 + hitSlop vertikal 4 = target sentuh 48 dp; peran ditulis sebelum usaha agar tidak terpotong.
  */
 export function DemoStrip() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const s = useStyles();
   const session = useTovvQuery(['session'], (api) => api.getSession());
   const faults = useTovvQuery(['faults'], (api) => api.getFaults());
-  const s = session.data;
+  const d = session.data;
   const offline = faults.data?.offline;
   return (
-    <View style={[styles.strip, { paddingTop: insets.top }]}>
+    <View style={[s.strip, { paddingTop: insets.top }]}>
       <Pressable
         onPress={() => router.push('/demo')}
         accessibilityRole="button"
-        accessibilityLabel={`Mode demo, simulasi frontend. ${s ? `${s.tenantName}, ${VIEW_LABEL[s.view]}, ${s.userName}` : ''}. Ketuk untuk ganti akun demo.`}
-        style={styles.row}
+        accessibilityLabel={`Mode demo, simulasi frontend. ${d ? `${d.tenantName}, ${VIEW_LABEL[d.view]}, ${d.userName}` : ''}. Ketuk untuk ganti akun demo.`}
+        style={({ pressed }) => [s.row, pressed && { opacity: 0.7 }]}
         hitSlop={{ top: 4, bottom: 4 }}
       >
-        <Icon name="flask-outline" size={14} tone="demoInk" />
-        <Txt variant="caption" tone="demoInk" style={styles.bold} maxFontSizeMultiplier={1.4} numberOfLines={1} ellipsizeMode="clip">
+        <Icon name="flask-outline" size={15} tone="demoInk" />
+        <Txt variant="caption" tone="demoInk" style={s.bold} maxFontSizeMultiplier={1.4} numberOfLines={1} ellipsizeMode="clip">
           DEMO — SIMULASI FRONTEND
         </Txt>
-        {s ? (
+        {d ? (
           <>
-            <Txt variant="caption" tone="demoInk" maxFontSizeMultiplier={1.4} numberOfLines={1} style={styles.role}>
-              {`· ${VIEW_LABEL[s.view]}`}
+            <Txt variant="caption" tone="demoInk" maxFontSizeMultiplier={1.4} numberOfLines={1} style={s.role}>
+              {`· ${VIEW_LABEL[d.view]}`}
             </Txt>
-            <Txt variant="caption" tone="demoInk" maxFontSizeMultiplier={1.4} numberOfLines={1} style={styles.ctx}>
-              {`· ${s.tenantName.replace('Operator ', '')}`}
+            <Txt variant="caption" tone="demoInk" maxFontSizeMultiplier={1.4} numberOfLines={1} style={s.ctx}>
+              {`· ${d.tenantName.replace('Operator ', '')}`}
             </Txt>
           </>
         ) : null}
         {offline ? (
-          <View style={styles.offline} accessibilityLabel="Simulasi offline aktif">
-            <Icon name="wifi-off" size={13} tone="onNavy" />
-            <Txt variant="caption" tone="onNavy" maxFontSizeMultiplier={1.3}>Offline</Txt>
+          <View style={s.offline} accessibilityLabel="Simulasi offline aktif">
+            <Icon name="wifi-off" size={13} tone="onInverse" />
+            <Txt variant="caption" tone="onInverse" maxFontSizeMultiplier={1.3} bold>Offline</Txt>
           </View>
         ) : null}
-        <Icon name="swap-horizontal" size={14} tone="demoInk" />
+        <View style={s.swap}>
+          <Icon name="swap-horizontal" size={14} tone="demoInk" />
+          <Txt variant="caption" tone="demoInk" bold maxFontSizeMultiplier={1.3}>Ganti</Txt>
+        </View>
       </Pressable>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  strip: { backgroundColor: color.demoWash, borderBottomWidth: 1, borderBottomColor: color.demoRule },
+const useStyles = makeStyles((c) => ({
+  strip: { backgroundColor: c.demoWash },
   row: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: space.lg, minHeight: touch.min - 8, paddingVertical: 4 },
-  bold: { fontWeight: '700', letterSpacing: 0.3, flexShrink: 0 },
-  role: { flexShrink: 0 },
+  bold: { fontWeight: '800', letterSpacing: 0.3, flexShrink: 0 },
+  role: { flexShrink: 0, fontWeight: '600' },
   ctx: { flex: 1, minWidth: 0 },
-  offline: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: color.dangerInk, paddingHorizontal: 6, paddingVertical: 1, borderRadius: 3 },
-});
+  offline: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: c.inverse, paddingHorizontal: 8, paddingVertical: 2, borderRadius: radius.pill },
+  swap: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, backgroundColor: 'rgba(58,44,0,0.1)' },
+}));

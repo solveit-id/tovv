@@ -6,19 +6,18 @@ Shared instructions for every coding agent working in this repository. Claude Co
 
 Tovv is a multi-tenant SaaS for towing/vehicle-transport operators: one Android + iOS app with four view groups (Owner, Admin, Operator/driver, User/customer). Owner, developer and publisher: **Solveit Indonesia**. Display name: **Tovv**.
 
-Source of truth, in reading order: `PRD.md` → `ARCHITECTURE.md` → `INTEGRATION_PLAN.md` → `IMPLEMENTATION_PLAN.md` → `TEST_PLAN.md` → `VALIDATION_PLAN.md` (package 2.1, repository root). PRD wins on scope and business rules. Do not duplicate it into other documents; link to it.
+Source of truth, in reading order: `PRD.md` → `ARCHITECTURE.md` → `INTEGRATION_PLAN.md` → `IMPLEMENTATION_PLAN.md` → `TEST_PLAN.md` → `VALIDATION_PLAN.md` (package 2.1, in `docs/spec/`). PRD wins on scope and business rules. Do not duplicate it into other documents; link to it.
 
-Current status and handoff: `.ai/project-status.md`. Visual direction: `docs/design/visual-direction.md`; shipped design system: `docs/DESIGN.md` (sidecar `.impeccable/design.json`). Screen coverage vs requirements: `docs/product/screen-inventory.md`.
+Current status and handoff: `.ai/project-status.md`. Design system (super-app/fintech style, light + dark): `docs/DESIGN.md` (sidecar `.impeccable/design.json`). Screen coverage vs requirements: `docs/screen-inventory.md`. Docs map: `docs/README.md`.
 
 ## Repository layout
 
 | Path | Purpose |
 |---|---|
 | `mobile/` | React Native + TypeScript strict + Expo SDK 57 + Expo Router app (frontend stage) |
-| `docs/` | Product facts (`PRODUCT.md`), design, development, QA documents |
+| `docs/` | Product facts, design system, development, QA report; `docs/spec/` holds the specification package 2.1 |
 | `.ai/` | Agent/session handoff |
 | `.impeccable/surfaces/` | Impeccable design contract for the app surface |
-| root `*.md` (six files) | Specification package 2.1 |
 
 `backend/`, `contracts/`, `tools/admin-harness/`, `infra/` (ARCHITECTURE §2) are not created yet; do not add empty folders.
 
@@ -52,7 +51,7 @@ Run typecheck, lint and tests before declaring work done.
 - Use canonical status enums from PRD §5 (`mobile/src/domain/types.ts`). No single "paid" status.
 - Missing cost is `null`, never `0`. Contribution is not net profit.
 - Status presentation must carry text + icon + line form (solid/dashed/struck), not colour alone (`mobile/src/core/i18n/status.ts`).
-- Design tokens live in `mobile/src/core/design/tokens.ts`; no raw hex in screens. One icon family: MaterialCommunityIcons.
+- Design tokens live in `mobile/src/core/design/tokens.ts` (light and dark palettes with the same keys). Screens read colours through `useColors()` / `makeStyles()` from `core/design/theme.tsx`, never raw hex. One icon family: MaterialCommunityIcons.
 - Routes in `mobile/src/app/` stay thin and re-export feature screens from `mobile/src/features/`.
 - Native folders `mobile/android` and `mobile/ios` are generated (CNG); never edit or commit them.
 - Animations: Reanimated/native only (no GSAP, Framer Motion, DOM smooth-scroll). Respect reduced motion.

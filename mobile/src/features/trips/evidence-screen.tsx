@@ -5,10 +5,10 @@ import { space } from '@/core/design/tokens';
 import { Screen } from '@/components/layout/screen';
 import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
-import { LineItem, SectionTitle, Sheet } from '@/components/ui/nota';
+import { LineItem, SectionTitle, Card } from '@/components/ui/surface';
 import { StatusTag } from '@/components/ui/status-tag';
 import { QueryView, EmptyBlock } from '@/components/ui/states';
-import { PhotoTile } from '@/components/nota/photo-tile';
+import { PhotoTile } from '@/components/business/photo-tile';
 import { useTovvQuery } from '@/data/api/hooks';
 import type { MediaItem } from '@/data/api/contract';
 import { locationSourceLabel, mediaStatus, outboxStatus, stageLabel } from '@/core/i18n/status';
@@ -16,12 +16,12 @@ import { formatDateTime } from '@/core/format/time';
 
 function Meta({ m }: { m: MediaItem }) {
   return (
-    <Sheet style={{ marginTop: space.sm }}>
+    <Card style={{ marginTop: space.sm }}>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginBottom: space.sm }}>
         <StatusTag look={mediaStatus[m.status]} size="sm" />
         {m.syncStatus ? <StatusTag look={outboxStatus[m.syncStatus]} size="sm" /> : null}
       </View>
-      <LineItem label="Asal" value={<Txt variant="bodySm">{m.synthetic ? 'Fixture SIMULASI (bukan kamera)' : m.captureOrigin === 'camera' ? 'Kamera aplikasi' : 'Impor galeri'}</Txt>} />
+      <LineItem label="Asal" value={<Txt variant="bodySm">{m.synthetic ? 'Foto contoh SIMULASI (bukan kamera)' : m.captureOrigin === 'camera' ? 'Kamera aplikasi' : 'Impor galeri'}</Txt>} />
       <LineItem label="Waktu kejadian" value={<Txt variant="bodySm">{m.eventAt ? formatDateTime(m.eventAt) : 'Tidak diketahui'}</Txt>} />
       <LineItem label="Jam perangkat saat ambil" value={<Txt variant="bodySm">{m.deviceCapturedAt ? formatDateTime(m.deviceCapturedAt) : '—'}</Txt>} />
       <LineItem label="Diterima server" value={<Txt variant="bodySm">{m.serverReceivedAt ? formatDateTime(m.serverReceivedAt) : 'Belum (tersimpan di ponsel)'}</Txt>} />
@@ -29,7 +29,7 @@ function Meta({ m }: { m: MediaItem }) {
       <LineItem label="Pengunggah" value={<Txt variant="bodySm">{m.uploaderName}</Txt>} />
       {m.md5 ? <LineItem label="Hash original (MD5)" hint="Memeriksa file sama, bukan kebenaran kejadian" value={<Txt variant="mono">{m.md5.slice(0, 12)}…</Txt>} /> : null}
       {m.note ? <Txt variant="bodySm" tone="inkSecondary">{m.note}</Txt> : null}
-    </Sheet>
+    </Card>
   );
 }
 
@@ -70,7 +70,7 @@ export function EvidenceScreen() {
                 <View key={m.id}>
                   <SectionTitle title={`${stageLabel[m.stage]} · ${m.slot}`} />
                   <View style={{ flexDirection: 'row', gap: space.md }}>
-                    <PhotoTile item={m} label={m.synthetic ? 'Fixture' : 'Overlay'} size={96} />
+                    <PhotoTile item={m} label={m.synthetic ? 'Foto contoh' : 'Foto + keterangan'} size={96} />
                     <View style={{ flex: 1 }}><Meta m={m} /></View>
                   </View>
                 </View>

@@ -8,9 +8,9 @@ import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Button } from '@/components/ui/button';
 import { Choice, Field } from '@/components/ui/form';
-import { SectionTitle, Sheet } from '@/components/ui/nota';
+import { SectionTitle, Card } from '@/components/ui/surface';
 import { QueryView } from '@/components/ui/states';
-import { PhotoTile } from '@/components/nota/photo-tile';
+import { PhotoTile } from '@/components/business/photo-tile';
 import { useApi } from '@/data/api/provider';
 import { errorMessage, useTovvQuery } from '@/data/api/hooks';
 import { useToast } from '@/components/feedback/toast';
@@ -64,7 +64,7 @@ export function HandoverScreen() {
                 Isi saat kendaraan sudah berhenti. Serah-terima tidak melunasi tagihan; penerima bukan otomatis pembayar.
               </Txt>
               <SectionTitle title="Foto kondisi akhir" />
-              <Sheet>
+              <Card>
                 <PhotoTile
                   item={m}
                   label="Serah-terima · kondisi akhir"
@@ -76,7 +76,7 @@ export function HandoverScreen() {
                     <Field label="Alasan tanpa foto (bila terpaksa)" value={exception} onChangeText={setException} helper="Pengecualian tercatat dan bukti dianggap belum lengkap." />
                   </View>
                 ) : null}
-              </Sheet>
+              </Card>
               <SectionTitle title="Penerima" />
               <Field label="Nama penerima" value={receiver} onChangeText={setReceiver} placeholder={d.parties.receiver} autoCapitalize="words" />
               <Choice

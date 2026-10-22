@@ -1,13 +1,14 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { color, radius, space } from '@/core/design/tokens';
+import { radius, space } from '@/core/design/tokens';
+import { makeStyles, useColors } from '@/core/design/theme';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
-import { LineItem, Money, Rule, SectionTitle, Serial, Sheet } from '@/components/ui/nota';
+import { LineItem, Money, Rule, SectionTitle, Serial, Card } from '@/components/ui/surface';
 import { StatusTag } from '@/components/ui/status-tag';
-import { PhotoTile } from '@/components/nota/photo-tile';
+import { PhotoTile } from '@/components/business/photo-tile';
 import { useToast } from '@/components/feedback/toast';
 import type { OrderDetail } from '@/data/api/contract';
 import {
@@ -26,6 +27,7 @@ import { formatDateTime, formatShortDateTime, formatTime } from '@/core/format/t
 import { formatNumber, formatRupiah } from '@/core/format/money';
 
 function Place({ kind, label, address, time }: { kind: 'Jemput' | 'Tujuan'; label: string; address: string; time?: string }) {
+  const styles = useStyles();
   return (
     <View style={styles.place}>
       <View style={[styles.pin, kind === 'Tujuan' && styles.pinEnd]} />
@@ -40,17 +42,18 @@ function Place({ kind, label, address, time }: { kind: 'Jemput' | 'Tujuan'; labe
 
 /** Lembar surat jalan: identitas pekerjaan, kendaraan, rute, jadwal, unit dan petugas. */
 export function TripDocument({ d }: { d: OrderDetail }) {
+  const styles = useStyles();
   const s = d.summary;
   const asg = d.assignments.find((a) => a.status === 'accepted' || a.status === 'offered' || a.status === 'completed');
   return (
-    <Sheet>
+    <Card>
       <View style={styles.docHead}>
-        <Serial>{`SURAT JALAN · O-${s.alias}`}</Serial>
+        <Txt variant="label" tone="inkSecondary">{`Pekerjaan ${s.alias}`}</Txt>
         <Txt variant="caption" tone="inkSecondary">{channelLabel[d.channel]}</Txt>
       </View>
       <View style={styles.tags}>
         <StatusTag look={executionStatus[s.status]} />
-        {asg ? <StatusTag look={assignmentStatus[asg.status]} size="sm" label={`${asg.driverName}: ${assignmentStatus[asg.status].label}`} /> : null}
+        {asg ? <StatusTag look={assignmentStatus[asg.status]} size="sm" label={`Tugas ${asg.driverName} · ${assignmentStatus[asg.status].label.toLowerCase()}`} /> : null}
       </View>
       <Txt variant="headline" style={{ marginTop: space.md }}>{`${d.vehicle.label} · ${d.vehicle.plate}`}</Txt>
       <Txt variant="bodySm" tone="inkSecondary">
@@ -69,11 +72,12 @@ export function TripDocument({ d }: { d: OrderDetail }) {
         {d.businessAccountName ? <Meta label="Akun bisnis" value={`${d.businessAccountName}${d.poRef ? ` · ${d.poRef}` : ''}`} /> : null}
         {d.parties.payer !== '—' ? <Meta label="Pembayar" value={d.parties.payer} /> : null}
       </View>
-    </Sheet>
+    </Card>
   );
 }
 
 function Meta({ label, value }: { label: string; value: string }) {
+  const styles = useStyles();
   return (
     <View style={styles.meta}>
       <Txt variant="label" tone="inkSecondary">{label}</Txt>
@@ -83,8 +87,10 @@ function Meta({ label, value }: { label: string; value: string }) {
 }
 
 function Banner({ tone, icon, title, body, children }: { tone: 'warn' | 'danger' | 'info'; icon: string; title: string; body?: string; children?: React.ReactNode }) {
-  const ink = tone === 'warn' ? 'warnInk' : tone === 'danger' ? 'dangerInk' : 'carbon';
-  const wash = tone === 'warn' ? color.warnWash : tone === 'danger' ? color.dangerWash : color.carbonTint;
+  const color = useColors();
+  const styles = useStyles();
+  const ink = tone === 'warn' ? 'warnInk' : tone === 'danger' ? 'dangerInk' : 'accentInk';
+  const wash = tone === 'warn' ? color.warnWash : tone === 'danger' ? color.dangerWash : color.accentSoft;
   return (
     <View style={[styles.banner, { backgroundColor: wash }]} accessibilityRole="alert">
       <Icon name={icon} size={20} tone={ink} />
@@ -99,6 +105,7 @@ function Banner({ tone, icon, title, body, children }: { tone: 'warn' | 'danger'
 
 /** Kendala, kesiapan penerima, dan biaya tambahan yang belum disetujui. */
 export function OrderAlerts({ d, onResolve, onDecideChange }: { d: OrderDetail; onResolve?: (id: string) => void; onDecideChange?: (id: string) => void }) {
+  const styles = useStyles();
   const open = d.incidents.filter((i) => i.status === 'open');
   const pendingChanges = d.changeOrders.filter((c) => c.status === 'pending');
   if (!open.length && !pendingChanges.length && d.readiness.receiverReady !== false && !d.abortInfo) return null;
@@ -129,6 +136,7 @@ export function OrderAlerts({ d, onResolve, onDecideChange }: { d: OrderDetail; 
 
 /** Slot bukti foto per tahap; slot kosong membuka kamera dengan konteks request/order/tahap. */
 export function EvidenceSection({ d, canCapture }: { d: OrderDetail; canCapture: boolean }) {
+  const styles = useStyles();
   const router = useRouter();
   const extra = d.media.filter((m) => !d.evidenceSlots.some((s) => s.mediaId === m.id));
   const open = (stage: string, slot: string) =>
@@ -139,7 +147,7 @@ export function EvidenceSection({ d, canCapture }: { d: OrderDetail; canCapture:
         title="Bukti foto"
         action={<StatusTag look={evidenceLook[d.summary.evidence]} size="sm" />}
       />
-      <Sheet>
+      <Card>
         <View style={styles.photos}>
           {d.evidenceSlots.map((s) => {
             const m = d.media.find((x) => x.id === s.mediaId) ?? null;
@@ -160,22 +168,23 @@ export function EvidenceSection({ d, canCapture }: { d: OrderDetail; canCapture:
           Fixture bertanda SIMULASI bukan hasil kamera perangkat. Foto baru dari kamera aplikasi tersimpan di ponsel lebih dulu, lalu dikirim.
         </Txt>
         <Button label="Lihat & bandingkan bukti" variant="quiet" icon="compare" onPress={() => router.push({ pathname: '/order/[id]/evidence', params: { id: d.summary.id } })} style={{ alignSelf: 'flex-start', marginTop: space.xs }} />
-      </Sheet>
+      </Card>
     </View>
   );
 }
 
 /** Kontak lapangan. Panggilan disimulasikan: nomor DEMO tidak pernah ditelepon. */
 export function ContactsSection({ d }: { d: OrderDetail }) {
+  const styles = useStyles();
   const toast = useToast();
   const rows = [
-    { label: 'Penyerah di lokasi jemput', value: d.pickupContact, ready: d.readiness.pickupReady },
+    { label: 'Yang menyerahkan kendaraan di lokasi jemput', value: d.pickupContact, ready: d.readiness.pickupReady },
     { label: 'Penerima di tujuan', value: d.receiverContact, ready: d.readiness.receiverReady },
   ];
   return (
     <View>
       <SectionTitle title="Kontak & kesiapan" />
-      <Sheet padded={false}>
+      <Card padded={false}>
         {rows.map((r, i) => (
           <View key={r.label} style={[styles.contact, i === 0 && styles.divider]}>
             <View style={{ flex: 1, gap: 2 }}>
@@ -188,39 +197,41 @@ export function ContactsSection({ d }: { d: OrderDetail }) {
             <Button label="Hubungi" icon="phone-outline" variant="secondary" compact onPress={() => toast.show('Panggilan disimulasikan: nomor DEMO tidak ditelepon. Pada aplikasi nyata, tombol membuka aplikasi telepon.', 'info')} />
           </View>
         ))}
-      </Sheet>
+      </Card>
     </View>
   );
 }
 
 export function InstructionsSection({ d }: { d: OrderDetail }) {
+  const styles = useStyles();
   return (
     <View>
       <SectionTitle title="Instruksi" />
-      <Sheet>
+      <Card>
         {d.instructions.map((t, i) => (
           <View key={i} style={styles.instr}>
             <Txt variant="bodySm" tone="inkSecondary" tabular>{String(i + 1).padStart(2, '0')}</Txt>
             <Txt variant="body" style={{ flex: 1 }}>{t}</Txt>
           </View>
         ))}
-      </Sheet>
+      </Card>
     </View>
   );
 }
 
 /** Biaya aktual dan kontribusi — hanya untuk owner/admin (DTO staff). */
 export function InternalCostSection({ d, onFinalize }: { d: OrderDetail; onFinalize?: () => void }) {
+  const styles = useStyles();
   const i = d.internal;
   if (!i) return null;
   return (
     <View>
       <SectionTitle title="Biaya & kontribusi (internal)" action={d.summary.costCompleteness ? <StatusTag look={costLook[d.summary.costCompleteness]} size="sm" /> : null} />
-      <Sheet>
+      <Card>
         <LineItem label="Biaya langsung estimasi (snapshot)" value={<Money value={i.estimateDirect} />} />
         <LineItem label="Biaya langsung aktual disetujui" value={<Money value={i.actualDirect} missingLabel="belum final" />} />
         <Rule />
-        <LineItem label="Kontribusi pekerjaan" hint="Pendapatan komersial − biaya langsung − biaya SaaS. Bukan laba bersih." value={<Money value={i.contribution} missingLabel={i.reason ?? 'sementara'} />} emphasis />
+        <LineItem label="Kontribusi pekerjaan" hint="Pendapatan pekerjaan dikurangi biaya langsung dan biaya layanan Tovv. Bukan laba bersih." value={<Money value={i.contribution} missingLabel={i.reason ?? 'sementara'} />} emphasis />
         {i.advance ? (
           <>
             <Rule />
@@ -245,18 +256,19 @@ export function InternalCostSection({ d, onFinalize }: { d: OrderDetail; onFinal
         {onFinalize && d.summary.costCompleteness === 'provisional' ? (
           <Button label="Tandai biaya final" variant="secondary" icon="check-decagram-outline" onPress={onFinalize} style={{ marginTop: space.md }} />
         ) : null}
-      </Sheet>
+      </Card>
     </View>
   );
 }
 
 export function InvoicesSection({ d }: { d: OrderDetail }) {
+  const styles = useStyles();
   const router = useRouter();
   if (!d.invoices.length) return null;
   return (
     <View>
       <SectionTitle title="Tagihan" />
-      <Sheet padded={false}>
+      <Card padded={false}>
         {d.invoices.map((inv) => (
           <View key={inv.id} style={styles.contact}>
             <View style={{ flex: 1, gap: 4 }}>
@@ -268,17 +280,18 @@ export function InvoicesSection({ d }: { d: OrderDetail }) {
             <Button label="Buka" variant="secondary" compact onPress={() => router.push(`/invoice/${inv.id}`)} />
           </View>
         ))}
-      </Sheet>
+      </Card>
     </View>
   );
 }
 
 export function AssignmentHistory({ d }: { d: OrderDetail }) {
+  const styles = useStyles();
   if (d.assignments.length < 2) return null;
   return (
     <View>
       <SectionTitle title="Riwayat penugasan" count={d.assignments.length} />
-      <Sheet padded={false}>
+      <Card padded={false}>
         {d.assignments.map((a, i) => (
           <View key={a.id} style={[styles.contact, i < d.assignments.length - 1 && styles.divider]}>
             <View style={{ flex: 1, gap: 2 }}>
@@ -288,7 +301,7 @@ export function AssignmentHistory({ d }: { d: OrderDetail }) {
             </View>
           </View>
         ))}
-      </Sheet>
+      </Card>
     </View>
   );
 }
@@ -299,11 +312,11 @@ export function ChangeOrdersHistory({ d }: { d: OrderDetail }) {
   return (
     <View>
       <SectionTitle title="Biaya tambahan" />
-      <Sheet>
+      <Card>
         {done.map((c) => (
           <LineItem key={c.id} label={c.reason} hint={`${changeOrderStatus[c.status].label}${c.decidedByName ? ` · ${c.decidedByName}` : ''}`} value={<Money value={c.amount} strike={c.status === 'rejected'} />} />
         ))}
-      </Sheet>
+      </Card>
     </View>
   );
 }
@@ -314,7 +327,7 @@ export function HandoverSummary({ d }: { d: OrderDetail }) {
   return (
     <View>
       <SectionTitle title="Serah-terima" />
-      <Sheet>
+      <Card>
         <LineItem label="Penerima" value={<Txt variant="bodyStrong">{h.receiverName}</Txt>} />
         <LineItem label="Waktu" value={<Txt variant="bodySm">{formatDateTime(h.at)}</Txt>} />
         <LineItem label="Pernyataan" value={<Txt variant="bodySm" tone={h.acceptance === 'objection' ? 'dangerInk' : 'okInk'}>{h.acceptance === 'objection' ? 'Berkeberatan' : 'Diterima'}</Txt>} />
@@ -322,24 +335,24 @@ export function HandoverSummary({ d }: { d: OrderDetail }) {
         <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.sm }}>
           Serah-terima tidak melunasi tagihan. Pernyataan penerima dicatat petugas, bukan tanda tangan digital tersertifikasi.
         </Txt>
-      </Sheet>
+      </Card>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((color) => ({
   docHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm, marginBottom: space.sm },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   place: { flexDirection: 'row', gap: space.md },
-  pin: { width: 12, height: 12, borderRadius: 6, backgroundColor: color.navy, marginTop: 4 },
-  pinEnd: { borderRadius: 2, backgroundColor: color.sheet, borderWidth: 3, borderColor: color.navy },
+  pin: { width: 12, height: 12, borderRadius: 6, borderWidth: 3, borderColor: color.accent, backgroundColor: color.surface, marginTop: 4 },
+  pinEnd: { borderRadius: 6, backgroundColor: color.dangerInk, borderColor: color.dangerInk },
   metaGrid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: space.lg, rowGap: space.md },
   meta: { flexBasis: '50%', flexGrow: 1, paddingRight: space.sm, gap: 2 },
-  banner: { flexDirection: 'row', gap: space.md, padding: space.md, borderRadius: radius.sheet },
+  banner: { flexDirection: 'row', gap: space.md, padding: space.md, borderRadius: radius.lg },
   inline: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: space.xs, gap: space.sm },
   photos: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md },
   contact: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg },
-  divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.rule },
+  divider: { borderBottomWidth: StyleSheet.hairlineWidth * 2, borderBottomColor: color.line },
   instr: { flexDirection: 'row', gap: space.md, paddingVertical: 6 },
   expense: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingVertical: 6 },
-});
+}));

@@ -7,14 +7,14 @@ import { Screen } from '@/components/layout/screen';
 import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Button } from '@/components/ui/button';
-import { SectionTitle, Sheet } from '@/components/ui/nota';
+import { SectionTitle, Card } from '@/components/ui/surface';
 import { ErrorBlock, LoadingBlock } from '@/components/ui/states';
-import { StageLine } from '@/components/nota/stage-line';
+import { StageLine } from '@/components/business/stage-line';
 import { useToast } from '@/components/feedback/toast';
 import { useTovvQuery } from '@/data/api/hooks';
 import { useApi, useSession } from '@/data/api/provider';
 import type { OrderAction, OrderDetail } from '@/data/api/contract';
-import { executionStatus, expenseStatus } from '@/core/i18n/status';
+import { expenseStatus } from '@/core/i18n/status';
 import { formatRupiah } from '@/core/format/money';
 import { QuoteStack } from '@/features/quotes/quote-doc-view';
 import { useDemoNow } from '@/core/hooks/use-demo-now';
@@ -93,9 +93,9 @@ export function OrderDetailScreen() {
       onRefresh={() => qc.invalidateQueries()}
       header={
         <DetailHeader
-          serial={d ? `O-${d.summary.alias}` : undefined}
+          serial={d ? `Pekerjaan ${d.summary.alias}` : undefined}
           title={d ? d.summary.customerLabel : 'Detail pekerjaan'}
-          subtitle={d ? executionStatus[d.summary.status].label : undefined}
+          subtitle={d ? `${d.summary.vehicleLabel} · ${d.summary.plate}` : undefined}
         />
       }
       footer={footer}
@@ -113,9 +113,9 @@ export function OrderDetailScreen() {
           ) : null}
 
           <SectionTitle title="Tahap perjalanan" action={d.allowedActions.includes('view_tracking') ? <Button label="Lihat lokasi" variant="quiet" compact icon="map-marker-path" onPress={() => router.push(`/order/${id}/tracking`)} /> : null} />
-          <Sheet>
+          <Card>
             <StageLine entries={d.timeline} />
-          </Sheet>
+          </Card>
 
           <EvidenceSection d={d} canCapture={d.allowedActions.includes('capture_evidence') || isStaff} />
           {isDriver || isStaff ? <ContactsSection d={d} /> : null}
@@ -133,11 +133,11 @@ export function OrderDetailScreen() {
           {isDriver && d.expenses.length ? (
             <View>
               <SectionTitle title="Biaya yang saya ajukan" count={d.expenses.length} />
-              <Sheet>
+              <Card>
                 {d.expenses.map((e) => (
                   <Txt key={e.id} variant="bodySm">{`${e.category} · ${formatRupiah(e.amount)} · ${e.source === 'local_pending' ? 'menunggu sinkron' : expenseStatus[e.status].label}`}</Txt>
                 ))}
-              </Sheet>
+              </Card>
             </View>
           ) : null}
           <InternalCostSection d={d} onFinalize={isStaff ? () => void act('close', () => api.finalizeCosts(id), 'Biaya ditandai final.') : undefined} />

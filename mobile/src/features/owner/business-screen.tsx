@@ -6,7 +6,7 @@ import { Screen } from '@/components/layout/screen';
 import { DetailHeader } from '@/components/layout/app-header';
 import { Txt } from '@/components/ui/txt';
 import { Button } from '@/components/ui/button';
-import { LineItem, Money, SectionTitle, Serial, Sheet } from '@/components/ui/nota';
+import { LineItem, Money, SectionTitle, Serial, Card } from '@/components/ui/surface';
 import { QueryView } from '@/components/ui/states';
 import { useTovvQuery } from '@/data/api/hooks';
 import { useSession } from '@/data/api/provider';
@@ -24,14 +24,14 @@ export function BusinessScreen() {
   const staff = session?.view === 'owner' || session?.view === 'admin';
   const q = useTovvQuery(['business-accounts'], (a) => a.listBusinessAccounts());
   return (
-    <Screen header={<DetailHeader title={staff ? 'Pelanggan bisnis' : 'Organisasi saya'} subtitle="Rate card, mandat, PO dan layanan" />}>
+    <Screen header={<DetailHeader title={staff ? 'Pelanggan bisnis' : 'Organisasi saya'} subtitle="Tarif khusus, kewenangan pemesan, PO dan layanan" />}>
       <QueryView q={q}>
         {(list) => (
           <View style={{ gap: space.lg }}>
             {list.map((b) => (
               <View key={b.id}>
                 <SectionTitle title={b.name} />
-                <Sheet>
+                <Card>
                   <Serial>{b.alias}</Serial>
                   <Txt variant="bodySm" tone="inkSecondary">{`Syarat ${b.termsVersion} · net-${b.netDays} · PO ${b.poRequired ? 'wajib' : 'opsional'}`}</Txt>
                   <View style={{ marginTop: space.sm }}>
@@ -50,7 +50,7 @@ export function BusinessScreen() {
                   {b.recentOrders.map((o) => (
                     <Button key={o.id} label={`${o.alias} · ${executionStatus[o.status].label}${o.poRef ? ` · ${o.poRef}` : ''}`} variant="quiet" compact onPress={() => router.push(`/order/${o.id}`)} style={{ alignSelf: 'flex-start' }} />
                   ))}
-                </Sheet>
+                </Card>
                 {!staff ? <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.xs }}>{`Ringkasan organisasi tanpa biaya internal operator. Piutang ${formatRupiah(b.receivable)}.`}</Txt> : null}
               </View>
             ))}

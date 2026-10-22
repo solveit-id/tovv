@@ -1,11 +1,15 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
 import { StatusTag } from './status-tag';
-import { Money } from './nota';
+import { Money } from './surface';
 import { proofStatus, quoteStatus } from '@/core/i18n/status';
 import { formatRupiah } from '@/core/format/money';
 
 jest.mock('@expo/vector-icons', () => ({ MaterialCommunityIcons: () => null }));
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+jest.mock('react-native-worklets', () => require('react-native-worklets/src/mock'));
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 
 describe('komponen dasar', () => {
   it('status tidak bergantung warna: label aksesibilitas menyebut status dan bentuk garis', async () => {
