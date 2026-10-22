@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "name": "Tovv",
+    "slug": "tovv",
+    "version": "0.1.0",
+    "scheme": "tovv-demo",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F6F8FB",
+    "ios": {
+      "bundleIdentifier": "id.solveit.tovv",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "id.solveit.tovv",
+      "adaptiveIcon": {
+        "backgroundColor": "#082A56",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "softwareKeyboardLayoutMode": "resize"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "resizeMode": "contain",
+          "backgroundColor": "#082A56"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Tovv memakai kamera untuk foto kondisi kendaraan dan bukti serah-terima.",
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Tovv mencatat lokasi saat foto bukti diambil dan selama tugas aktif. Foto tetap tersimpan tanpa lokasi bila izin ditolak."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Tovv membuka galeri bila Anda memilih mengimpor foto. Foto galeri diberi label impor, bukan kamera."
+        }
+      ],
+      "expo-sqlite",
+      "expo-font",
+      "expo-image",
+      "expo-sharing",
+      "expo-status-bar"
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}

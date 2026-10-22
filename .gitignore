@@ -1,0 +1,64 @@
+# Dependensi dan hasil build
+node_modules/
+dist/
+web-build/
+build/
+coverage/
+*.tsbuildinfo
+.expo/
+expo-env.d.ts
+.metro-health-check*
+
+# Native hasil prebuild (Continuous Native Generation)
+mobile/android/
+mobile/ios/
+.kotlin/
+*.apk
+*.aab
+*.ipa
+
+# Rahasia dan kunci
+.env
+.env.*
+*.env
+!.env.example
+!*.env.example
+secrets/
+*.pem
+*.key
+*.p8
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.mobileprovision
+auth.json
+
+# Database, dump, log
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+*.dump
+*.bak
+*.log
+npm-debug.*
+
+# Agent lokal
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/worktrees/
+.cursor/
+
+# Impeccable: bukti dan hasil kerja lokal
+.impeccable/review/
+.impeccable/build/
+.impeccable/mocks/
+.impeccable/config.local.json
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.orig.*
