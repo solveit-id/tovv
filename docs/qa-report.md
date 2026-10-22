@@ -2,6 +2,27 @@
 
 Putaran terbaru di atas. Bukti mentah (screenshot) di `.impeccable/review/` (diabaikan Git).
 
+## Putaran 2 — redesign tampilan, 2026-10-22
+
+Pemicu: uji pengguna lewat Expo Go di iPhone dan Android ("tidak modern, membingungkan"). Arah baru dipilih pengguna: standar super-app/fintech (patokan Gojek/GoPay, Grab/Tokopedia, Jago/Jenius), tema terang + gelap, gerak seimbang.
+
+### Pemeriksaan otomatis
+
+| Pemeriksaan | Hasil |
+|---|---|
+| `npm run typecheck` | PASS |
+| `npm run lint` | PASS (0 error, 0 warning) |
+| `npm test` | PASS — 85 uji / 6 suite (termasuk kontras AA kedua palet, 19 pasangan × 2) |
+| `npx expo-doctor` | PASS — 21/21 |
+
+### Perangkat
+
+Android emulator API 36 (1080×2400), development build + Metro. Tema terang dan gelap; owner, admin, driver, pelanggan; beranda, daftar pekerjaan, detail pekerjaan, susun penawaran, invoice, keuangan, menu, keadaan error. Diperiksa: header parallax + bar ringkas saat digulir, kartu ringkasan menimpa header, FAB menyusut saat menggulir, pil tab, segmen, pemilih tema. iPhone dan Android fisik: dijalankan pengguna lewat Expo Go (tidak ada bukti tangkapan dari sesi ini). iOS development build: BLOCKED (tanpa macOS).
+
+Temuan yang diperbaiki dalam putaran: latar gradien SVG tidak mengisi header di Android (diukur eksplisit), bar ringkas samar terlihat pada header pendek, bayangan kartu bersudut persegi di Android (diganti `boxShadow`), kosong ganda di beranda driver, label teknis (F-09, ledger, SaaS, Bruto/Net, custody) diganti bahasa sehari-hari, langkah pasif tidak lagi tampil sebagai tombol.
+
+Review akhir desain (reviewer independen, tanpa riwayat sesi): putaran pertama `fix` dengan 8 perbaikan material (aksi utama/FAB, bayangan kartu, kicker di atas judul, teks ambigu, layout Keuangan, keadaan error, animasi angka di UI thread, verifikasi seed). Putaran perbaikan memunculkan 3 regresi (FAB tidak menyempit, satuan ganda, bar tahap); semuanya diperbaiki. Verdict akhir: **ship** untuk 8 perbaikan dan 3 regresi tersebut (bukan review ulang seluruh aplikasi). Bukti: 16 tangkapan di `.impeccable/review/final/` (Android, terang + gelap).
+
 ## Putaran 1 — tahap frontend, 2026-10-21
 
 Commit dasar: branch `frontend`. Mode: adapter demo lokal (`frontend_demo`), dataset `tovv-2.1-f09`, jam bisnis C0.

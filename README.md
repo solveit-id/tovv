@@ -10,7 +10,7 @@ Dimiliki, dikembangkan, dan diterbitkan oleh **Solveit Indonesia**.
 
 | Path | Isi |
 |---|---|
-| `PRD.md` … `VALIDATION_PLAN.md` | Paket spesifikasi 2.1 (sumber kebenaran scope dan aturan bisnis) |
+| `docs/spec/` | Paket spesifikasi 2.1: PRD … VALIDATION_PLAN (sumber kebenaran scope dan aturan bisnis) |
 | `mobile/` | Aplikasi React Native + TypeScript (Expo SDK 57, Expo Router) |
 | `docs/` | Peta dokumentasi: [`docs/README.md`](docs/README.md) |
 | `.ai/` | Status proyek dan serah terima antar-sesi |
@@ -27,7 +27,7 @@ npm run android     # build + pasang development build ke emulator/perangkat And
 npm start           # server Metro untuk development build
 ```
 
-Tanpa Mac, iPhone dapat menjalankan proyek lewat Expo Go SDK 57: `npm run start:go`, lalu pindai QR dengan kamera iPhone. Rincian: [`docs/development/mobile-development.md`](docs/development/mobile-development.md).
+Tanpa Mac, iPhone dapat menjalankan proyek lewat Expo Go SDK 57: `npm run start:go`, lalu pindai QR dengan kamera iPhone. Rincian: [`docs/development.md`](docs/development.md).
 
 ## Mode demo
 
