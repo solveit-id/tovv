@@ -46,7 +46,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Tovv mencatat lokasi saat foto bukti diambil dan selama tugas aktif. Foto tetap tersimpan tanpa lokasi bila izin ditolak."
+          "locationWhenInUsePermission": "Tovv memakai lokasi untuk mengisi titik jemput, menampilkan posisi Anda di peta, dan mencatat lokasi foto bukti selama tugas. Tanpa izin, Anda tetap bisa mencari alamat atau menggeser pin."
         }
       ],
       [

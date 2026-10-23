@@ -436,6 +436,12 @@ export interface UnitCandidate {
   reason: string;
 }
 
+/** Tempat siap pilih di formulir permintaan: contoh tersimpan dan yang terakhir dipakai akun ini. */
+export interface PlaceBook {
+  saved: { key: string; kind: 'home' | 'work' | 'route' | 'sample'; place: Place }[];
+  recent: Place[];
+}
+
 export interface NewRequestInput {
   channel: Channel;
   customerUserId: string | null;

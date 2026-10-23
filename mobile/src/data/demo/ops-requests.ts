@@ -5,8 +5,8 @@ import { isStaffView, mediaItem, quoteDoc, requestOf, requestSummary, userName }
 import { haversineKm } from './tracking';
 import type { DemoDb } from './db';
 import { PLACES, STANDARD_RATE } from '@/data/fixtures/reference';
-import { ApiError, type NewRequestInput, type QuoteDoc, type QuoteInput, type RequestDetail, type RequestSummary, type UnitCandidate } from '@/data/api/contract';
-import type { CustomerVehicle, Order, Quote, ServiceRequest } from '@/domain/types';
+import { ApiError, type NewRequestInput, type PlaceBook, type QuoteDoc, type QuoteInput, type RequestDetail, type RequestSummary, type UnitCandidate } from '@/data/api/contract';
+import type { CustomerVehicle, Order, Place, Quote, ServiceRequest } from '@/domain/types';
 import { evaluatePrice } from '@/domain/pricing';
 import { toMoneyString, formatRupiah, formatNumber } from '@/core/format/money';
 import { addMinutes, formatAge, formatShortDateTime, secondsBetween } from '@/core/format/time';
@@ -501,4 +501,33 @@ export function listCustomers(ctx: Ctx) {
 
 export function demoPlaces() {
   return Object.values(PLACES);
+}
+
+/**
+ * Buku tempat untuk pemilih lokasi: rute favorit akun bisnis, tempat contoh (sintetis), dan lokasi yang
+ * terakhir dipakai di permintaan yang boleh dilihat akun ini (terbaru dulu, tanpa duplikat alamat).
+ */
+export function placeBook(ctx: Ctx): PlaceBook {
+  const db = ctx.store.db;
+  const ba = ctx.actor.user.businessAccountId ? db.businessAccounts.find((b) => b.id === ctx.actor.user.businessAccountId) : null;
+  const saved: PlaceBook['saved'] = [];
+  ba?.favoriteRoutes.forEach((r) => {
+    saved.push({ key: `${r.id}-from`, kind: 'route', place: r.pickup });
+    saved.push({ key: `${r.id}-to`, kind: 'route', place: r.dropoff });
+  });
+  [PLACES.surabayaB, PLACES.surabayaA, PLACES.sidoarjo, PLACES.gresik].forEach((p, i) => {
+    if (!saved.some((x) => x.place.address === p.address)) saved.push({ key: `sample-${i}`, kind: i === 0 ? 'home' : 'sample', place: p });
+  });
+  const seen = new Set<string>();
+  const recent: Place[] = [];
+  [...visibleRequests(ctx)]
+    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+    .forEach((r) => {
+      [r.pickup, r.dropoff].forEach((p) => {
+        if (recent.length >= 5 || seen.has(p.address)) return;
+        seen.add(p.address);
+        recent.push(p);
+      });
+    });
+  return { saved, recent };
 }

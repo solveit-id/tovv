@@ -1,16 +1,16 @@
-import React, { useRef } from 'react';
-import { View, type ViewInstance } from 'react-native';
+import React from 'react';
+import { View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { radius, space, cardChrome } from '@/core/design/tokens';
 import { makeStyles } from '@/core/design/theme';
 import { useEnter } from '@/core/design/motion';
-import { useScrollReveal } from '@/components/layout/use-scroll-reveal';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import { PressableScale } from '@/components/ui/pressable-scale';
 import { StatusTag } from '@/components/ui/status-tag';
 import { StageTicks } from '@/components/business/stage-line';
+import { RouteRail } from '@/components/business/route-rail';
 import type { OrderSummary, TimelineEntry } from '@/data/api/contract';
 import { executionStatus, EXECUTION_FLOW } from '@/core/i18n/status';
 import { formatShortDateTime, formatTime } from '@/core/format/time';
@@ -37,8 +37,6 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
   const router = useRouter();
   const s = useStyles();
   const entering = useEnter(index);
-  const revealRef = useRef<ViewInstance>(null);
-  const reveal = useScrollReveal(revealRef);
   const look = executionStatus[o.status];
   const terminal = ['canceled', 'aborted'].includes(o.status);
   const owes = showMoney && o.outstanding && o.outstanding !== '0';
@@ -46,7 +44,7 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
   const ticks = ticksFor(o.status);
   const stageNo = ticks.findIndex((t) => t.state === 'current') + 1;
   return (
-    <Animated.View ref={revealRef} onLayout={reveal.onLayout} entering={entering} style={reveal.style}>
+    <Animated.View entering={entering}>
       <PressableScale
         onPress={() => router.push(`/order/${o.id}`)}
         accessibilityRole="button"
@@ -64,15 +62,7 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
         <Txt variant="bodyStrong" numberOfLines={1}>{o.customerLabel}</Txt>
 
         <View style={s.route}>
-          <View style={s.routeRail}>
-            <View style={s.dotFrom} />
-            <View style={s.railLine} />
-            <Icon name="map-marker" size={16} tone="dangerInk" />
-          </View>
-          <View style={{ flex: 1, gap: space.sm }}>
-            <Txt variant="bodySm" numberOfLines={1}>{o.pickup.label}</Txt>
-            <Txt variant="bodySm" numberOfLines={1}>{o.dropoff.label}</Txt>
-          </View>
+          <RouteRail pickup={o.pickup} dropoff={o.dropoff} />
         </View>
 
         <Txt variant="caption" tone="inkSecondary" numberOfLines={1}>{`${o.vehicleLabel} · ${o.plate}`}</Txt>
@@ -90,7 +80,7 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
           </Txt>
           {owes ? (
             <View style={s.owe}>
-              <Txt variant="caption" tone="warnInk" bold>Ada tagihan yang belum lunas</Txt>
+              <Txt variant="caption" tone="warnInk" bold>Masih ada tagihan</Txt>
             </View>
           ) : null}
         </View>
@@ -114,10 +104,7 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
 const useStyles = makeStyles((c, scheme) => ({
   card: { padding: space.lg, gap: space.sm, borderRadius: radius.xl, backgroundColor: c.surface, marginBottom: space.md, ...cardChrome(c, scheme) },
   head: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  route: { flexDirection: 'row', gap: space.md, paddingVertical: space.xs },
-  routeRail: { width: 16, alignItems: 'center', paddingTop: 4 },
-  dotFrom: { width: 10, height: 10, borderRadius: 5, borderWidth: 2.5, borderColor: c.accent, backgroundColor: c.surface },
-  railLine: { width: 2, flex: 1, minHeight: 10, backgroundColor: c.line, marginVertical: 2 },
+  route: { paddingVertical: space.xs },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   owe: { backgroundColor: c.warnWash, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
   passive: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 },

@@ -42,7 +42,7 @@ export function EvidenceScreen() {
   const tile = Math.min(220, (width - space.lg * 2 - space.md) / 2);
   return (
     <Screen header={<DetailHeader serial={q.data ? `O-${q.data.summary.alias}` : undefined} title="Bukti foto" subtitle="Foto asli privat · versi bertulisan untuk dibagikan" />}>
-      <QueryView q={q}>
+      <QueryView q={q} skeleton="detail">
         {(d) => {
           if (!d.media.length) return <EmptyBlock icon="image-off-outline" title="Belum ada bukti" />;
           const pickup = d.media.filter((m) => m.stage === 'pickup_before_loading');

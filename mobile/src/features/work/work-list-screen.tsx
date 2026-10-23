@@ -1,12 +1,11 @@
-import React, { useState, useRef } from 'react';
-import { View, type ViewInstance } from 'react-native';
+import React, { useState } from 'react';
+import { View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { radius, space, cardChrome } from '@/core/design/tokens';
 import { makeStyles } from '@/core/design/theme';
 import { useEnter } from '@/core/design/motion';
-import { useScrollReveal } from '@/components/layout/use-scroll-reveal';
 import { PressableScale } from '@/components/ui/pressable-scale';
 import { Screen } from '@/components/layout/screen';
 import { RootHeader } from '@/components/layout/app-header';
@@ -30,11 +29,9 @@ export function RequestRow({ r, index = 0 }: { r: RequestSummary; last?: boolean
   const styles = useStyles();
   const router = useRouter();
   const entering = useEnter(index);
-  const revealRef = useRef<ViewInstance>(null);
-  const reveal = useScrollReveal(revealRef);
   const q = r.latestQuote;
   return (
-    <Animated.View ref={revealRef} onLayout={reveal.onLayout} entering={entering} style={reveal.style}>
+    <Animated.View entering={entering}>
       <PressableScale
         onPress={() => router.push(`/request/${r.id}`)}
         accessibilityRole="button"
@@ -99,11 +96,11 @@ export function WorkListScreen({ title = 'Pekerjaan', initial = 'active', canCre
         ]}
       />
       {tab === 'requests' ? (
-          <QueryView q={requests}>
+          <QueryView q={requests} skeleton="action">
             {(list) => (list.length ? list.map((r, i) => <RequestRow key={r.id} r={r} index={i} />) : <Card><EmptyBlock icon="phone-incoming-outline" title="Tidak ada permintaan terbuka" /></Card>)}
           </QueryView>
         ) : (
-          <QueryView q={tab === 'active' ? active : history}>
+          <QueryView q={tab === 'active' ? active : history} skeleton="order" skeletonRows={2}>
             {(list) => (list.length ? list.map((o, i) => <OrderRow key={`${tab}-${o.id}`} o={o} index={i} showMoney />) : <Card><EmptyBlock icon="tow-truck" title={tab === 'active' ? 'Tidak ada pekerjaan yang sedang jalan' : 'Belum ada riwayat'} /></Card>)}
           </QueryView>
         )}

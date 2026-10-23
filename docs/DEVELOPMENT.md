@@ -79,10 +79,12 @@ mobile/src/
     owner/ driver/ customer/   tab per peran: index, jobs/orders, map, finance/invoices, expenses, sync, more
   features/<domain>/   Layar per domain: auth, owner, driver, customer, map, orders, trips, camera,
                        requests, quotes, pricing, finance, reports, more, work, home, identity
-  components/          ui (teks, tombol, kartu, form, ringkasan), business (tindakan harian, tahap
-                       perjalanan, riwayat versi, QR internal), layout (layar, header parallax,
-                       tab, scroll-reveal), brand, feedback (toast, splash)
-  core/                design (token terang/gelap, tema, motion), format (uang, waktu, CSV),
+  components/          ui (teks, tombol, kartu, form, ringkasan, kerangka muat), business (tindakan
+                       harian, tahap perjalanan, rute ringkas, riwayat versi, QR internal), layout
+                       (layar, header parallax, tab), brand (wordmark, unit derek + loader),
+                       feedback (toast, splash, transisi ganti mode)
+  core/                design (token terang/gelap + mode driver, tema, motion), format (uang, waktu,
+                       CSV, jarak/arah garis lurus),
                        i18n (bahasa, kamus Inggris, label status), hooks
   domain/              Tipe kanonik, rumus harga, ledger, analytics M-01–M-12 (+ uji oracle)
   data/api/            Kontrak DTO, adapter demo, provider, hook query/mutation
@@ -97,20 +99,31 @@ Mengganti sumber data: buat objek bertipe `TovvApi` (`data/api/demo-api.ts`) yan
 - Teks sumber ditulis dalam bahasa Indonesia langsung di kode. `core/i18n/en.ts` memetakan teks yang sama ke bahasa Inggris; placeholder memakai `{0}`, `{1}`.
 - `Txt` menerjemahkan anak berupa teks secara otomatis. Teks dinamis memakai `t('Halo, {0}', [nama])`; label aksesibilitas memakai `tr()`.
 - Bahasa awal mengikuti HP; pilihan pengguna disimpan. Saat bahasa diganti, layar dibangun ulang dan data dimuat ulang.
-- Uji `core/i18n/i18n.test.ts` memeriksa setiap entri kamus punya placeholder yang sama. Teks baru tanpa entri tetap tampil dalam bahasa Indonesia; tambahkan entrinya di `en.ts`.
+- Uji `core/i18n/i18n.test.ts` memeriksa setiap entri kamus punya placeholder yang sama, dan setiap teks `t('…')` di `features/` dan `components/` punya entri bahasa Inggris (uji gagal bila terlewat).
 
 ## Peta langsung
 
-`features/map/live-map-screen.tsx` dipakai ketiga peran. Data dari `api.getLiveMap()` (`data/demo/live-map.ts`) diperbarui tiap 3 detik; penanda truk meluncur halus (`AnimatedRegion`), gambar penanda hanya digambar ulang saat isinya berubah. Owner melihat semua unit, driver hanya tugasnya, pelanggan hanya truk yang menuju kendaraannya setelah sopir berangkat.
+`features/map/live-map-screen.tsx` dipakai ketiga peran. Data dari `api.getLiveMap()` (`data/demo/live-map.ts`) diperbarui tiap 2 detik **hanya selama layar peta terbuka** (`useIsFocused`). Penanda truk (`map-markers.tsx`) adalah truk tampak atas yang menghadap arah geraknya dan meluncur linier selama jeda pembaruan: Android memakai `animateMarkerToCoordinate` (native), iOS memakai `AnimatedRegion`. Penanda, rute, dan kartu di-memo dengan callback stabil supaya pembaruan posisi tidak menggambar ulang semuanya; gambar penanda hanya digambar ulang saat isinya berubah. Owner melihat semua unit, driver hanya tugasnya, pelanggan hanya truk yang menuju kendaraannya setelah sopir berangkat. Layar Perjalanan memakai `mini-track-map.tsx`.
+
+## Pemilih lokasi
+
+`features/requests/place-picker.tsx` + `geocode.ts`: pencarian alamat memakai `Location.geocodeAsync`/`reverseGeocodeAsync` dari expo-location (layanan peta bawaan iOS/Android, tanpa API key; tersedia di Expo Go), lokasi HP dengan izin "saat aplikasi dipakai", dan konfirmasi pin di peta. Tempat tersimpan dan terakhir dipakai datang dari `api.getPlaceBook()`. Titik selalu berasal dari HP, GPS, atau pin yang digeser pengguna — tidak ada koordinat karangan. Bila layanan alamat HP tidak menjawab, tempat tetap dibuat dari koordinat pin, dan alamat ketikan tanpa titik peta tetap bisa dipakai.
 
 ## Tema dan gerak
 
-- Dua palet (terang/gelap) dengan kunci sama di `core/design/tokens.ts`; gaya dibuat lewat `makeStyles((c, scheme) => …)` dan di-cache per skema.
-- Semua animasi memakai Reanimated di UI thread: splash, header parallax, bar ringkas, kartu masuk bertahap (8 item pertama), scroll-trigger (`useScrollReveal`), tekan 3D, angka menghitung naik, FAB yang menyusut, pil tab dan segmen, kartu masuk akun dengan kemiringan 3D. "Kurangi gerakan" mematikan semuanya.
+- Dua palet (terang/gelap) dengan kunci sama di `core/design/tokens.ts`, plus palet mode driver lewat `paletteFor(scheme, 'field')`. Sesi peran driver otomatis dibungkus `ThemeModeScope mode="field"` (`app/_layout.tsx`). Gaya dibuat lewat `makeStyles((c, scheme, mode) => …)` dan di-cache per skema + mode.
+- Semua animasi memakai Reanimated di UI thread dan tidak memantul: splash unit derek, transisi ganti mode, header parallax ringan, bar ringkas, kartu masuk singkat (6 item pertama), tekan = sedikit mengecil, angka menghitung naik, FAB yang menyusut, pil tab dan segmen, kilau kerangka muat, loader unit derek, langkah formulir. "Kurangi gerakan" mematikan gerak ruang.
+
+## Performa
+
+- Tab yang tidak terlihat dibekukan (`freezeOnBlur`) dan dimuat saat pertama dibuka (`lazy`).
+- Query memakai `staleTime` 60 detik; data demo tetap segar karena setiap perubahan store memicu baca ulang (`store.subscribe`).
+- Peta hanya memuat posisi selama layar terbuka; penanda dan kartu di-memo.
+- Tidak ada animasi yang dihitung per kartu dari posisi gulir.
 
 ## Ikon dan splash
 
-`node scripts/generate-brand-assets.mjs` membuat ikon dan splash native dari wordmark sementara. Splash beranimasi di dalam aplikasi ada di `components/feedback/splash-overlay.tsx`.
+`node scripts/generate-brand-assets.mjs` membuat ikon dan splash native dari wordmark sementara. Splash beranimasi di dalam aplikasi ada di `components/feedback/splash-overlay.tsx`. Ilustrasi unit derek (tampak samping, tampak atas, loader) ada di `components/brand/tow-truck.tsx` sebagai SVG dengan warna token, jadi tidak ada file gambar raster tambahan.
 
 ## Aturan repository
 

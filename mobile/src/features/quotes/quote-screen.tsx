@@ -69,7 +69,7 @@ export function QuoteScreen() {
         ) : null
       }
     >
-      <QueryView q={q}>
+      <QueryView q={q} skeleton="detail">
         {(d) => (
           <>
             <QuoteStack quotes={req.data?.quotes.length ? [d, ...req.data.quotes.filter((x) => x.id !== d.id)] : [d]} now={now} />

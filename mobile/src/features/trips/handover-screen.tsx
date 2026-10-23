@@ -54,7 +54,7 @@ export function HandoverScreen() {
         </>
       }
     >
-      <QueryView q={q}>
+      <QueryView q={q} skeleton="detail">
         {(d) => {
           const slot = d.evidenceSlots.find((s) => s.stage === 'delivery_handover');
           const m = slot?.mediaId ? d.media.find((x) => x.id === slot.mediaId) ?? null : d.media.find((x) => x.stage === 'delivery_handover') ?? null;

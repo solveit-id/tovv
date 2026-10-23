@@ -1,14 +1,20 @@
-import { useReducedMotion, Easing, FadeInDown, type WithSpringConfig } from 'react-native-reanimated';
+import { useReducedMotion, Easing, FadeInDown, type WithSpringConfig, type WithTimingConfig } from 'react-native-reanimated';
 import { duration } from './tokens';
 
-/** Ease-out eksponensial untuk kemunculan; tidak dipakai untuk loop dekoratif. */
-export const easeOut = Easing.out(Easing.exp);
+/**
+ * Bahasa gerak Tovv: pendek, tenang, tanpa memantul. Kemunculan memakai perlambatan halus
+ * (ease-out quint), tekan memakai pegas yang tidak melewati target. Tidak ada loop dekoratif;
+ * yang berulang hanya penanda yang memang sedang menunggu (kerangka muat, titik "langsung").
+ */
+export const easeOut = Easing.bezier(0.22, 1, 0.36, 1);
 export const easeInOut = Easing.inOut(Easing.cubic);
 
-/** Pegas tekan: cepat, tanpa memantul berlebihan. */
-export const pressSpring: WithSpringConfig = { damping: 18, stiffness: 320, mass: 0.6 };
-/** Pegas indikator/tata letak: sedikit lebih lembut. */
-export const glideSpring: WithSpringConfig = { damping: 20, stiffness: 220, mass: 0.8 };
+/** Pegas tekan: cepat dan tidak memantul. */
+export const pressSpring: WithSpringConfig = { damping: 26, stiffness: 420, mass: 0.6, overshootClamping: true };
+/** Pegas indikator/tata letak: lembut, tetap tanpa memantul. */
+export const glideSpring: WithSpringConfig = { damping: 24, stiffness: 240, mass: 0.8, overshootClamping: true };
+/** Waktu standar untuk perubahan keadaan (buka/tutup, ganti langkah). */
+export const stateTiming: WithTimingConfig = { duration: duration.base, easing: easeOut };
 
 /** Durasi yang menghormati pengaturan "kurangi gerakan" sistem. */
 export function useMotionDuration(key: keyof typeof duration): number {
@@ -17,16 +23,16 @@ export function useMotionDuration(key: keyof typeof duration): number {
 }
 
 /** Hanya beberapa item pertama yang masuk bertahap; sisanya langsung tampil agar daftar panjang tetap ringan. */
-const STAGGER_LIMIT = 8;
+const STAGGER_LIMIT = 6;
 
 /**
- * Animasi masuk bertahap untuk kartu/daftar (naik 12 dp + memudar). Mengembalikan `undefined`
- * bila "kurangi gerakan" aktif atau indeks melewati batas.
+ * Animasi masuk untuk kartu daftar: memudar sambil naik 6 dp, jeda 30 ms per item.
+ * Mengembalikan `undefined` bila "kurangi gerakan" aktif atau indeks melewati batas.
  */
 export function useEnter(index = 0) {
   const reduced = useReducedMotion();
   if (reduced || index >= STAGGER_LIMIT) return undefined;
-  return FadeInDown.duration(duration.slow).delay(60 + index * 45).easing(easeOut).withInitialValues({ transform: [{ translateY: 12 }] });
+  return FadeInDown.duration(duration.slow).delay(index * 30).easing(easeOut).withInitialValues({ opacity: 0, transform: [{ translateY: 6 }] });
 }
 
 export { useReducedMotion };

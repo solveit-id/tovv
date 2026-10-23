@@ -90,7 +90,7 @@ export function InvoiceScreen() {
         ) : null
       }
     >
-      <QueryView q={q}>
+      <QueryView q={q} skeleton="detail">
         {(inv) => (
           <>
             <DocumentStack

@@ -14,7 +14,7 @@ export function DailyActionsBlock({ title = 'Perlu tindakan', limit = 5, hint = 
   return (
     <View>
       <SectionTitle title={title} count={q.data?.length} hint={q.data?.length ? hint : undefined} />
-      <QueryView q={q} loadingLabel="Menghitung yang perlu ditindaklanjuti…">
+      <QueryView q={q} skeleton="action" skeletonRows={2} loadingLabel="Menghitung yang perlu ditindaklanjuti…">
         {(items) =>
           items.length === 0 ? (
             <Card>

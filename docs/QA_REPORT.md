@@ -2,6 +2,51 @@
 
 Putaran terbaru di atas. Bukti mentah (screenshot) di `.impeccable/review/` (diabaikan Git).
 
+## Putaran 5 — tampilan premium, mode driver, peta, lokasi ala ojek online, 2026-10-23
+
+Pemicu: masukan pengguna setelah mencoba di iPhone dan Android lewat Expo Go — tampilan masih bisa lebih modern dan premium, peta kurang hidup, belum ada loader yang bagus, isian lokasi jemput/tujuan kurang fleksibel (patokan: Gojek/Grab/ShopeeFood), formulir "Pesan derek" membingungkan, mode owner dan mode driver belum terlihat beda, belum ada aset unit derek, animasi berlebihan dan kurang halus, bahasa masih kaku, dan kadang tersendat.
+
+Keputusan pengguna (ditanyakan di awal putaran): mode driver = gelap + aksen kuning; pencarian alamat = layanan peta bawaan HP; formulir = bertahap 4 langkah.
+
+### Yang berubah
+
+- **Tampilan:** bayangan kartu berlapis, kolom isian dengan cincin fokus, kartu pilihan berikon, chip pilihan cepat, tab dengan warna mode, header dengan label mode.
+- **Mode owner vs driver:** palet mode driver (header biru-arang, cahaya kuning, marka jalan samar; tombol dan pil kuning); kartu "Masuk mode driver" di beranda owner yang sudah memakai warna mode driver; transisi singkat saat berganti mode.
+- **Peta:** posisi diperbarui tiap 2 detik hanya saat layar peta terbuka; truk tampak atas yang menghadap arah jalan dan meluncur terus-menerus (Android: animasi native peta); rute bertepi dengan ruas yang sudah ditempuh; label Jemput/Tujuan; tombol Lihat semua, Lokasi saya, Ikuti truk, satelit; kartu pekerjaan dengan perkiraan tiba, jam tiba, progres, dan sisa jarak garis lurus; peta mini di layar Perjalanan (menggantikan skema rute).
+- **Loader:** kerangka berbentuk isi (kartu pekerjaan, tindakan, ringkasan, detail) dengan kilau lembut; loader unit derek saat menyiapkan peta; splash baru dengan unit derek yang meluncur masuk.
+- **Lokasi:** pemilih lokasi layar penuh — cari alamat (layanan peta bawaan HP), lokasi saya, pilih di peta dengan pin tengah, terakhir dipakai, tempat tersimpan, patokan untuk sopir, tukar jemput/tujuan, dan alamat ketikan tanpa titik peta.
+- **Formulir "Pesan derek":** 4 langkah (owner 5, mulai dari pelanggan) dengan garis langkah, satu pertanyaan per langkah, pilihan cepat jenis kendaraan/kondisi/waktu, detail tambahan yang disembunyikan, dan ringkasan yang bisa diubah per bagian.
+- **Aset:** ilustrasi unit derek vektor (tampak samping, bermuatan/kosong, tampak atas) di splash, loader, keadaan kosong, beranda pelanggan, kartu mode driver, dan penanda peta.
+- **Gerak:** tanpa pantulan, tanpa kemiringan 3D, tanpa scroll-trigger per kartu; durasi lebih pendek; transisi halaman dorong dari kanan dengan parallax di kedua OS.
+- **Bahasa:** kalimat baru dan yang diubah ditulis seperti percakapan; ±170 entri bahasa Inggris baru; uji baru memastikan setiap teks `t()` di layar punya terjemahan.
+- **Performa:** tab yang tidak terlihat dibekukan, peta berhenti memuat saat tidak dibuka, penanda/kartu/rute di-memo, cache query 60 detik, efek per-kartu yang dihitung saat menggulir dihapus.
+
+### Pemeriksaan otomatis
+
+| Pemeriksaan | Hasil |
+|---|---|
+| `npm run typecheck` | PASS |
+| `npm run lint` | PASS (0 error, 0 warning) |
+| `npm test` | PASS — 1.490 uji / 8 suite (baru: buku tempat + patokan, jarak/arah, kontras palet mode driver, kelengkapan terjemahan) |
+| `npx expo-doctor` | PASS — 20/20 |
+| `npx expo export --platform android --platform ios` | PASS — bundel Hermes iOS dan Android terbentuk |
+
+### Review desain
+
+Review akhir Impeccable dijalankan dari kode (tanpa tangkapan layar), hasil **recapture**: belum bisa memberi putusan visual sampai ada tangkapan layar dari HP. Lima belas cacat kode yang ditemukan sudah diperbaiki di putaran ini: bingkai awal peta (padding ganda), izin lokasi Android sebelum pencarian alamat, pita DEMO di dalam pemilih lokasi, Modal jemput→tujuan yang bisa gagal tampil di iOS (kini satu Modal), keyboard menutupi kolom patokan di Android, peta tetap memuat saat tab dibekukan (kini lewat listener fokus), panggilan layanan alamat yang terlalu banyak (cache + berurutan + jeda 700 ms), nama langkah terpotong di teks besar, kolom berat/ukuran tidak sejajar, transisi halaman yang mengabaikan "kurangi gerakan", garis rute yang mendahului truk, transisi ganti mode yang menutupi pita DEMO dan tidak diumumkan di iOS, teks koordinat mentah, splash yang meneruskan ketukan, dan hex mentah di latar header. Tangkapan yang diminta reviewer: beranda owner/driver, transisi mode, pemilih lokasi (cari + pin dengan keyboard), langkah 1 dan Periksa pada teks 1,3x, peta owner, serta versi tema gelap untuk pemilih dan peta.
+
+### Perangkat
+
+**Belum diuji di perangkat pada putaran ini dan belum ada tangkapan layar.** Pengguna menguji sendiri lewat Expo Go SDK 58 di iPhone dan Android. Yang perlu dicek:
+
+1. Owner → kartu "Masuk mode driver": transisi muncul, header berubah biru-arang + kuning; "Kembali ke mode owner" mengembalikan warna biru.
+2. Owner → Peta: truk U2 (A06) menghadap selatan dan bergerak terus; "Ikuti truk", "Lihat semua", satelit; pindah tab lalu kembali tidak tersendat.
+3. Pelanggan → "Jemput di mana?": cari alamat (perlu sinyal), "Lokasi saya" (minta izin lokasi), "Pilih di peta" (pin terangkat saat peta digeser), isi patokan, lalu tujuan → kendaraan → waktu → Periksa → Kirim.
+4. Tema gelap, bahasa Inggris, dan ukuran teks besar pada formulir dan peta.
+5. Rasa animasi: splash, pindah halaman, tab, kerangka muat.
+
+Risiko yang diketahui: hasil pencarian alamat bergantung layanan peta HP (bisa kosong tanpa sinyal atau di sebagian HP Android); di build rilis Android, Google Maps tetap butuh API key (DEC-08).
+
 ## Putaran 4 — naik ke Expo SDK 58, 2026-10-23
 
 Pemicu: Expo Go di iPhone dan Android pengguna diperbarui ke versi SDK 58 dan menolak membuka proyek SDK 57 ("Project is incompatible with this version of Expo Go"). Di iPhone, Expo Go versi lama tidak bisa dipasang, jadi proyek dinaikkan ke SDK 58 (React Native 0.88, React 19.3, Reanimated 4.7.1, react-native-maps 1.29.11).
