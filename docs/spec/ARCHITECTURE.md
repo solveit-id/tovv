@@ -7,6 +7,10 @@ Paket **2.1 — 21 Oktober 2026**. Produk **Tovv**; pemilik, pengembang dan pene
 Baseline yang benar-benar dibaca: PRD v2.0 (file sumber PRD(2).md, identik dengan salinan PRD (1).md), ARCHITECTURE, IMPLEMENTATION_PLAN, INTEGRATION_PLAN dan TEST_PLAN masing-masing berlabel v1.0 dengan acuan PRD v2.0. Tidak ditemukan versi lebih baru. VALIDATION_PLAN.md tidak ditemukan setelah pencarian nama; dokumen itu **disusun kembali**, bukan hasil pemeriksaan file lama. Pesan pengguna terbaru mengungguli baseline. Seluruh enam dokumen kini memakai versi paket 2.1.
 
 Urutan baca: [PRD](PRD.md) → [ARCHITECTURE](ARCHITECTURE.md) → [INTEGRATION_PLAN](INTEGRATION_PLAN.md) → [IMPLEMENTATION_PLAN](IMPLEMENTATION_PLAN.md) → [TEST_PLAN](TEST_PLAN.md) → [VALIDATION_PLAN](VALIDATION_PLAN.md). PRD menguasai scope/aturan bisnis; kontrak dan model harus mematuhinya. Perubahan mengharuskan pembaruan requirement, task, test, fixture dan keputusan terkait pada paket yang sama.
+## Catatan implementasi (23 Oktober 2026)
+
+Yang sudah dibangun baru aplikasi mobile tahap frontend di `mobile/` (Expo SDK 57, Expo Router, TanStack Query, TypeScript strict). Semua layar memanggil adapter demo bertipe `TovvApi` (`mobile/src/data/api/demo-api.ts`) yang meniru endpoint INTEGRATION_PLAN §3; adapter HTTP ke backend nanti cukup memenuhi tipe yang sama. Aplikasi membuka tiga peran (owner, driver, pelanggan); `admin` tetap di model dan kebijakan. Peta langsung memakai react-native-maps (penyedia bawaan OS); antarmuka dua bahasa (Indonesia/Inggris) lewat `mobile/src/core/i18n`. Folder `backend/`, `contracts/`, `infra/` belum dibuat. Status per task: [IMPLEMENTATION_PLAN §0](IMPLEMENTATION_PLAN.md).
+
 ## 1. Keputusan arsitektur
 
 Modular monolith Laravel menjaga transaksi harga/reservasi/finance di satu database. Satu deployment dapat melayani banyak tenant; tidak membutuhkan server per modul. Batas modul tetap eksplisit dan website terpisah. Sasaran kapasitas adalah TEST_PLAN L-01–L-03, bukan skala nasional yang belum diukur.

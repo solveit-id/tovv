@@ -16,10 +16,9 @@ Ditetapkan dokumen paket 2.1 (`ARCHITECTURE.md` ADR-002): React Native + TypeScr
 
 ## Users
 
-Empat kelompok tampilan dalam satu aplikasi multi-tenant, izin tindakan lebih rinci dari tampilan:
+PRD mendefinisikan empat kelompok tampilan. Atas keputusan pengguna (22 Oktober 2026), aplikasi saat ini hanya membuka **tiga peran**: owner, driver, dan pelanggan. Pekerjaan admin (dispatcher dan finance) dikerjakan owner; peran admin tetap ada di model data dan uji kebijakan untuk tahap backend.
 
-- **Owner** perusahaan towing kecil–menengah; sering merangkap driver dan admin. Membuka aplikasi di sela pekerjaan, sering di luar ruangan, untuk memutuskan harga, delegasi dan melihat apa yang tertahan hari ini.
-- **Admin**: dispatcher (request lintas kanal, penawaran, jadwal, penugasan) dan finance (invoice, pemeriksaan bukti, piutang). Peran berbeda kecuali diberi gabungan.
+- **Owner** perusahaan towing kecil–menengah; sering merangkap driver. Membuka aplikasi di sela pekerjaan, sering di luar ruangan, untuk mencatat permintaan, memberi harga, menugaskan sopir, mengecek pembayaran, dan melihat apa yang tertahan hari ini.
 - **Operator/driver**: menjalankan tugas di lapangan, mencatat tahap perjalanan, foto bukti, kendala dan biaya, hanya saat kendaraan berhenti.
 - **User/customer**: pribadi atau organisasi B2B (requester, approver, finance, penerima). Membuat permintaan, menyetujui penawaran, memantau progres, menerima invoice dan mengajukan bukti bayar.
 
@@ -33,7 +32,7 @@ Tovv mengelola operasi satu operator (unit sendiri dan mitra kelolaan), bukan ma
 
 ## Operating Context
 
-- Kanal masuk: telepon/chat dicatat admin (assisted), aplikasi customer, dan pelanggan B2B berulang.
+- Kanal masuk: telepon/chat dicatat owner (dibantu petugas), aplikasi pelanggan, dan pelanggan B2B berulang.
 - Lapangan: cahaya matahari terik, satu tangan, sinyal putus-putus, ponsel Android menengah; input hanya saat berhenti.
 - Dokumen: quote berversi, invoice bernomor, permintaan pembayaran internal, bukti transfer/tunai, receipt demo, PDF/CSV.
 - Zona waktu bisnis default Asia/Jakarta; uang integer rupiah.
@@ -42,7 +41,7 @@ Tovv mengelola operasi satu operator (unit sendiri dan mitra kelolaan), bukan ma
 
 - Status kanonik mengikuti PRD §5 (request, quote, execution, assignment, invoice, payment proof, outbox, dll.). Jangan membuat status tunggal "paid".
 - Tidak ada uang nyata, gateway, QRIS live, rekening numerik nyata; instruksi hanya DEMO-NONPAYABLE-A/B. QR internal `tovv-demo://` bukan QRIS.
-- Lokasi: last updated, akurasi dan sumber selalu terlihat; >90 detik = stale; tidak ada koordinat karangan.
+- Lokasi: last updated, akurasi dan sumber selalu terlihat; >90 detik = stale; tidak ada koordinat karangan. Peta langsung memakai peta bawaan HP (react-native-maps); posisi truk di demo berasal dari replay sintetis F-06 dan diberi label simulasi.
 - Foto: capture_origin kamera vs galeri, original vs overlay, pending upload tidak boleh tampil "terkirim".
 - Kontribusi bukan laba bersih; biaya hilang adalah null, bukan nol.
 - Tahap frontend ini memakai adapter demo deterministik; backend/otorisasi server/transaksi atomik belum ada dan tidak boleh diklaim.
@@ -52,12 +51,13 @@ Tovv mengelola operasi satu operator (unit sendiri dan mitra kelolaan), bukan ma
 - Nama produk tampil: **Tovv**. Pemilik, pengembang dan penerbit: **Solveit Indonesia** (identitas pendukung, misalnya halaman Tentang).
 - Belum ada logo Tovv; wordmark sementara dibuat dan ditandai SEMENTARA sampai logo resmi tersedia.
 - Logo Solveit (`mobile/assets/brand/`) memakai biru #1136D6–#19B8F2 dan navy #082A56; palet Tovv diturunkan dari sini.
-- Bahasa antarmuka Indonesia. Label "DEMO — SIMULASI FRONTEND" wajib terlihat.
+- Antarmuka dua bahasa: Indonesia (sumber) dan Inggris, mengikuti bahasa HP dan bisa diganti di Lainnya → Bahasa. Teks ditulis seperti orang berbicara, bukan istilah teknis. Label "DEMO — SIMULASI FRONTEND" wajib terlihat.
+- Masuk, daftar, dan lupa kata sandi pada tahap ini adalah simulasi lokal berlabel demo, bukan autentikasi produksi (TEN-04).
 - Gaya visual: standar super-app/fintech Indonesia yang akrab bagi pengguna, dengan patokan kualitas Gojek/GoPay, Grab/Tokopedia dan Bank Jago/Jenius (keputusan pengguna 2026-10-22, menggantikan arah "Nota Rangkap"). Tema terang dan gelap mengikuti pengaturan sistem.
 
 ## Evidence on Hand
 
-- Paket dokumen 2.1 di root; fixture F-01–F-13 dan oracle F-09 (PRD §8).
+- Paket dokumen 2.1 di `docs/spec/`; fixture F-01–F-13 dan oracle F-09 (PRD §8).
 - Tidak ada operator nyata, testimoni, harga jual atau metrik penggunaan. Nama perusahaan nyata (mis. Surabaya Towing) tidak boleh menjadi data seed.
 
 ## Product Principles

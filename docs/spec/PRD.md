@@ -692,6 +692,10 @@ Sumber resmi ditinjau 21 Oktober 2026: [Laravel13 releases](https://laravel.com/
 
 [Bank Indonesia — QRIS](https://www.bi.go.id/id/fungsi-utama/sistem-pembayaran/ritel/kanal-layanan/qris/default.aspx) menjelaskan perbedaan MPM statis/dinamis dan penyelenggaraan melalui PJP. Keputusan Tovv: QR detail internal tidak disebut QRIS; tidak membuat QR pembayaran live pada prototype. Referensi memberi dasar desain, bukan bukti integrasi sudah berhasil.
 
+### 10.1 Keputusan pengguna setelah paket 2.1
+
+Pesan pengguna terbaru mengungguli baseline. Keputusan yang memengaruhi tampilan (22–23 Oktober 2026): aplikasi hanya membuka tiga peran (owner, driver, pelanggan) dan pekerjaan admin dikerjakan owner — requirement admin di dokumen ini tidak dihapus dan tetap berlaku untuk backend; antarmuka dua bahasa (Indonesia/Inggris); peta memakai penyedia bawaan OS untuk prototype; masuk/daftar/lupa kata sandi masih simulasi lokal (TEN-04 belum). Rincian dan statusnya: [IMPLEMENTATION_PLAN §0](IMPLEMENTATION_PLAN.md).
+
 ## 11. Hasil pemeriksaan konsistensi paket dokumen
 
 Pemeriksaan dokumenter 21 Oktober 2026: keenam file memakai Tovv/Solveit Indonesia dan paket2.1; tautan file lokal valid; 113 requirement tercatat (100 PROTO,13 NEXT); semua100 PROTO mempunyai task dan skenario; 30 task aktif dan T-18 ditunda; tidak ditemukan siklus dependensi task. Register test berisi76 skenario aktif NOT_RUN dan4 skenario provider historis DEFERRED. Requirement lama94 tetap tercatat,19 ID baru ditambahkan. Tidak ada payment gateway sebagai gate prototype.
