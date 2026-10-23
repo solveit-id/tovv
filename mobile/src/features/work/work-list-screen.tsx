@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View } from 'react-native';
+import { View, type ViewInstance } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -30,7 +30,7 @@ export function RequestRow({ r, index = 0 }: { r: RequestSummary; last?: boolean
   const styles = useStyles();
   const router = useRouter();
   const entering = useEnter(index);
-  const revealRef = useRef<View>(null);
+  const revealRef = useRef<ViewInstance>(null);
   const reveal = useScrollReveal(revealRef);
   const q = r.latestQuote;
   return (

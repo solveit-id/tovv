@@ -6,17 +6,17 @@ Diperbarui 23 Oktober 2026.
 
 | Komponen | Versi | Alasan |
 |---|---|---|
-| Node | 22.23.1 (minimum 22.13) | Persyaratan Expo SDK 57 |
+| Node | 22.23.1 (minimum 22.13; 23 dan 25 tidak didukung) | Persyaratan Expo SDK 58 |
 | npm | 10.9.8, `package-lock.json` | Satu package manager |
-| Expo SDK | ~57.0.31 | SDK 57 matang dan bisa dibuka Expo Go dari store di iPhone tanpa Mac |
-| React Native / React | 0.86.3 / 19.2.3 | Kombinasi bawaan SDK 57 |
-| Expo Router | ~57.0.29 | Bawaan SDK 57 |
-| Reanimated / Worklets | 4.5.1 / 0.10.1 | `expo install` |
-| react-native-maps | 1.27.2 | `expo install`; termasuk di Expo Go |
+| Expo SDK | ~58.0.17 | Expo Go di App Store/Play Store sekarang hanya membuka SDK 58; iPhone tidak bisa memasang Expo Go versi lama |
+| React Native / React | 0.88.0 / 19.3.0 | Kombinasi bawaan SDK 58 |
+| Expo Router | ~58.0.25 | Bawaan SDK 58 |
+| Reanimated / Worklets | 4.7.1 / 0.13.0 | `expo install` |
+| react-native-maps | 1.29.11 | `expo install`; termasuk di Expo Go |
 | TanStack Query | 5.104.5 | JS murni |
-| TypeScript | 6.0.x, strict + `noUncheckedIndexedAccess` | Template SDK 57 |
+| TypeScript | 6.0.x, strict + `noUncheckedIndexedAccess` | Template SDK 58 |
 
-Semua paket native dipasang dengan `npx expo install` sehingga versinya mengikuti SDK 57. `qrcode` 1.5.4 (JS murni) dipakai untuk QR internal.
+Semua paket native dipasang dengan `npx expo install` sehingga versinya mengikuti SDK 58. `qrcode` 1.5.4 (JS murni) dipakai untuk QR internal.
 
 ## Menjalankan
 
@@ -28,7 +28,7 @@ npm test && npm run typecheck && npm run lint
 
 ### Di HP lewat Expo Go (iPhone dan Android) — cara yang disarankan
 
-1. Pasang **Expo Go** (mendukung SDK 57) dari App Store/Play Store, lalu masuk dengan akun Expo.
+1. Pasang/perbarui **Expo Go** (versi SDK 58) dari App Store/Play Store, lalu masuk dengan akun Expo.
 2. Di komputer: `npx expo login` dengan akun yang sama (sekali saja).
 3. `npm run start:go` — laptop dan HP harus di Wi-Fi yang sama. Bila tidak bisa, `npm run start:go -- --tunnel`.
 4. iPhone: pindai QR dengan Kamera. Android: pindai dari dalam Expo Go.
@@ -48,6 +48,19 @@ npm run android
 Catatan peta: di development build/rilis Android, Google Maps butuh API key di `app.json` (`android.config.googleMaps.apiKey`). Tanpa key, tab Peta tidak bisa dipakai di build tersebut; di Expo Go tidak perlu key. Keputusan provider dan biayanya masih DEC-08. Development build yang terpasang di emulator saat ini dibuat sebelum react-native-maps ditambahkan, jadi harus dibangun ulang.
 
 iOS development build memerlukan macOS/Xcode dan belum dibuat.
+
+### Naik versi SDK
+
+Expo Go di store hanya membuka SDK terbaru, jadi saat Expo merilis SDK baru dan Expo Go di HP diperbarui, proyek harus ikut naik:
+
+```bash
+npx expo install expo@^<versi> --fix
+npx expo-doctor
+npm run typecheck && npm run lint && npm test
+npx expo export --platform ios --platform android --output-dir <folder sementara>
+```
+
+Catatan SDK 58: tipe TypeScript React Native 0.88 lebih ketat (ref memakai `ViewInstance`/`ScrollViewInstance`/`TextInputInstance`; `StyleSheet.NamedStyles` dihapus sehingga `makeStyles` memakai tipe sendiri), `File.write()` kini async, dan mock Jest Reanimated 4.7.1 perlu `setCSSEventHandler` dibuat no-op (lihat `components.test.tsx`).
 
 ## Mode demo
 

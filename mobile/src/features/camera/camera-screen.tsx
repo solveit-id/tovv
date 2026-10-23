@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Linking, StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, View, type ViewInstance } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
@@ -49,7 +49,7 @@ export function CameraScreen() {
   const insets = useSafeAreaInsets();
   const [perm, requestPerm] = useCameraPermissions();
   const camRef = useRef<CameraView>(null);
-  const overlayRef = useRef<View>(null);
+  const overlayRef = useRef<ViewInstance>(null);
   const [ready, setReady] = useState(false);
   const [phase, setPhase] = useState<Phase>('capture');
   const [shot, setShot] = useState<Shot | null>(null);

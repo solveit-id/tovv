@@ -1,6 +1,6 @@
 import { tr } from '@/core/i18n';
 import React, { useMemo, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, RefreshControl, StyleSheet, View, type ViewStyle } from 'react-native';
+import { KeyboardAvoidingView, Platform, RefreshControl, StyleSheet, View, type ViewStyle, type ViewInstance } from 'react-native';
 import Animated, { Extrapolation, ZoomIn, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { radius, space, elevation } from '@/core/design/tokens';
@@ -54,7 +54,7 @@ export function Screen({
   const [refreshing, setRefreshing] = useState(false);
   const y = useSharedValue(0);
   const heroH = useSharedValue(0);
-  const contentRef = useRef<View>(null);
+  const contentRef = useRef<ViewInstance>(null);
   const scrollState = useMemo(() => ({ y, heroH, hero: headerScrolls && scroll, contentRef }), [y, heroH, headerScrolls, scroll]);
   const reduced = useReducedMotion();
   const fabOpen = useSharedValue(1);

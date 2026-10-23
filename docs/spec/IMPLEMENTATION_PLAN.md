@@ -15,7 +15,7 @@ Pemeriksaan terakhir di `mobile/`: typecheck dan lint bersih, 1.292 uji Jest lul
 
 | Task | Status | Catatan |
 |---|---|---|
-| T-01 | IMPLEMENTED_UNVERIFIED | mobile: Expo SDK 57 dipin, lockfile, expo-doctor 21/21; backend belum dibuat |
+| T-01 | IMPLEMENTED_UNVERIFIED | mobile: Expo SDK 58 dipin (naik dari 57 pada 23 Okt 2026 agar terbuka di Expo Go terbaru), lockfile, expo-doctor 20/20; backend belum dibuat |
 | T-02 | VERIFIED_LOCAL | mobile shell tiga peran, fixture F-09 di adapter demo, oracle diuji Jest; seeder database belum |
 | T-03 | NOT_STARTED | backend; layar masuk/daftar/lupa kata sandi hanya simulasi lokal |
 | T-04 | IMPLEMENTED_UNVERIFIED | frontend: registry armada baca saja; CRUD dan backend belum |
@@ -89,7 +89,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-01 — Baseline, exact versions dan spike native awal
 
-- Milestone: M0. Owner peran: BE + mobile. Status: IMPLEMENTED_UNVERIFIED — mobile: Expo SDK 57 dipin, lockfile, expo-doctor 21/21; backend belum dibuat.
+- Milestone: M0. Owner peran: BE + mobile. Status: IMPLEMENTED_UNVERIFIED — mobile: Expo SDK 58 dipin (naik dari 57 pada 23 Okt 2026 agar terbuka di Expo Go terbaru), lockfile, expo-doctor 20/20; backend belum dibuat.
 - Dependensi: —.
 - Requirement utama: PRO-01, INT-01.
 - Pekerjaan: Baca instruksi repo; verifikasi PHP minimum dan MySQL; pin Expo/RN/Node; buat Composer/npm lockfiles, ADR dan environment matrix. Spike location pada development build dengan login uji sederhana; catat akses perangkat/provider yang belum ada.

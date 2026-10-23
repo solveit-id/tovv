@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { StyleSheet, View, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type ViewStyle, type ViewInstance } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { radius, space, cardChrome, type ColorToken } from '@/core/design/tokens';
 import { makeStyles, useTheme } from '@/core/design/theme';
@@ -30,7 +30,7 @@ export function Card({ children, style, padded = true, onPress, accessibilityLab
 }) {
   const s = useStyles();
   const entering = useEnter(enterIndex ?? 99);
-  const revealRef = useRef<View>(null);
+  const revealRef = useRef<ViewInstance>(null);
   const reveal = useScrollReveal(revealRef);
   const toneStyle = tone ? s[tone] : null;
   const body = onPress ? (

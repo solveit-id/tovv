@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Linking, Platform, ScrollView, View, useWindowDimensions, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { Linking, Platform, ScrollView, View, useWindowDimensions, type NativeScrollEvent, type NativeSyntheticEvent, type ScrollViewInstance } from 'react-native';
 import MapView, { Polyline, PROVIDER_DEFAULT } from 'react-native-maps';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withTiming, cancelAnimation } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
@@ -118,7 +118,7 @@ export function LiveMapScreen() {
   const reduced = useReducedMotion();
   const { width } = useWindowDimensions();
   const mapRef = useRef<MapView>(null);
-  const listRef = useRef<ScrollView>(null);
+  const listRef = useRef<ScrollViewInstance>(null);
   const fitted = useRef(false);
   const [filter, setFilter] = useState<Filter>('all');
   const [selected, setSelected] = useState(0);

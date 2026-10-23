@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Appearance, StyleSheet, useColorScheme } from 'react-native';
+import { Appearance, StyleSheet, useColorScheme, type ImageStyle, type TextStyle, type ViewStyle } from 'react-native';
 import { palettes, type Palette, type Scheme } from './tokens';
 
 export type ThemePreference = 'system' | 'light' | 'dark';
@@ -84,7 +84,9 @@ export const useColors = () => useContext(ThemeContext).c;
  * Gaya yang bergantung palet: dibuat sekali per skema lalu di-cache, jadi berganti tema
  * tidak membuat ulang StyleSheet di setiap render.
  */
-export function makeStyles<T extends StyleSheet.NamedStyles<T>>(factory: (c: Palette, scheme: Scheme) => T) {
+type NamedStyles<T> = { [P in keyof T]: ViewStyle | TextStyle | ImageStyle };
+
+export function makeStyles<T extends NamedStyles<T>>(factory: (c: Palette, scheme: Scheme) => T) {
   const cache: Partial<Record<Scheme, T>> = {};
   return function useStyles(): T {
     const { scheme, c } = useTheme();
