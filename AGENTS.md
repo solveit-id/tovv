@@ -14,7 +14,7 @@ Status dan serah terima: `.ai/project-status.md`. Sistem desain (gaya super-app/
 
 | Path | Isi |
 |---|---|
-| `mobile/` | Aplikasi React Native + TypeScript strict + Expo SDK 57 + Expo Router (tahap frontend) |
+| `mobile/` | Aplikasi React Native + TypeScript strict + Expo SDK 58 + Expo Router (tahap frontend) |
 | `docs/` | Fakta produk, sistem desain, pengembangan, laporan QA; `docs/spec/` berisi paket spesifikasi 2.1 |
 | `.ai/` | Serah terima antar-sesi agent |
 | `.impeccable/surfaces/` | Kontrak desain Impeccable untuk permukaan aplikasi |
@@ -39,7 +39,7 @@ npm run lint           # expo lint
 npm test               # jest (oracle F-09, alur adapter, login demo, peta per peran, token, terjemahan)
 npx expo-doctor        # cek dependensi/konfigurasi
 npx expo install <pkg> # selalu dipakai untuk paket SDK
-npm run start:go       # server untuk Expo Go (SDK 57) — cara utama mencoba di HP
+npm run start:go       # server untuk Expo Go (SDK 58) — cara utama mencoba di HP
 npm start              # server untuk development build
 npm run android        # build + pasang development build Android (JDK 17+, Android SDK, NDK 27.1)
 ```
@@ -56,6 +56,7 @@ Jalankan typecheck, lint, dan tes sebelum menyatakan pekerjaan selesai.
 - Dua bahasa: teks sumber bahasa Indonesia di kode; terjemahan Inggris di `mobile/src/core/i18n/en.ts`. Teks dinamis pakai `t('… {0}', [nilai])`; label aksesibilitas pakai `tr()`. Setiap teks baru wajib diberi entri bahasa Inggris. Logika tidak boleh bergantung pada isi teks yang diterjemahkan.
 - Teks antarmuka ditulis seperti orang berbicara: singkat, jelas, tanpa istilah teknis internal.
 - Route di `mobile/src/app/` tetap tipis dan meneruskan layar dari `mobile/src/features/`.
+- Saat naik SDK: `npx expo install expo@^<versi> --fix`, lalu periksa catatan breaking change Expo, jalankan semua cek dan `npx expo export` untuk iOS/Android. Expo Go di store hanya membuka SDK terbaru.
 - Folder native `mobile/android` dan `mobile/ios` dihasilkan (CNG); jangan diedit atau di-commit.
 - Animasi hanya Reanimated/native (tanpa GSAP, Framer Motion, smooth-scroll DOM). Hormati "kurangi gerakan".
 

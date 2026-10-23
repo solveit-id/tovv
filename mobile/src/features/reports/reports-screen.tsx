@@ -48,7 +48,7 @@ export function ReportsScreen({ asTab = false }: { asTab?: boolean }) {
       const f = new File(Paths.cache, r.fileName);
       if (f.exists) f.delete();
       f.create();
-      f.write(r.content);
+      await f.write(r.content);
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(f.uri, { mimeType: 'text/csv', dialogTitle: r.fileName, UTI: 'public.comma-separated-values-text' });
         toast.show(t('{0}: {1} baris, berlabel DEMO dengan metadata cutoff.', [r.template, r.rows]), 'ok');

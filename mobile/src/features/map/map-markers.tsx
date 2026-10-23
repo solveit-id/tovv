@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';
-import { AnimatedRegion, Marker, MarkerAnimated } from 'react-native-maps';
+import { AnimatedRegion, Marker, MarkerAnimated, type MapMarkerProps } from 'react-native-maps';
 import { radius, space, type ColorToken } from '@/core/design/tokens';
 import { makeStyles, useColors } from '@/core/design/theme';
 import { useReducedMotion } from '@/core/design/motion';
@@ -8,6 +8,9 @@ import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import type { LiveUnit } from '@/data/api/contract';
 import { t } from '@/core/i18n';
+
+// Tipe MarkerAnimated di react-native-maps belum mengikuti tipe Animated RN 0.88.
+const AnimatedMarker = MarkerAnimated as unknown as React.ComponentType<Omit<MapMarkerProps, 'coordinate'> & { coordinate: AnimatedRegion }>;
 
 const STATE_TONE: Record<LiveUnit['state'], { bg: ColorToken; fg: ColorToken }> = {
   on_job: { bg: 'accent', fg: 'onAccent' },
@@ -44,8 +47,8 @@ export function TruckMarker({ unit, selected, onPress }: { unit: LiveUnit; selec
   }, [unit.lat, unit.lng, reduced, region]);
 
   return (
-    <MarkerAnimated
-      coordinate={region as never}
+    <AnimatedMarker
+      coordinate={region}
       anchor={{ x: 0.5, y: 0.5 }}
       onPress={onPress}
       tracksViewChanges={track}
@@ -60,7 +63,7 @@ export function TruckMarker({ unit, selected, onPress }: { unit: LiveUnit; selec
           <Txt variant="caption" bold maxFontSizeMultiplier={1.2} style={{ fontSize: 11, lineHeight: 14 }}>{unit.code}</Txt>
         </View>
       </View>
-    </MarkerAnimated>
+    </AnimatedMarker>
   );
 }
 

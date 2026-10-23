@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { View } from 'react-native';
+import { View, type ViewInstance } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { radius, space, cardChrome } from '@/core/design/tokens';
@@ -37,7 +37,7 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
   const router = useRouter();
   const s = useStyles();
   const entering = useEnter(index);
-  const revealRef = useRef<View>(null);
+  const revealRef = useRef<ViewInstance>(null);
   const reveal = useScrollReveal(revealRef);
   const look = executionStatus[o.status];
   const terminal = ['canceled', 'aborted'].includes(o.status);

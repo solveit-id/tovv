@@ -1,5 +1,5 @@
 import { createContext, useContext, type RefObject } from 'react';
-import type { View } from 'react-native';
+import type { ViewInstance } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 
 /**
@@ -10,7 +10,7 @@ export interface ScrollState {
   y: SharedValue<number>;
   heroH: SharedValue<number>;
   hero: boolean;
-  contentRef: RefObject<View | null>;
+  contentRef: RefObject<ViewInstance | null>;
 }
 
 export const ScrollContext = createContext<ScrollState | null>(null);
