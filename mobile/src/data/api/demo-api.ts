@@ -6,6 +6,8 @@ import * as rq from '@/data/demo/ops-requests';
 import * as od from '@/data/demo/ops-orders';
 import * as fin from '@/data/demo/ops-finance';
 import * as adm from '@/data/demo/ops-admin';
+import * as auth from '@/data/demo/auth';
+import { liveMap } from '@/data/demo/live-map';
 import { ApiError } from './contract';
 import type { ViewGroup } from '@/domain/types';
 
@@ -43,7 +45,21 @@ export function createDemoApi(store: DemoStore, session: () => SessionRef | null
     now: () => store.now(),
 
     // Identitas
+    /** Kata sandi bersama akun fixture; hanya ada di adapter demo, tidak di API produksi. */
+    demoPassword: auth.DEMO_PASSWORD,
     listDemoAccounts: async () => adm.listDemoAccounts(store.db),
+    login: async (email: string, password: string) => {
+      await sleep(latencyMs.write);
+      return auth.login(store.db, email, password);
+    },
+    register: async (input: auth.RegisterInput) => {
+      await sleep(latencyMs.write);
+      return store.transact((db) => auth.register(db, input));
+    },
+    requestPasswordReset: async (email: string) => {
+      await sleep(latencyMs.write);
+      return auth.requestPasswordReset(email);
+    },
     validateSession: async (s: SessionRef) => {
       const user = store.db.users.find((u) => u.id === s.userId);
       if (!user) throw new ApiError('FORBIDDEN', 'Akun demo tidak ada.');
@@ -80,6 +96,7 @@ export function createDemoApi(store: DemoStore, session: () => SessionRef | null
     listOrders: (filter: od.OrderListFilter) => read((c) => od.listOrders(c, filter)),
     getOrder: (id: string) => read((c) => od.getOrder(c, id)),
     getTracking: (id: string) => read((c) => od.getTracking(c, id)),
+    getLiveMap: () => read(liveMap),
     offerAssignment: (orderId: string, driverId: string) => write((c) => od.offerAssignment(c, orderId, driverId)),
     respondAssignment: (orderId: string, accept: boolean, reason: string | null) => write((c) => od.respondAssignment(c, orderId, accept, reason)),
     advanceTrip: (orderId: string, action: Parameters<typeof od.advanceTrip>[2], exceptionReason: string | null) => write((c) => od.advanceTrip(c, orderId, action, exceptionReason)),

@@ -10,6 +10,11 @@ export type MoneyString = string;
 export type Rupiah = number;
 
 export type ViewGroup = 'owner' | 'admin' | 'driver' | 'customer';
+/**
+ * Tampilan yang dibuka aplikasi saat ini: owner (termasuk tugas dispatcher dan finance), driver, pelanggan.
+ * `admin` tetap ada di model data dan uji kebijakan, tetapi tidak dapat dipilih di aplikasi.
+ */
+export const APP_VIEWS: readonly ViewGroup[] = ['owner', 'driver', 'customer'];
 export type StaffRole = 'owner' | 'dispatcher' | 'finance' | 'driver' | 'partner';
 export type B2bRole = 'requester' | 'approver' | 'finance' | 'receiver';
 

@@ -48,14 +48,14 @@ export function errorMessage(e: unknown): string {
 }
 
 export const ERROR_TITLE: Partial<Record<ApiError['code'], string>> = {
-  FORBIDDEN: 'Tidak berizin',
+  FORBIDDEN: 'Tidak punya akses',
   NOT_FOUND: 'Tidak ditemukan',
   OFFLINE: 'Sedang offline',
-  UNAVAILABLE: 'Sumber data tidak tersedia',
+  UNAVAILABLE: 'Data sedang tidak bisa dimuat',
   CAPACITY_CONFLICT: 'Jadwal bentrok',
-  ESCALATION_REQUIRED: 'Perlu eskalasi',
+  ESCALATION_REQUIRED: 'Perlu keputusan owner',
   QUOTE_EXPIRED: 'Penawaran kedaluwarsa',
   QUOTE_SUPERSEDED: 'Versi sudah diganti',
-  SELF_APPROVAL: 'Perlu pemeriksa lain',
+  SELF_APPROVAL: 'Perlu dicek orang lain',
   PLAN_BLOCKED: 'Paket demo berakhir',
 };

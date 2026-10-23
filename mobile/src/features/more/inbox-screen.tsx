@@ -21,7 +21,7 @@ export function InboxScreen() {
   const api = useApi();
   const q = useTovvQuery(['inbox'], (a) => a.listInbox());
   return (
-    <Screen header={<DetailHeader title="Kotak masuk" subtitle="Simulasi · push perangkat belum diaktifkan" />}>
+    <Screen header={<DetailHeader title="Kotak masuk" subtitle="Simulasi · notifikasi ke HP belum aktif" />}>
       <Card padded={false}>
         <QueryView q={q}>
           {(list) =>
@@ -44,7 +44,7 @@ export function InboxScreen() {
                 </View>
                 {n.link ? <Icon name="chevron-right" tone="inkSecondary" /> : null}
               </Pressable>
-            )) : <EmptyBlock icon="bell-outline" title="Belum ada notifikasi" />
+            )) : <EmptyBlock icon="bell-outline" title="Belum ada pemberitahuan" />
           }
         </QueryView>
       </Card>

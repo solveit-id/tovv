@@ -5,6 +5,7 @@ import QRCode from 'qrcode';
 import { radius, space } from '@/core/design/tokens';
 import { makeStyles } from '@/core/design/theme';
 import { Txt } from '@/components/ui/txt';
+import { t } from '@/core/i18n';
 
 /**
  * QR INTERNAL Tovv (PAY-10): hanya memuat tautan `tovv-demo://payment-request/<id>` yang membuka detail
@@ -22,7 +23,7 @@ export function InternalQr({ uri, size = 168 }: { uri: string; size?: number }) 
     }
   }
   return (
-    <View style={styles.wrap} accessible accessibilityRole="image" accessibilityLabel={`QR internal Tovv menuju ${uri}. Bukan QRIS dan tidak dapat dibayar.`}>
+    <View style={styles.wrap} accessible accessibilityRole="image" accessibilityLabel={t('QR internal Tovv menuju {0}. Bukan QRIS dan tidak dapat dibayar.', [uri])}>
       <View style={styles.band}>
         <Txt variant="caption" tone="onInverse" style={{ fontWeight: '700' }} maxFontSizeMultiplier={1.3}>QR INTERNAL TOVV · BUKAN QRIS</Txt>
       </View>

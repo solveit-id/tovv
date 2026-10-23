@@ -33,6 +33,7 @@ import { evaluatePrice } from '@/domain/pricing';
 import { invoiceBalance, receiptUnapplied } from '@/domain/ledger';
 import { contributionFor } from '@/domain/analytics';
 import { formatTime } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 export const userName = (db: DemoDb, id: string | null | undefined) =>
   !id ? '—' : id === 'system' ? 'Sistem' : (db.users.find((u) => u.id === id)?.name ?? id);
@@ -41,7 +42,7 @@ export const isStaffView = (actor: Actor) => actor.view === 'owner' || actor.vie
 
 export function requestOf(db: DemoDb, id: string): ServiceRequest {
   const r = db.requests.find((x) => x.id === id);
-  if (!r) throw new ApiError('NOT_FOUND', 'Permintaan tidak ditemukan.');
+  if (!r) throw new ApiError('NOT_FOUND', t('Permintaan tidak ditemukan.'));
   return r;
 }
 
@@ -58,14 +59,14 @@ export function currentAssignment(db: DemoDb, orderId: string): Assignment | nul
 
 /** Policy baca order: tenant sama + peran; customer hanya miliknya/organisasinya; driver hanya tugasnya. */
 export function assertCanSeeOrder(db: DemoDb, actor: Actor, order: Order): void {
-  if (order.tenantId !== actor.user.tenantId) throw new ApiError('NOT_FOUND', 'Order tidak ditemukan.');
+  if (order.tenantId !== actor.user.tenantId) throw new ApiError('NOT_FOUND', t('Order tidak ditemukan.'));
   if (isStaffView(actor)) return;
   if (actor.view === 'customer') {
-    if (!customerCanSeeRequest(actor.user, requestOf(db, order.requestId))) throw new ApiError('NOT_FOUND', 'Order tidak ditemukan.');
+    if (!customerCanSeeRequest(actor.user, requestOf(db, order.requestId))) throw new ApiError('NOT_FOUND', t('Order tidak ditemukan.'));
     return;
   }
   const mine = db.assignments.some((a) => a.orderId === order.id && a.driverId === actor.user.id && ['offered', 'accepted', 'completed'].includes(a.status));
-  if (!mine) throw new ApiError('NOT_FOUND', 'Tugas tidak ditemukan atau sudah dialihkan.');
+  if (!mine) throw new ApiError('NOT_FOUND', t('Tugas tidak ditemukan atau sudah dipindahkan.'));
 }
 
 export function mediaItem(db: DemoDb, m: MediaPacket): MediaItem {
@@ -124,7 +125,7 @@ export function orderSummary(db: DemoDb, order: Order, now: string): OrderSummar
   const coPending = db.changeOrders.some((c) => c.orderId === order.id && c.status === 'pending');
   let next = NEXT_STEP[order.status];
   if (order.status === 'handed_over' && inv.invoiceStatus) next = order.evidence === 'disputed' ? 'Tinjau keberatan serah-terima' : inv.collection === 'settled' ? 'Tagihan tercatat lunas (demo)' : 'Menunggu penerimaan pembayaran';
-  if (order.status === 'confirmed' && asg?.status === 'offered') next = `Menunggu ${userName(db, asg.driverId)} menerima tugas`;
+  if (order.status === 'confirmed' && asg?.status === 'offered') next = t('Menunggu {0} menerima tugas', [userName(db, asg.driverId)]);
   return {
     id: order.id,
     alias: order.alias,
@@ -258,11 +259,11 @@ const EVIDENCE_SLOTS: { stage: MediaPacket['stage']; slot: string; label: string
 
 const STEP_ACTION: Partial<Record<ExecutionStatus, { action: OrderAction; label: string; hint: string }>> = {
   assigned: { action: 'start_pickup', label: 'Berangkat ke lokasi jemput', hint: 'Lokasi mulai dibagikan ke pelanggan setelah ini.' },
-  en_route_pickup: { action: 'arrive_pickup', label: 'Tiba di lokasi jemput', hint: 'Tekan saat kendaraan sudah berhenti.' },
-  arrived_pickup: { action: 'start_loading', label: 'Mulai memuat', hint: 'Wajib dua foto pickup atau alasan pengecualian.' },
-  loading: { action: 'start_transit', label: 'Kendaraan aman, berangkat', hint: 'Konfirmasi muatan sudah diikat.' },
+  en_route_pickup: { action: 'arrive_pickup', label: 'Tiba di lokasi jemput', hint: 'Tekan setelah kendaraan berhenti.' },
+  arrived_pickup: { action: 'start_loading', label: 'Mulai memuat', hint: 'Wajib dua foto saat jemput, atau tulis alasan kenapa tidak bisa.' },
+  loading: { action: 'start_transit', label: 'Kendaraan aman, berangkat', hint: 'Pastikan muatan sudah diikat.' },
   in_transit: { action: 'arrive_delivery', label: 'Tiba di tujuan', hint: 'Tekan setelah berhenti di lokasi tujuan.' },
-  arrived_delivery: { action: 'handover', label: 'Serah-terima', hint: 'Foto kondisi akhir dan catat penerima.' },
+  arrived_delivery: { action: 'handover', label: 'Serah-terima', hint: 'Foto kondisi akhir, lalu catat siapa yang menerima.' },
 };
 
 export function orderDetail(db: DemoDb, order: Order, actor: Actor, now: string): OrderDetail {
@@ -288,7 +289,7 @@ export function orderDetail(db: DemoDb, order: Order, actor: Actor, now: string)
         next = step;
         if (step.action === 'start_loading') {
           const pickupCount = media.filter((m) => m.stage === 'pickup_before_loading').length;
-          if (pickupCount < 2) blockedReason = `Foto pickup ${pickupCount}/2. Ambil foto atau isi alasan pengecualian.`;
+          if (pickupCount < 2) blockedReason = t('Foto jemput {0}/2. Ambil foto atau tulis alasan kenapa tidak bisa.', [pickupCount]);
         }
       }
       actions.push('report_incident', 'capture_evidence', 'add_expense', 'mark_readiness');
@@ -350,11 +351,11 @@ export function orderDetail(db: DemoDb, order: Order, actor: Actor, now: string)
       return { id: i.id, number: i.number, status: i.status, net: toMoneyString(b.net), outstanding: toMoneyString(b.outstanding), collection: b.collection };
     }),
     pickupContact: `${req.parties.sender} · ${db.users.find((u) => u.name === req.parties.sender)?.phoneLabel ?? '+62 000-0000-0900 (DEMO)'}`,
-    receiverContact: `${req.parties.receiver} · +62 000-0000-0901 (DEMO)`,
+    receiverContact: t('{0} · +62 000-0000-0901 (DEMO)', [req.parties.receiver]),
     instructions: [
-      `Jemput: ${req.pickup.address}`,
-      `Tujuan: ${req.dropoff.address}`,
-      `Jadwal ${formatTime(order.scheduleStart)}–${formatTime(order.scheduleEnd)}`,
+      t('Jemput: {0}', [req.pickup.address]),
+      t('Tujuan: {0}', [req.dropoff.address]),
+      t('Jadwal {0}–{1}', [formatTime(order.scheduleStart), formatTime(order.scheduleEnd)]),
       vehicle.condition,
       'Jangan mengoperasikan aplikasi saat kendaraan berjalan.',
     ],

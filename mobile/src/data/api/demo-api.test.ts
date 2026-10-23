@@ -333,3 +333,71 @@ describe('langkah berikut per peran', () => {
     expect(staff?.nextStep).toBe('Menunggu Bayu Nugroho menerima tugas');
   });
 });
+
+describe('login demo & tiga peran aplikasi', () => {
+  it('daftar akun demo hanya berisi owner, driver, dan pelanggan', async () => {
+    const { api } = setup();
+    const list = await api.listDemoAccounts();
+    expect(list.length).toBeGreaterThan(0);
+    expect(list.every((a) => a.views.every((v) => ['owner', 'driver', 'customer'].includes(v)))).toBe(true);
+    expect(list.some((a) => a.userId === 'admin-a1')).toBe(false);
+  });
+
+  it('login dengan kata sandi demo; kata sandi salah dan akun admin ditolak', async () => {
+    const { api } = setup();
+    await expect(api.login('RAKA.owner-a@example.invalid', api.demoPassword)).resolves.toEqual({ userId: 'owner-a', view: 'owner' });
+    await expectCode(api.login('raka.owner-a@example.invalid', 'salah123'), 'VALIDATION');
+    await expectCode(api.login('sinta.admin-a1@example.invalid', api.demoPassword), 'FORBIDDEN');
+  });
+
+  it('daftar membuat pelanggan baru yang bisa login; email ganda ditolak', async () => {
+    const { api } = setup();
+    const r = await api.register({ name: 'Budi Contoh', email: 'budi@contoh.id', phone: '0812', password: 'rahasia123' });
+    expect(r.view).toBe('customer');
+    await expect(api.login('budi@contoh.id', 'rahasia123')).resolves.toMatchObject({ userId: r.userId });
+    await expectCode(api.login('budi@contoh.id', api.demoPassword), 'VALIDATION');
+    await expectCode(api.register({ name: 'Budi', email: 'budi@contoh.id', phone: '', password: 'rahasia123' }), 'VALIDATION');
+  });
+
+  it('lupa kata sandi tidak membocorkan apakah email terdaftar', async () => {
+    const { api } = setup();
+    const a = await api.requestPasswordReset('raka.owner-a@example.invalid');
+    const b = await api.requestPasswordReset('tidakada@example.invalid');
+    expect(a.maskedEmail).toContain('@example.invalid');
+    expect(b.maskedEmail).toContain('@example.invalid');
+  });
+});
+
+describe('peta langsung per peran', () => {
+  it('owner melihat semua unit tenant; truk A06 bergerak menurut jam demo', async () => {
+    const { api, as, store } = setup();
+    as('owner-a', 'owner');
+    const m1 = await api.getLiveMap();
+    expect(m1.units.map((u) => u.code).sort()).toEqual(['P1', 'U1', 'U2', 'U3']);
+    const truck = m1.units.find((u) => u.orderAlias === 'A06');
+    expect(truck?.state).toBe('on_job');
+    store.clock.reset(Date.now() - 10 * 60_000);
+    const m2 = await api.getLiveMap();
+    const moved = m2.units.find((u) => u.orderAlias === 'A06');
+    expect(moved && truck && (moved.lat !== truck.lat || moved.lng !== truck.lng)).toBe(true);
+  });
+
+  it('pelanggan tanpa perjalanan aktif tidak melihat truk; driver hanya melihat tugasnya', async () => {
+    const { api, as } = setup();
+    as('customer-a1', 'customer');
+    const c = await api.getLiveMap();
+    expect(c.units).toHaveLength(0);
+    expect(c.base).toBeNull();
+    as('driver-a1', 'driver');
+    const d = await api.getLiveMap();
+    expect(d.units.every((u) => d.jobs.some((j) => j.orderId === u.orderId))).toBe(true);
+  });
+
+  it('penyetuju Dealer Demo melihat truk A06 yang menuju kendaraannya', async () => {
+    const { api, as } = setup();
+    as('ba2-appr', 'customer');
+    const m = await api.getLiveMap();
+    expect(m.jobs.find((j) => j.alias === 'A06')?.trackingVisible).toBe(true);
+    expect(m.units).toHaveLength(1);
+  });
+});

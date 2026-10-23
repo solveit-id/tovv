@@ -17,6 +17,7 @@ import { useTovvQuery } from '@/data/api/hooks';
 import { executionStatus } from '@/core/i18n/status';
 import { formatAge, formatTime, formatDateTime, addMinutes } from '@/core/format/time';
 import { useDemoNow } from '@/core/hooks/use-demo-now';
+import { t } from '@/core/i18n';
 
 /**
  * Perjalanan untuk pelanggan/owner. ETA didahulukan, lalu identitas unit, lalu tahap. Sumber, umur dan
@@ -29,19 +30,19 @@ export function TrackingScreen() {
   const focused = useIsFocused();
   const now = useDemoNow(15_000);
   const order = useTovvQuery(['order', id], (a) => a.getOrder(id));
-  const t = useTovvQuery(['tracking', id], (a) => a.getTracking(id), { refetchInterval: focused ? 15_000 : false });
+  const track = useTovvQuery(['tracking', id], (a) => a.getTracking(id), { refetchInterval: focused ? 15_000 : false });
   const d = order.data;
-  const snap = t.data;
+  const snap = track.data;
 
   return (
     <Screen
       onRefresh={async () => {
-        await Promise.all([t.refetch(), order.refetch()]);
+        await Promise.all([track.refetch(), order.refetch()]);
       }}
       header={<DetailHeader serial={d ? `O-${d.summary.alias}` : undefined} title="Perjalanan" subtitle={d ? `${d.vehicle.label} · ${d.vehicle.plate}` : undefined} />}
       footer={<Button label="Dokumen & bukti pekerjaan" icon="file-document-multiple-outline" variant="secondary" onPress={() => router.push(`/order/${id}`)} />}
     >
-      {t.isPending || order.isPending ? <LoadingBlock label="Mengambil posisi terakhir…" /> : t.isError ? <ErrorBlock error={t.error} onRetry={() => void t.refetch()} /> : snap && d ? (
+      {track.isPending || order.isPending ? <LoadingBlock label="Mengambil posisi terakhir…" /> : track.isError ? <ErrorBlock error={track.error} onRetry={() => void track.refetch()} /> : snap && d ? (
         <>
           <Card>
             <StatusTag look={executionStatus[d.summary.status]} />
@@ -49,7 +50,7 @@ export function TrackingScreen() {
               <View style={styles.eta}>
                 <Txt variant="label" tone="inkSecondary">Perkiraan tiba</Txt>
                 <View style={styles.etaRow}>
-                  <Txt variant="figureLg" style={{ fontSize: 34, lineHeight: 40 }}>{`±${snap.eta.minutes} mnt`}</Txt>
+                  <Txt variant="figureLg" style={{ fontSize: 34, lineHeight: 40 }}>{t('±{0} mnt', [snap.eta.minutes])}</Txt>
                   <Txt variant="bodySm" tone="inkSecondary">{`sekitar ${formatTime(addMinutes(now, snap.eta.minutes))}`}</Txt>
                 </View>
                 <Txt variant="caption" tone="inkSecondary">{`${snap.eta.source}. ${snap.eta.warning}`}</Txt>
@@ -65,13 +66,13 @@ export function TrackingScreen() {
                 <Icon name={snap.freshness === 'stale' ? 'map-marker-alert-outline' : snap.source === 'device' ? 'crosshairs-gps' : 'play-box-outline'} size={20} tone={snap.freshness === 'stale' ? 'warnInk' : 'accentInk'} />
                 <View style={{ flex: 1 }}>
                   <Txt variant="bodyStrong" tone={snap.freshness === 'stale' ? 'warnInk' : 'ink'}>
-                    {snap.freshness === 'stale' ? 'Posisi lama — bukan posisi saat ini' : snap.source === 'device' ? 'Lokasi dari perangkat petugas' : 'Lokasi simulasi (rekaman perjalanan contoh)'}
+                    {snap.freshness === 'stale' ? 'Posisi lama — bukan posisi sekarang' : snap.source === 'device' ? 'Lokasi dari HP sopir' : 'Lokasi simulasi (rekaman perjalanan contoh)'}
                   </Txt>
                   <Txt variant="caption" tone="inkSecondary">
-                    {`Diperbarui ${snap.capturedAt ? formatAge(snap.capturedAt, now) : '—'} · ${snap.capturedAt ? formatDateTime(snap.capturedAt) : ''} · akurasi ${snap.accuracyM !== null ? `±${snap.accuracyM} m` : 'tidak diketahui'}`}
+                    {t('Diperbarui {0} · {1} · akurasi {2}', [snap.capturedAt ? formatAge(snap.capturedAt, now) : '—', snap.capturedAt ? formatDateTime(snap.capturedAt) : '', snap.accuracyM !== null ? `±${snap.accuracyM} m` : 'tidak diketahui'])}
                   </Txt>
                   {snap.freshness === 'stale' ? (
-                    <Txt variant="caption" tone="warnInk">Sinyal atau aplikasi petugas mungkin terputus. Diam bukan berarti kendaraan bermasalah; hubungi operator bila perlu.</Txt>
+                    <Txt variant="caption" tone="warnInk">Sinyal atau aplikasi sopir mungkin terputus. Posisi diam belum tentu ada masalah; hubungi operator kalau perlu.</Txt>
                   ) : null}
                 </View>
               </View>
@@ -87,13 +88,13 @@ export function TrackingScreen() {
             </>
           ) : null}
 
-          <SectionTitle title="Unit & petugas" />
+          <SectionTitle title="Unit & sopir" />
           <Card style={styles.unit}>
             <View style={styles.unitIcon}>
               <Icon name="tow-truck" size={26} tone="onHero" />
             </View>
             <View style={{ flex: 1 }}>
-              <Txt variant="bodyStrong">{`Unit ${d.summary.unitCode} · ${d.summary.driverName ?? 'petugas belum ditetapkan'}`}</Txt>
+              <Txt variant="bodyStrong">{t('Unit {0} · {1}', [d.summary.unitCode, d.summary.driverName ?? 'petugas belum ditetapkan'])}</Txt>
               <Txt variant="bodySm" tone="inkSecondary">{`${d.summary.pickup.label} → ${d.summary.dropoff.label}`}</Txt>
             </View>
           </Card>
@@ -103,7 +104,7 @@ export function TrackingScreen() {
             <StageLine entries={d.timeline} />
           </Card>
           <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.md }}>
-            Lokasi hanya dibagikan dari berangkat ke lokasi jemput sampai tiba di tujuan, dan berhenti saat serah-terima.
+            Lokasi hanya dibagikan sejak sopir berangkat ke titik jemput sampai tiba di tujuan, lalu berhenti saat serah-terima.
           </Txt>
         </>
       ) : null}

@@ -9,6 +9,7 @@ import { glideSpring, useReducedMotion } from '@/core/design/motion';
 import { Icon } from '@/components/ui/icon';
 import { useSession } from '@/data/api/provider';
 import type { ViewGroup } from '@/domain/types';
+import { t, tr } from '@/core/i18n';
 
 export interface TabDef {
   name: string;
@@ -40,7 +41,7 @@ export function RoleTabs({ view, tabs }: { view: ViewGroup; tabs: TabDef[] }) {
   const session = useSession();
   const insets = useSafeAreaInsets();
   const c = useColors();
-  if (!session) return <Redirect href="/mulai" />;
+  if (!session) return <Redirect href="/auth/login" />;
   if (session.view !== view) return <Redirect href={`/${session.view}`} />;
   return (
     <Tabs
@@ -60,17 +61,17 @@ export function RoleTabs({ view, tabs }: { view: ViewGroup; tabs: TabDef[] }) {
         animation: 'shift',
       }}
     >
-      {tabs.map((t) => (
+      {tabs.map((tab) => (
         <Tabs.Screen
-          key={t.name}
-          name={t.name}
+          key={tab.name}
+          name={tab.name}
           options={{
-            title: t.title,
-            href: t.hidden ? null : undefined,
-            tabBarBadge: t.badge ? t.badge : undefined,
+            title: tr(tab.title),
+            href: tab.hidden ? null : undefined,
+            tabBarBadge: tab.badge ? tab.badge : undefined,
             tabBarBadgeStyle: { backgroundColor: c.badge, fontSize: 11 },
-            tabBarAccessibilityLabel: t.badge ? `${t.title}, ${t.badge} perlu perhatian` : t.title,
-            tabBarIcon: ({ focused }) => <TabIcon icon={t.icon} focused={focused} />,
+            tabBarAccessibilityLabel: tab.badge ? t('{0}, {1} perlu perhatian', [tab.title, tab.badge]) : tab.title,
+            tabBarIcon: ({ focused }) => <TabIcon icon={tab.icon} focused={focused} />,
           }}
         />
       ))}

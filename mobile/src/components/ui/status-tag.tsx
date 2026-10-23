@@ -5,6 +5,7 @@ import { makeStyles, useColors } from '@/core/design/theme';
 import type { StatusLook, Tone } from '@/core/i18n/status';
 import { Txt } from './txt';
 import { Icon } from './icon';
+import { t } from '@/core/i18n';
 
 const TONE: Record<Tone, { ink: ColorToken; wash: ColorToken }> = {
   ok: { ink: 'okInk', wash: 'okWash' },
@@ -21,21 +22,21 @@ const TONE: Record<Tone, { ink: ColorToken; wash: ColorToken }> = {
 export function StatusTag({ look, size = 'md', label }: { look: StatusLook; size?: 'sm' | 'md'; label?: string }) {
   const c = useColors();
   const s = useStyles();
-  const t = TONE[look.tone];
+  const tn = TONE[look.tone];
   const text = label ?? look.label;
   return (
     <View
       accessible
       accessibilityRole="text"
-      accessibilityLabel={`Status: ${text}${look.line === 'dashed' ? ', belum final' : look.line === 'struck' ? ', tidak berlaku' : ''}`}
+      accessibilityLabel={t('Status: {0}{1}', [text, look.line === 'dashed' ? ', belum final' : look.line === 'struck' ? ', tidak berlaku' : ''])}
       style={[
         s.tag,
         size === 'sm' && s.sm,
-        { backgroundColor: c[t.wash], borderColor: look.line === 'solid' ? c[t.wash] : c[t.ink], borderStyle: look.line === 'dashed' ? 'dashed' : 'solid' },
+        { backgroundColor: c[tn.wash], borderColor: look.line === 'solid' ? c[tn.wash] : c[tn.ink], borderStyle: look.line === 'dashed' ? 'dashed' : 'solid' },
       ]}
     >
-      <Icon name={look.icon} size={size === 'sm' ? 13 : 15} tone={t.ink} />
-      <Txt variant={size === 'sm' ? 'caption' : 'bodySm'} tone={t.ink} strike={look.line === 'struck'} style={s.text} numberOfLines={2}>
+      <Icon name={look.icon} size={size === 'sm' ? 13 : 15} tone={tn.ink} />
+      <Txt variant={size === 'sm' ? 'caption' : 'bodySm'} tone={tn.ink} strike={look.line === 'struck'} style={s.text} numberOfLines={2}>
         {text}
       </Txt>
     </View>

@@ -13,6 +13,7 @@ import { useTovvQuery } from '@/data/api/hooks';
 import type { MediaItem } from '@/data/api/contract';
 import { locationSourceLabel, mediaStatus, outboxStatus, stageLabel } from '@/core/i18n/status';
 import { formatDateTime } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 function Meta({ m }: { m: MediaItem }) {
   return (
@@ -24,7 +25,7 @@ function Meta({ m }: { m: MediaItem }) {
       <LineItem label="Asal" value={<Txt variant="bodySm">{m.synthetic ? 'Foto contoh SIMULASI (bukan kamera)' : m.captureOrigin === 'camera' ? 'Kamera aplikasi' : 'Impor galeri'}</Txt>} />
       <LineItem label="Waktu kejadian" value={<Txt variant="bodySm">{m.eventAt ? formatDateTime(m.eventAt) : 'Tidak diketahui'}</Txt>} />
       <LineItem label="Jam perangkat saat ambil" value={<Txt variant="bodySm">{m.deviceCapturedAt ? formatDateTime(m.deviceCapturedAt) : '—'}</Txt>} />
-      <LineItem label="Diterima server" value={<Txt variant="bodySm">{m.serverReceivedAt ? formatDateTime(m.serverReceivedAt) : 'Belum (tersimpan di ponsel)'}</Txt>} />
+      <LineItem label="Diterima server" value={<Txt variant="bodySm">{m.serverReceivedAt ? formatDateTime(m.serverReceivedAt) : 'Belum (masih di HP)'}</Txt>} />
       <LineItem label="Lokasi" hint={locationSourceLabel[m.locationSource]} value={<Txt variant="bodySm">{m.latitude !== null && m.longitude !== null ? `${m.latitude.toFixed(5)}, ${m.longitude.toFixed(5)}${m.accuracyM ? ` ±${m.accuracyM} m` : ''}` : 'Tidak tersedia'}</Txt>} />
       <LineItem label="Pengunggah" value={<Txt variant="bodySm">{m.uploaderName}</Txt>} />
       {m.md5 ? <LineItem label="Hash original (MD5)" hint="Memeriksa file sama, bukan kebenaran kejadian" value={<Txt variant="mono">{m.md5.slice(0, 12)}…</Txt>} /> : null}
@@ -40,7 +41,7 @@ export function EvidenceScreen() {
   const q = useTovvQuery(['order', id], (a) => a.getOrder(id));
   const tile = Math.min(220, (width - space.lg * 2 - space.md) / 2);
   return (
-    <Screen header={<DetailHeader serial={q.data ? `O-${q.data.summary.alias}` : undefined} title="Bukti foto" subtitle="Original privat · overlay untuk dibagikan" />}>
+    <Screen header={<DetailHeader serial={q.data ? `O-${q.data.summary.alias}` : undefined} title="Bukti foto" subtitle="Foto asli privat · versi bertulisan untuk dibagikan" />}>
       <QueryView q={q}>
         {(d) => {
           if (!d.media.length) return <EmptyBlock icon="image-off-outline" title="Belum ada bukti" />;
@@ -54,8 +55,8 @@ export function EvidenceScreen() {
                 <>
                   <SectionTitle title="Bandingkan sebelum dan sesudah" />
                   <View style={styles.compare}>
-                    <PhotoTile item={pickup[0]!} label={`Sebelum dimuat · ${pickup[0]!.slot}`} size={tile} />
-                    <PhotoTile item={delivery[0]!} label={`Serah-terima · ${delivery[0]!.slot}`} size={tile} />
+                    <PhotoTile item={pickup[0]!} label={t('Sebelum dimuat · {0}', [pickup[0]!.slot])} size={tile} />
+                    <PhotoTile item={delivery[0]!} label={t('Serah-terima · {0}', [delivery[0]!.slot])} size={tile} />
                   </View>
                 </>
               ) : null}

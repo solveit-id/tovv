@@ -13,6 +13,7 @@ import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { useTovvMutation, useTovvQuery } from '@/data/api/hooks';
 import type { StatusLook } from '@/core/i18n/status';
 import { formatDateTime } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 const LOOK: Record<string, StatusLook> = {
   active: { label: 'Aktif', tone: 'warn', line: 'solid', icon: 'account-eye-outline' },
@@ -33,9 +34,9 @@ export function SupportAccessScreen() {
   const approve = useTovvMutation((a, _: void) => a.approveSupportGrant(scope === 'both' ? ['trips.read', 'location.read'] : [scope], Number(hours), reason), { success: 'Akses dukungan disetujui dan berakhir otomatis.', onSuccess: () => setOpen(false) });
   const revoke = useTovvMutation((a, id: string) => a.revokeSupportGrant(id), { success: 'Akses dicabut; permintaan berikutnya ditolak.' });
   return (
-    <Screen header={<DetailHeader title="Akses dukungan Solveit" subtitle="ADMIN STUB · integrasi aktual BLOCKED" />} footer={<Button label="Setujui akses sementara" icon="shield-account-outline" size="lg" onPress={() => setOpen(true)} />}>
+    <Screen header={<DetailHeader title="Akses dukungan Solveit" subtitle="Contoh tampilan · belum tersambung ke sistem Solveit" />} footer={<Button label="Setujui akses sementara" icon="shield-account-outline" size="lg" onPress={() => setOpen(true)} />}>
       <Card style={{ marginBottom: space.md }}>
-        <Txt variant="bodySm">Staf platform hanya melihat ringkasan kesehatan dan pemakaian tanpa izin khusus. Detail perjalanan atau lokasi memerlukan persetujuan owner dengan cakupan dan masa berlaku; semua akses tercatat.</Txt>
+        <Txt variant="bodySm">Tim Solveit hanya melihat ringkasan kesehatan dan pemakaian aplikasi. Detail perjalanan atau lokasi baru bisa dilihat setelah owner menyetujui, dengan cakupan dan batas waktu; semua akses dicatat.</Txt>
       </Card>
       <QueryView q={q}>
         {(list) =>
@@ -60,7 +61,7 @@ export function SupportAccessScreen() {
       <BottomSheet visible={open} title="Setujui akses dukungan" onClose={() => setOpen(false)} footer={<Button label="Setujui" loading={approve.isPending} onPress={() => approve.mutate(undefined)} />}>
         <Choice label="Cakupan" value={scope} onChange={setScope} options={[{ value: 'trips.read', label: 'Detail perjalanan' }, { value: 'location.read', label: 'Lokasi perjalanan' }, { value: 'both', label: 'Keduanya' }]} />
         <Choice label="Masa berlaku" value={hours} onChange={setHours} options={[{ value: '1', label: '1 jam' }, { value: '2', label: '2 jam' }, { value: '8', label: '8 jam' }]} />
-        <Field label="Alasan" value={reason} onChangeText={setReason} placeholder="mis. memeriksa sinkronisasi A06" />
+        <Field label="Alasan" value={reason} onChangeText={setReason} placeholder={t('mis. memeriksa sinkronisasi A06')} />
       </BottomSheet>
     </Screen>
   );

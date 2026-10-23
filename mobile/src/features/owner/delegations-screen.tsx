@@ -18,14 +18,15 @@ import type { DelegationScope } from '@/domain/types';
 import type { StatusLook } from '@/core/i18n/status';
 import { formatDateTime } from '@/core/format/time';
 import { formatRupiah } from '@/core/format/money';
+import { t } from '@/core/i18n';
 
 const SCOPES: { value: DelegationScope; label: string; hint: string }[] = [
-  { value: 'quote.send', label: 'Kirim penawaran', hint: 'Harga ≥ target dengan biaya lengkap' },
+  { value: 'quote.send', label: 'Kirim penawaran', hint: 'Harga di atas target dan biaya lengkap' },
   { value: 'quote.override_within_limit', label: 'Diskon dalam batas', hint: 'Sampai batas nominal di bawah target' },
-  { value: 'assignment.manage', label: 'Atur penugasan', hint: 'Tawarkan/alihkan petugas' },
+  { value: 'assignment.manage', label: 'Atur penugasan', hint: 'Tawarkan/pindahkan sopir' },
   { value: 'expense.approve', label: 'Setujui biaya', hint: 'Biaya aktual dan uang jalan' },
   { value: 'invoice.issue', label: 'Terbitkan invoice', hint: 'Dari penawaran disetujui' },
-  { value: 'payment.verify', label: 'Periksa pembayaran', hint: 'Hanya bila owner memberi izin finance' },
+  { value: 'payment.verify', label: 'Periksa pembayaran', hint: 'Hanya bila owner memberi akses keuangan' },
 ];
 
 const STATUS: Record<string, StatusLook> = {
@@ -41,7 +42,7 @@ export function DelegationsScreen() {
   const api = useApi();
   const q = useTovvQuery(['delegations'], (a) => a.listDelegations());
   const admins = useTovvQuery(['admins'], (a) => a.listAdmins());
-  const revoke = useTovvMutation((a, id: string) => a.revokeDelegation(id), { success: 'Delegasi dicabut; tindakan berikutnya admin ditolak.' });
+  const revoke = useTovvMutation((a, id: string) => a.revokeDelegation(id), { success: 'Delegasi dicabut; tindakan berikutnya dari penerima delegasi akan ditolak.' });
   const [open, setOpen] = useState(false);
   const [delegate, setDelegate] = useState('');
   const [scopes, setScopes] = useState<DelegationScope[]>(['quote.send', 'quote.override_within_limit', 'assignment.manage']);
@@ -89,7 +90,7 @@ export function DelegationsScreen() {
           ) : <EmptyBlock icon="account-key-outline" title="Belum ada delegasi" />
         }
       </QueryView>
-      <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.md }}>Server memeriksa ulang izin saat setiap tindakan dicatat; delegasi tidak memberi izin rekening, grant akses, atau delegasi lanjutan.</Txt>
+      <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.md }}>Server tetap mengecek izin setiap kali ada tindakan; delegasi tidak memberi akses rekening, akses dukungan, atau hak mendelegasikan lagi.</Txt>
       <BottomSheet visible={open} title="Beri delegasi" onClose={() => setOpen(false)} footer={<>{err ? <Txt variant="bodySm" tone="dangerInk">{err}</Txt> : null}<Button label="Simpan delegasi" loading={busy} onPress={() => void grant()} /></>}>
         <Choice label="Penerima" value={delegate} onChange={setDelegate} options={(admins.data ?? []).map((a) => ({ value: a.id, label: `${a.name} (${a.role})` }))} />
         <Txt variant="label" tone="inkSecondary">Izin</Txt>
@@ -106,7 +107,7 @@ export function DelegationsScreen() {
         </View>
         <MoneyField label="Batas diskon dari target" value={limit} onChange={setLimit} />
         <Choice label="Masa berlaku" value={hours} onChange={setHours} options={[{ value: '2', label: '2 jam' }, { value: '4', label: '4 jam' }, { value: '8', label: '8 jam (maksimum demo)' }]} />
-        <Field label="Alasan" value={reason} onChangeText={setReason} placeholder="mis. owner mengemudi A06" />
+        <Field label="Alasan" value={reason} onChangeText={setReason} placeholder={t('mis. owner mengemudi A06')} />
       </BottomSheet>
     </Screen>
   );

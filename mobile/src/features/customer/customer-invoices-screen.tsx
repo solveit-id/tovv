@@ -14,6 +14,7 @@ import { EmptyBlock, QueryView } from '@/components/ui/states';
 import { useTovvQuery } from '@/data/api/hooks';
 import { collectionStatus } from '@/core/i18n/status';
 import { formatLocalDate } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 /** Tagihan pelanggan: invoice milik sendiri atau organisasi (finance/approver B2B). Pemesan B2B tidak melihat tagihan. */
 export function CustomerInvoicesScreen() {
@@ -25,9 +26,9 @@ export function CustomerInvoicesScreen() {
   const q = useTovvQuery(['invoices', 'all'], (a) => a.listInvoices('all'));
   const b2bNoFinance = !!s.data?.businessAccountName && !s.data.b2bRoles.includes('finance');
   return (
-    <Screen headerScrolls onRefresh={() => qc.invalidateQueries()} header={<RootHeader title="Tagihan" subtitle="Dokumen DEMO · tidak dapat dibayar sungguhan" />}>
+    <Screen headerScrolls onRefresh={() => qc.invalidateQueries()} header={<RootHeader title="Tagihan" subtitle="Dokumen DEMO · tidak bisa dibayar sungguhan" />}>
       {b2bNoFinance ? (
-        <Card><EmptyBlock icon="account-lock-outline" title="Tagihan organisasi tidak tampil untuk pemesan" body="Finance/approver organisasi Anda yang melihat dan menindaklanjuti tagihan." /></Card>
+        <Card><EmptyBlock icon="account-lock-outline" title="Tagihan organisasi tidak tampil untuk pemesan" body="Tagihan dilihat dan diurus oleh bagian keuangan atau penyetuju organisasi Anda." /></Card>
       ) : (
         <Card padded={false}>
           <QueryView q={q}>
@@ -37,8 +38,8 @@ export function CustomerInvoicesScreen() {
                   <View style={{ flex: 1, gap: 4 }}>
                     <Serial>{inv.number}</Serial>
                     <StatusTag look={collectionStatus[inv.collection]} size="sm" />
-                    <Txt variant="caption" tone={inv.overdueDays ? 'dangerInk' : 'inkSecondary'}>{`${inv.alias} · jatuh tempo ${formatLocalDate(inv.dueDate)}${inv.overdueDays ? ` · lewat ${inv.overdueDays} hari` : ''}`}</Txt>
-                    {inv.proofs.some((p) => p.status === 'pending_review' || p.status === 'flagged_review') ? <Txt variant="caption" tone="warnInk">Bukti Anda sedang diperiksa</Txt> : null}
+                    <Txt variant="caption" tone={inv.overdueDays ? 'dangerInk' : 'inkSecondary'}>{t('{0} · jatuh tempo {1}{2}', [inv.alias, formatLocalDate(inv.dueDate), inv.overdueDays ? ` · lewat ${inv.overdueDays} hari` : ''])}</Txt>
+                    {inv.proofs.some((p) => p.status === 'pending_review' || p.status === 'flagged_review') ? <Txt variant="caption" tone="warnInk">Bukti bayar Anda sedang dicek</Txt> : null}
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
                     <Txt variant="caption" tone="inkSecondary">Sisa</Txt>
@@ -46,7 +47,7 @@ export function CustomerInvoicesScreen() {
                   </View>
                   <Icon name="chevron-right" tone="inkSecondary" />
                 </Pressable>
-              )) : <EmptyBlock icon="file-document-outline" title="Belum ada tagihan" body="Tagihan terbit setelah serah-terima." />
+              )) : <EmptyBlock icon="file-document-outline" title="Belum ada tagihan" body="Tagihan muncul setelah kendaraan diserahkan." />
             }
           </QueryView>
         </Card>

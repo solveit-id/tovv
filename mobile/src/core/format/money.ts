@@ -1,8 +1,9 @@
 import type { MoneyString, Rupiah } from '@/domain/types';
+import { t } from '@/core/i18n';
 
 /** Uang adalah integer rupiah. Fungsi ini menolak nilai pecahan agar float tidak bocor ke tampilan. */
 export function assertRupiah(value: number): Rupiah {
-  if (!Number.isSafeInteger(value)) throw new Error(`Nominal bukan integer rupiah: ${value}`);
+  if (!Number.isSafeInteger(value)) throw new Error(t('Nominal bukan integer rupiah: {0}', [value]));
   return value;
 }
 
@@ -11,7 +12,7 @@ export function toMoneyString(value: Rupiah): MoneyString {
 }
 
 export function parseMoneyString(value: MoneyString): Rupiah {
-  if (!/^-?\d+$/.test(value)) throw new Error(`Format uang tidak valid: ${value}`);
+  if (!/^-?\d+$/.test(value)) throw new Error(t('Format uang tidak valid: {0}', [value]));
   return assertRupiah(Number(value));
 }
 
