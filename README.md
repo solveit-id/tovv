@@ -4,7 +4,7 @@ Aplikasi Android dan iOS untuk usaha derek/pengangkutan kendaraan: permintaan le
 
 Dimiliki, dikembangkan, dan diterbitkan oleh **Solveit Indonesia**.
 
-> **Status: prototype tahap frontend.** Semua data sintetis dan berlabel *DEMO — SIMULASI FRONTEND*. Login, posisi truk di peta, dan pembayaran masih simulasi. Backend Laravel, otorisasi server, transaksi atomik, realtime, dan integrasi nyata belum dibangun. Tidak ada uang nyata, gateway, atau QRIS live.
+> **Status: prototype tahap frontend.** Semua data sintetis dan berlabel *DEMO — SIMULASI FRONTEND*. Login, posisi truk di peta, dan pembayaran masih simulasi; pencarian alamat memakai layanan peta bawaan HP dan alamatnya hanya tersimpan di HP. Backend Laravel, otorisasi server, transaksi atomik, realtime, dan integrasi nyata belum dibangun. Tidak ada uang nyata, gateway, atau QRIS live.
 
 ## Isi repository
 
@@ -26,7 +26,7 @@ npm test              # uji domain, oracle F-09, alur adapter demo, terjemahan
 npm run start:go      # buka di HP lewat Expo Go (iPhone dan Android)
 ```
 
-Masuk dengan akun demo (ketuk Owner/Driver/Pelanggan di halaman Masuk; kata sandi `demo1234`). Rincian, termasuk development build Android: [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
+Masuk dengan akun demo (ketuk Owner/Driver/Pelanggan di halaman Masuk; kata sandi `demo1234`). Owner bisa berpindah ke mode driver dari kartu "Masuk mode driver" di beranda; pelanggan memesan lewat "Jemput di mana?". Rincian, termasuk development build Android: [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
 
 ## Alur Git
 

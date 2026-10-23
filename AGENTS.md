@@ -53,6 +53,9 @@ Jalankan typecheck, lint, dan tes sebelum menyatakan pekerjaan selesai.
 - Biaya yang belum ada adalah `null`, bukan `0`. Kontribusi bukan laba bersih.
 - Status selalu tampil dengan teks + ikon + bentuk garis (utuh/putus-putus/coret), bukan warna saja (`mobile/src/core/i18n/status.ts`).
 - Token desain di `mobile/src/core/design/tokens.ts` (palet terang dan gelap berkunci sama). Layar membaca warna lewat `useColors()` / `makeStyles()` dari `core/design/theme.tsx`, tidak pernah hex mentah. Satu keluarga ikon: MaterialCommunityIcons.
+- Mode driver memakai palet `field` (header biru-arang + aksen kuning) lewat `ThemeModeScope`; penanda mode memakai token `modeAccent*` atau `Button variant="mode"`, bukan warna langsung. Ilustrasi unit derek hanya dari `components/brand/tow-truck.tsx`.
+- Saat memuat, tampilkan kerangka berbentuk isi (`QueryView skeleton=…`) atau `TowLoader`, bukan spinner kosong. Jangan menghitung animasi per kartu dari posisi gulir.
+- Pencarian alamat memakai layanan peta bawaan HP (expo-location); tidak ada geocoding/peta berbayar tanpa keputusan pengguna (DEC-08).
 - Dua bahasa: teks sumber bahasa Indonesia di kode; terjemahan Inggris di `mobile/src/core/i18n/en.ts`. Teks dinamis pakai `t('… {0}', [nilai])`; label aksesibilitas pakai `tr()`. Setiap teks baru wajib diberi entri bahasa Inggris. Logika tidak boleh bergantung pada isi teks yang diterjemahkan.
 - Teks antarmuka ditulis seperti orang berbicara: singkat, jelas, tanpa istilah teknis internal.
 - Route di `mobile/src/app/` tetap tipis dan meneruskan layar dari `mobile/src/features/`.
