@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Pressable, TextInput, View } from 'react-native';
+import { Pressable, View, type TextInputInstance } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { radius, space } from '@/core/design/tokens';
@@ -34,7 +34,7 @@ export function LoginScreen() {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const passRef = useRef<TextInput>(null);
+  const passRef = useRef<TextInputInstance>(null);
 
   const submit = async () => {
     if (!email.trim() || !password) {

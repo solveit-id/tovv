@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { View } from 'react-native';
+import { View, type ViewInstance } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useRouter, type Href } from 'expo-router';
 import { radius, space, cardChrome, type ColorToken } from '@/core/design/tokens';
@@ -29,7 +29,7 @@ export function ActionItem({ item, index = 0 }: { item: DailyAction; index?: num
   const s = useStyles();
   const c = useColors();
   const entering = useEnter(index);
-  const revealRef = useRef<View>(null);
+  const revealRef = useRef<ViewInstance>(null);
   const reveal = useScrollReveal(revealRef);
   const sev = SEVERITY[item.severity];
   return (

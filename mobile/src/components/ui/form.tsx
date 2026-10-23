@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Switch, TextInput, View, type KeyboardTypeOptions, type LayoutChangeEvent } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Switch, TextInput, View, type KeyboardTypeOptions, type LayoutChangeEvent, type TextInputInstance } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { radius, space, touch, type } from '@/core/design/tokens';
 import { makeStyles, useColors, useTheme } from '@/core/design/theme';
@@ -29,7 +29,7 @@ export interface FieldProps {
   autoComplete?: React.ComponentProps<typeof TextInput>['autoComplete'];
   returnKeyType?: React.ComponentProps<typeof TextInput>['returnKeyType'];
   onSubmitEditing?: () => void;
-  inputRef?: React.Ref<TextInput>;
+  inputRef?: React.Ref<TextInputInstance>;
 }
 
 /** Kolom isian: label di atas, kotak membulat; fokus = garis biru 2 dp yang menyala halus. */

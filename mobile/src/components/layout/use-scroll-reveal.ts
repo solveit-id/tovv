@@ -1,5 +1,5 @@
 import { useCallback, type RefObject } from 'react';
-import { useWindowDimensions, type View } from 'react-native';
+import { useWindowDimensions, type ViewInstance } from 'react-native';
 import { Extrapolation, interpolate, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useReducedMotion } from '@/core/design/motion';
 import { useScrollState } from './scroll-context';
@@ -9,7 +9,7 @@ import { useScrollState } from './scroll-context';
  * layar, lalu diam. Elemen yang sudah terlihat saat layar dibuka tidak dianimasikan (tidak pernah
  * tersembunyi). Dihitung di UI thread dari posisi gulir; tanpa efek saat "kurangi gerakan".
  */
-export function useScrollReveal(ref: RefObject<View | null>) {
+export function useScrollReveal(ref: RefObject<ViewInstance | null>) {
   const scroll = useScrollState();
   const reduced = useReducedMotion();
   const { height } = useWindowDimensions();

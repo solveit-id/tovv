@@ -8,6 +8,11 @@ import { formatRupiah } from '@/core/format/money';
 jest.mock('@expo/vector-icons', () => ({ MaterialCommunityIcons: () => null }));
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 jest.mock('react-native-worklets', () => require('react-native-worklets/src/mock'));
+// Reanimated 4.7.1: inisialisasi memanggil setCSSEventHandler yang melempar di mode JS (Jest).
+jest.mock('react-native-reanimated/src/css/native/proxy', () => ({
+  ...jest.requireActual('react-native-reanimated/src/css/native/proxy'),
+  setCSSEventHandler: () => {},
+}));
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 
