@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { Extrapolation, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { radius, space, touch, type ColorToken } from '@/core/design/tokens';
-import { makeStyles } from '@/core/design/theme';
+import { makeStyles, useTheme } from '@/core/design/theme';
 import { useReducedMotion } from '@/core/design/motion';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
@@ -37,29 +37,39 @@ export function HeaderIconButton({ icon, label, onPress, badge, tone = 'onHero' 
 
 /**
  * Header akar tab: gradien biru merek dengan judul besar (atau wordmark), konteks dan tindakan.
- * Saat digulir, latarnya bergerak setengah kecepatan (parallax) dan isinya memudar; saat ditarik ke bawah
+ * Saat digulir, latarnya bergerak sedikit lebih lambat (parallax) dan isinya memudar; saat ditarik ke bawah
  * latarnya meregang. `overlap` memberi ruang untuk kartu ringkasan yang menimpa tepi bawah header.
  */
-export function RootHeader({ title, subtitle, right, children, overlap }: { title?: string; subtitle?: string; right?: React.ReactNode; children?: React.ReactNode; overlap?: boolean }) {
+export function RootHeader({ title, subtitle, right, children, overlap, chip }: {
+  title?: string;
+  subtitle?: string;
+  right?: React.ReactNode;
+  children?: React.ReactNode;
+  overlap?: boolean;
+  /** Pil keadaan di bawah subjudul, mis. "Mode driver". Bukan judul kecil di atas judul. */
+  chip?: { icon: string; label: string };
+}) {
   const s = useStyles();
+  const { mode } = useTheme();
   const scroll = useScrollState();
   const reduced = useReducedMotion();
+  const chipInk = mode === 'field' ? 'onModeAccent' : 'onHero';
 
   const bgStyle = useAnimatedStyle(() => {
     if (!scroll?.hero || reduced) return {};
     const y = scroll.y.value;
     const h = Math.max(1, scroll.heroH.value);
     return {
-      // Gulir naik: latar setengah kecepatan. Tarik turun: latar meregang menutup celah di atasnya.
-      transform: [{ translateY: y * 0.5 }, { scale: y < 0 ? 1 + -y / h : 1 }],
+      // Gulir naik: latar sedikit lebih lambat dari isi. Tarik turun: latar meregang menutup celah di atasnya.
+      transform: [{ translateY: y > 0 ? y * 0.4 : 0 }, { scale: y < 0 ? 1 + -y / h : 1 }],
     };
   });
   const contentStyle = useAnimatedStyle(() => {
     if (!scroll?.hero || reduced) return {};
     const y = scroll.y.value;
     return {
-      opacity: interpolate(y, [0, 140], [1, 0], Extrapolation.CLAMP),
-      transform: [{ translateY: interpolate(y, [0, 140], [0, 28], Extrapolation.CLAMP) }],
+      opacity: interpolate(y, [0, 120], [1, 0], Extrapolation.CLAMP),
+      transform: [{ translateY: interpolate(y, [0, 120], [0, 12], Extrapolation.CLAMP) }],
     };
   });
 
@@ -84,6 +94,12 @@ export function RootHeader({ title, subtitle, right, children, overlap }: { titl
               </View>
             )}
             {subtitle ? <Txt variant="bodySm" tone="onHeroSecondary" numberOfLines={2}>{subtitle}</Txt> : null}
+            {chip ? (
+              <View style={s.chip} accessibilityRole="text">
+                <Icon name={chip.icon} size={14} tone={chipInk} />
+                <Txt variant="caption" tone={chipInk} bold maxFontSizeMultiplier={1.3}>{chip.label}</Txt>
+              </View>
+            ) : null}
           </View>
           <View style={s.actions}>{right}</View>
         </View>
@@ -109,9 +125,10 @@ export function DetailHeader({ title, subtitle, right, serial }: { title: string
   );
 }
 
-const useStyles = makeStyles((c) => ({
+const useStyles = makeStyles((c, _scheme, mode) => ({
   root: { overflow: 'hidden', borderBottomLeftRadius: radius.xxl, borderBottomRightRadius: radius.xxl },
   overlap: { paddingBottom: 56 },
+  chip: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', gap: 4, marginTop: space.xs, paddingHorizontal: 10, paddingVertical: 3, borderRadius: radius.pill, backgroundColor: mode === 'field' ? c.modeAccent : c.heroChip },
   inner: { paddingHorizontal: space.lg, paddingTop: space.lg, paddingBottom: space.xl, gap: space.lg },
   rootRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space.md },
   actions: { flexDirection: 'row', alignItems: 'center', gap: space.sm },

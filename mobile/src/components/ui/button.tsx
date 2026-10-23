@@ -8,7 +8,7 @@ import { PressableScale } from './pressable-scale';
 import { Txt } from './txt';
 import { Icon } from './icon';
 
-type Variant = 'primary' | 'secondary' | 'quiet' | 'danger' | 'onHero';
+type Variant = 'primary' | 'secondary' | 'quiet' | 'danger' | 'onHero' | 'mode';
 
 export interface ButtonProps {
   label: string;
@@ -30,17 +30,19 @@ const INK: Record<Variant, ColorToken> = {
   quiet: 'accentInk',
   danger: 'dangerInk',
   onHero: 'onHero',
+  mode: 'onModeAccent',
 };
 
 /**
  * Tombol: primary terisi biru merek (dengan bayangan lembut), secondary tonal, quiet teks saja,
- * danger tonal merah, onHero untuk di atas header gradien. Tekan = turun skala di UI thread.
+ * danger tonal merah, onHero untuk di atas header gradien, mode = warna mode aktif (kuning di mode driver).
+ * Tekan = turun skala di UI thread.
  */
 export function Button({ label, onPress, variant = 'primary', icon, loading, disabled, size = 'md', accessibilityHint, style, compact }: ButtonProps) {
   const c = useColors();
   const s = useStyles();
   const inactive = disabled || loading;
-  const fg: ColorToken = inactive && variant !== 'primary' ? 'inkMuted' : INK[variant];
+  const fg: ColorToken = inactive && variant !== 'primary' && variant !== 'mode' ? 'inkMuted' : inactive && variant === 'mode' ? 'onAccent' : INK[variant];
   return (
     <PressableScale
       depth="subtle"
@@ -50,7 +52,7 @@ export function Button({ label, onPress, variant = 'primary', icon, loading, dis
       accessibilityState={{ disabled: !!inactive, busy: !!loading }}
       disabled={inactive}
       onPress={() => {
-        if (variant === 'primary' && size === 'lg') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        if ((variant === 'primary' || variant === 'mode') && size === 'lg') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         onPress();
       }}
       hitSlop={compact ? 6 : 0}
@@ -59,13 +61,13 @@ export function Button({ label, onPress, variant = 'primary', icon, loading, dis
         size === 'lg' && s.lg,
         compact && s.compact,
         s[variant],
-        inactive && (variant === 'primary' ? s.primaryOff : s.off),
+        inactive && (variant === 'primary' || variant === 'mode' ? s.primaryOff : s.off),
         style,
       ]}
     >
       <View style={s.row}>
         {loading ? (
-          <ActivityIndicator color={variant === 'primary' ? c.onAccent : c.accentInk} size="small" />
+          <ActivityIndicator color={variant === 'primary' ? c.onAccent : variant === 'mode' ? c.onModeAccent : c.accentInk} size="small" />
         ) : icon ? (
           <Icon name={icon} size={size === 'lg' ? 22 : 18} tone={fg} />
         ) : null}
@@ -88,6 +90,7 @@ const useStyles = makeStyles((c) => ({
   lg: { minHeight: 56, paddingVertical: space.md, borderRadius: radius.lg },
   compact: { minHeight: 40, paddingHorizontal: space.md, borderRadius: radius.pill },
   primary: { backgroundColor: c.accent, ...elevation(1, c) },
+  mode: { backgroundColor: c.modeAccent, ...elevation(1, c) },
   secondary: { backgroundColor: c.accentSoft },
   quiet: { backgroundColor: 'transparent' },
   danger: { backgroundColor: c.dangerWash },

@@ -21,7 +21,7 @@ export function PaymentRequestScreen() {
   const q = useTovvQuery(['payment-request', id], (a) => a.getPaymentRequest(id));
   return (
     <Screen header={<DetailHeader serial={q.data?.reference} title="Permintaan pembayaran" subtitle={q.data?.invoiceNumber} />} footer={q.data ? <Button label="Buka invoice" size="lg" onPress={() => router.replace(`/invoice/${q.data.invoiceId}`)} /> : null}>
-      <QueryView q={q}>
+      <QueryView q={q} skeleton="detail">
         {(pr) => (
           <>
             <Card>

@@ -101,7 +101,7 @@ export function OrderDetailScreen() {
       }
       footer={footer}
     >
-      {q.isPending ? <LoadingBlock /> : q.isError ? <ErrorBlock error={q.error} onRetry={() => void q.refetch()} /> : d ? (
+      {q.isPending ? <LoadingBlock kind="detail" /> : q.isError ? <ErrorBlock error={q.error} onRetry={() => void q.refetch()} /> : d ? (
         <>
           <TripDocument d={d} />
           <OrderAlerts

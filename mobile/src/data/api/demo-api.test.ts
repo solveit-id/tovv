@@ -401,3 +401,37 @@ describe('peta langsung per peran', () => {
     expect(m.units).toHaveLength(1);
   });
 });
+
+describe('pemilih lokasi: buku tempat', () => {
+  it('pelanggan mendapat tempat contoh dan lokasi terakhir dari permintaannya sendiri, tanpa alamat ganda', async () => {
+    const { api, as } = setup();
+    as('customer-a1', 'customer');
+    const book = await api.getPlaceBook();
+    expect(book.saved.length).toBeGreaterThan(0);
+    const addresses = book.recent.map((p) => p.address);
+    expect(new Set(addresses).size).toBe(addresses.length);
+    expect(book.recent.length).toBeLessThanOrEqual(5);
+  });
+
+  it('akun bisnis melihat rute favoritnya sebagai tempat tersimpan', async () => {
+    const { api, as } = setup();
+    as('ba1-req', 'customer');
+    const book = await api.getPlaceBook();
+    expect(book.saved.some((x) => x.kind === 'route')).toBe(true);
+  });
+
+  it('alamat tanpa titik peta dan patokan untuk sopir tersimpan apa adanya', async () => {
+    const { api, as } = setup();
+    as('admin-a1', 'admin');
+    const req = await api.createRequest({
+      ...newPhoneRequest,
+      idempotencyKey: 'place-note-1',
+      pickup: { label: 'Jl. Contoh Tanpa Titik 5', address: 'Jl. Contoh Tanpa Titik 5', lat: null, lng: null, note: 'depan minimarket' },
+    });
+    const detail = await api.getRequest(req.id);
+    expect(detail.pickup.lat).toBeNull();
+    expect(detail.pickup.note).toBe('depan minimarket');
+    const book = await api.getPlaceBook();
+    expect(book.recent.some((p) => p.note === 'depan minimarket')).toBe(true);
+  });
+});

@@ -1,14 +1,14 @@
 import { tr } from '@/core/i18n';
-import React, { useMemo, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, RefreshControl, StyleSheet, View, type ViewStyle, type ViewInstance } from 'react-native';
-import Animated, { Extrapolation, ZoomIn, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import React, { useEffect, useMemo, useState } from 'react';
+import { KeyboardAvoidingView, Platform, RefreshControl, StyleSheet, View, type ViewStyle } from 'react-native';
+import Animated, { Extrapolation, FadeIn, interpolate, useAnimatedRef, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { radius, space, elevation } from '@/core/design/tokens';
 import { makeStyles, useColors } from '@/core/design/theme';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import { PressableScale } from '@/components/ui/pressable-scale';
-import { useReducedMotion } from '@/core/design/motion';
+import { easeOut, useReducedMotion } from '@/core/design/motion';
 import { Wordmark } from '@/components/brand/wordmark';
 import { HeroBackground } from './hero-background';
 import { ScrollContext } from './scroll-context';
@@ -37,6 +37,7 @@ export function Screen({
   contentStyle,
   headerScrolls = false,
   fab,
+  scrollKey,
 }: {
   header?: React.ReactNode;
   children: React.ReactNode;
@@ -47,15 +48,20 @@ export function Screen({
   headerScrolls?: boolean;
   /** Aksi utama mengambang (extended FAB) di atas tab bar; label menyusut jadi ikon saat menggulir turun. */
   fab?: { label: string; icon: string; onPress: () => void; accessibilityHint?: string };
+  /** Bila nilainya berubah (mis. langkah formulir), isi digulir kembali ke atas. */
+  scrollKey?: string | number;
 }) {
   const insets = useSafeAreaInsets();
   const c = useColors();
   const s = useStyles();
   const [refreshing, setRefreshing] = useState(false);
+  const scrollRef = useAnimatedRef<Animated.ScrollView>();
+  useEffect(() => {
+    if (scrollKey !== undefined) scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [scrollKey, scrollRef]);
   const y = useSharedValue(0);
   const heroH = useSharedValue(0);
-  const contentRef = useRef<ViewInstance>(null);
-  const scrollState = useMemo(() => ({ y, heroH, hero: headerScrolls && scroll, contentRef }), [y, heroH, headerScrolls, scroll]);
+  const scrollState = useMemo(() => ({ y, heroH, hero: headerScrolls && scroll }), [y, heroH, headerScrolls, scroll]);
   const reduced = useReducedMotion();
   const fabOpen = useSharedValue(1);
   const fabP = useSharedValue(1);
@@ -66,7 +72,7 @@ export function Screen({
       const next = ny > lastY.value && ny > 40 ? 0 : 1;
       if (next !== fabOpen.value) {
         fabOpen.set(next);
-        fabP.set(reduced ? next : withTiming(next, { duration: 220 }));
+        fabP.set(reduced ? next : withTiming(next, { duration: 200, easing: easeOut }));
       }
       lastY.set(ny);
     }
@@ -83,11 +89,12 @@ export function Screen({
     // Header pendek: bar baru muncul setelah benar-benar digulir, tidak pernah saat posisi awal.
     const start = Math.max(h - BAR_H * 2, 12);
     const p = interpolate(y.value, [start, Math.max(h - BAR_H, start + 32)], [0, 1], Extrapolation.CLAMP);
-    return { opacity: p, transform: [{ translateY: (1 - p) * -8 }] };
+    return { opacity: p, transform: [{ translateY: (1 - p) * -4 }] };
   });
 
   const body = scroll ? (
     <Animated.ScrollView
+      ref={scrollRef}
       style={s.flex}
       onScroll={onScroll}
       scrollEventThrottle={16}
@@ -115,7 +122,7 @@ export function Screen({
       }
     >
       {hero ? header : null}
-      <View ref={contentRef} collapsable={false} style={[s.content, contentStyle]}>{children}</View>
+      <View style={[s.content, contentStyle]}>{children}</View>
     </Animated.ScrollView>
   ) : (
     <View style={[s.flex, contentStyle]}>{children}</View>
@@ -133,7 +140,7 @@ export function Screen({
           </Animated.View>
         ) : null}
         {fab ? (
-          <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(16)} style={[s.fabWrap, { bottom: footer ? 96 : space.lg }]}>
+          <Animated.View entering={reduced ? undefined : FadeIn.duration(260).delay(120)} style={[s.fabWrap, { bottom: footer ? 96 : space.lg }]}>
             <PressableScale depth="subtle" onPress={fab.onPress} accessibilityRole="button" accessibilityLabel={tr(fab.label)} accessibilityHint={fab.accessibilityHint ? tr(fab.accessibilityHint) : undefined} style={s.fab}>
               <Animated.View style={[s.fabRow, fabBox]}>
                 <Icon name={fab.icon} size={24} tone="onAccent" />

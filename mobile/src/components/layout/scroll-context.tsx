@@ -1,16 +1,14 @@
-import { createContext, useContext, type RefObject } from 'react';
-import type { ViewInstance } from 'react-native';
+import { createContext, useContext } from 'react';
 import type { SharedValue } from 'react-native-reanimated';
 
 /**
- * Posisi gulir layar, tinggi header dan wadah isi, dibagikan Screen ke anak-anaknya:
- * RootHeader (parallax, hanya bila `hero`) dan useScrollReveal (kartu muncul saat masuk layar).
+ * Posisi gulir layar dan tinggi header, dibagikan Screen ke RootHeader untuk efek parallax
+ * (hanya bila `hero`). Dihitung di UI thread.
  */
 export interface ScrollState {
   y: SharedValue<number>;
   heroH: SharedValue<number>;
   hero: boolean;
-  contentRef: RefObject<ViewInstance | null>;
 }
 
 export const ScrollContext = createContext<ScrollState | null>(null);

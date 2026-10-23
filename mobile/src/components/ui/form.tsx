@@ -7,7 +7,7 @@ import { glideSpring, useReducedMotion } from '@/core/design/motion';
 import { formatInputRupiah, parseRupiahInput } from '@/core/format/money';
 import { tr, useLocale } from '@/core/i18n';
 import { Txt } from './txt';
-import { Icon } from './icon';
+import { Icon, IconTile } from './icon';
 
 export interface FieldProps {
   label: string;
@@ -95,7 +95,7 @@ export function MoneyField({ value, onChange, ...rest }: Omit<FieldProps, 'value
 }
 
 /** Pilihan tunggal sebagai kartu radio. `hideLabel` bila grup sudah diberi SectionTitle; label tetap dibacakan. */
-export function Choice<T extends string>({ label, options, value, onChange, helper, hideLabel }: { label: string; options: { value: T; label: string; hint?: string }[]; value: T; onChange: (v: T) => void; helper?: string; hideLabel?: boolean }) {
+export function Choice<T extends string>({ label, options, value, onChange, helper, hideLabel }: { label: string; options: { value: T; label: string; hint?: string; icon?: string }[]; value: T; onChange: (v: T) => void; helper?: string; hideLabel?: boolean }) {
   const s = useStyles();
   return (
     <View style={s.field} accessibilityRole="radiogroup" accessibilityLabel={tr(label)}>
@@ -112,11 +112,12 @@ export function Choice<T extends string>({ label, options, value, onChange, help
               accessibilityLabel={o.hint ? `${tr(o.label)}. ${tr(o.hint)}` : tr(o.label)}
               style={({ pressed }) => [s.choice, on && s.choiceOn, pressed && !on && s.choicePressed]}
             >
-              <View style={[s.radio, on && s.radioOn]}>{on ? <View style={s.radioDot} /> : null}</View>
+              {o.icon ? <IconTile name={o.icon} size={40} tone={on ? 'onAccent' : 'accentInk'} wash={on ? 'accent' : 'accentSoft'} /> : null}
               <View style={{ flexShrink: 1, flex: 1 }}>
                 <Txt variant="bodyStrong" tone={on ? 'accentInk' : 'ink'}>{o.label}</Txt>
                 {o.hint ? <Txt variant="caption" tone="inkSecondary">{o.hint}</Txt> : null}
               </View>
+              <View style={[s.radio, on && s.radioOn]}>{on ? <View style={s.radioDot} /> : null}</View>
             </Pressable>
           );
         })}
@@ -198,7 +199,40 @@ export function ChipRow<T extends string>({ label, value, onChange, options }: {
   );
 }
 
+/**
+ * Pilihan cepat berupa chip yang membungkus ke baris berikutnya (bukan digeser), mis. jenis kendaraan
+ * atau kondisi. `multi` = boleh memilih lebih dari satu.
+ */
+export function ChipSelect({ label, options, value, onChange, multi, hideLabel }: { label: string; options: { value: string; label: string; icon?: string }[]; value: string[]; onChange: (v: string[]) => void; multi?: boolean; hideLabel?: boolean }) {
+  const s = useStyles();
+  return (
+    <View style={s.field} accessibilityRole={multi ? undefined : 'radiogroup'} accessibilityLabel={tr(label)}>
+      {hideLabel ? null : <Txt variant="label" tone="inkSecondary">{label}</Txt>}
+      <View style={s.wrap}>
+        {options.map((o) => {
+          const on = value.includes(o.value);
+          return (
+            <Pressable
+              key={o.value}
+              onPress={() => onChange(multi ? (on ? value.filter((x) => x !== o.value) : [...value, o.value]) : [o.value])}
+              accessibilityRole={multi ? 'checkbox' : 'radio'}
+              accessibilityState={{ checked: on }}
+              accessibilityLabel={tr(o.label)}
+              style={({ pressed }) => [s.chip, on && s.chipOnSoft, pressed && !on && s.choicePressed]}
+            >
+              {on ? <Icon name="check" size={16} tone="accentInk" /> : o.icon ? <Icon name={o.icon} size={16} tone="inkSecondary" /> : null}
+              <Txt variant="bodySm" tone={on ? 'accentInk' : 'ink'} style={{ fontWeight: '600' }} numberOfLines={1}>{o.label}</Txt>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 const useStyles = makeStyles((c, scheme) => ({
+  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  chipOnSoft: { backgroundColor: c.accentSoft, borderColor: c.accent },
   chipScroll: { marginHorizontal: -space.lg, marginBottom: space.md },
   chips: { gap: space.sm, paddingHorizontal: space.lg },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 40, paddingHorizontal: space.md + 2, borderRadius: radius.pill, borderWidth: 1.5, borderColor: c.line, backgroundColor: c.surface },
@@ -211,18 +245,19 @@ const useStyles = makeStyles((c, scheme) => ({
     minHeight: 52,
     borderWidth: 1.5,
     borderColor: c.line,
-    borderRadius: radius.md,
+    borderRadius: radius.md + 2,
     paddingHorizontal: space.md + 2,
     backgroundColor: c.surface,
   },
-  focus: { borderColor: c.accent, borderWidth: 2, backgroundColor: c.surface },
+  // Fokus: garis biru dengan cincin lembut di luarnya (boxShadow spread), tanpa menggeser isi.
+  focus: { borderColor: c.accent, backgroundColor: c.surface, boxShadow: `0px 0px 0px 4px ${c.accentSoft}` },
   errorBox: { borderColor: c.dangerInk, backgroundColor: c.dangerWash },
   readonly: { backgroundColor: c.surfaceAlt, borderColor: c.surfaceAlt },
   input: { flex: 1, ...(type.body as object), color: c.ink, paddingVertical: space.sm },
   multiline: { minHeight: 96, textAlignVertical: 'top', paddingTop: space.md },
   msg: { flexDirection: 'row', gap: 4, alignItems: 'flex-start' },
   choices: { gap: space.sm },
-  choice: { flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: 56, paddingHorizontal: space.md + 2, paddingVertical: space.sm, borderWidth: 1.5, borderColor: c.line, borderRadius: radius.md, backgroundColor: c.surface },
+  choice: { flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: 60, paddingHorizontal: space.md + 2, paddingVertical: space.md, borderWidth: 1.5, borderColor: c.line, borderRadius: radius.lg, backgroundColor: c.surface },
   choiceOn: { borderColor: c.accent, backgroundColor: c.accentSoft },
   choicePressed: { backgroundColor: c.surfacePressed },
   radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: c.lineStrong, alignItems: 'center', justifyContent: 'center' },

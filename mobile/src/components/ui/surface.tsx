@@ -1,10 +1,9 @@
-import React, { useRef } from 'react';
-import { StyleSheet, View, type ViewStyle, type ViewInstance } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, type ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { radius, space, cardChrome, type ColorToken } from '@/core/design/tokens';
 import { makeStyles, useTheme } from '@/core/design/theme';
 import { useEnter } from '@/core/design/motion';
-import { useScrollReveal } from '@/components/layout/use-scroll-reveal';
 import { formatRupiah } from '@/core/format/money';
 import type { MoneyString } from '@/domain/types';
 import { PressableScale } from './pressable-scale';
@@ -13,9 +12,9 @@ import { Icon } from './icon';
 import { t, tr } from '@/core/i18n';
 
 /**
- * Kartu: permukaan membulat 16 dengan bayangan lembut (terang) atau garis tipis (gelap).
- * Satu tingkat — tidak ada kartu di dalam kartu. `onPress` membuatnya dapat ditekan dengan tekan 3D;
- * `enterIndex` memberi animasi masuk bertahap.
+ * Kartu: permukaan membulat 16 dengan bayangan berlapis yang lembut (terang) atau garis tipis (gelap).
+ * Satu tingkat — tidak ada kartu di dalam kartu. `onPress` membuatnya dapat ditekan;
+ * `enterIndex` memberi animasi masuk bertahap yang singkat.
  */
 export function Card({ children, style, padded = true, onPress, accessibilityLabel, accessibilityHint, enterIndex, tone }: {
   children: React.ReactNode;
@@ -30,8 +29,6 @@ export function Card({ children, style, padded = true, onPress, accessibilityLab
 }) {
   const s = useStyles();
   const entering = useEnter(enterIndex ?? 99);
-  const revealRef = useRef<ViewInstance>(null);
-  const reveal = useScrollReveal(revealRef);
   const toneStyle = tone ? s[tone] : null;
   const body = onPress ? (
     <PressableScale onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel ? tr(accessibilityLabel) : undefined} accessibilityHint={accessibilityHint ? tr(accessibilityHint) : undefined} style={[s.card, padded && s.padded, toneStyle, style]}>
@@ -40,11 +37,8 @@ export function Card({ children, style, padded = true, onPress, accessibilityLab
   ) : (
     <View style={[s.card, padded && s.padded, toneStyle, style]}>{children}</View>
   );
-  return (
-    <Animated.View ref={revealRef} onLayout={reveal.onLayout} entering={enterIndex !== undefined ? entering : undefined} style={reveal.style}>
-      {body}
-    </Animated.View>
-  );
+  if (enterIndex === undefined || !entering) return body;
+  return <Animated.View entering={entering}>{body}</Animated.View>;
 }
 
 /** Nomor dokumen (INV-…, Q-…): teks monospace sekunder; data, bukan dekorasi. */

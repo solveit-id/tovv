@@ -74,7 +74,7 @@ export function RequestDetailScreen() {
       header={<DetailHeader serial={d ? t('Permintaan {0}', [d.alias]) : undefined} title={d?.customerLabel ?? 'Permintaan'} />}
       footer={footer}
     >
-      <QueryView q={q}>
+      <QueryView q={q} skeleton="detail">
         {(r) => (
           <>
             <Card>
@@ -93,8 +93,10 @@ export function RequestDetailScreen() {
                 {`${r.vehicle.weightKg ? `${formatNumber(r.vehicle.weightKg)} kg` : 'berat belum diketahui'} · ${r.vehicle.lengthMm ? `${formatNumber(r.vehicle.lengthMm)}×${formatNumber(r.vehicle.widthMm ?? 0)} mm` : 'dimensi belum diketahui'} · ${r.vehicle.condition}`}
               </Txt>
               <View style={{ marginTop: space.md }}>
-                <LineItem label="Jemput" hint={r.pickup.address} value={<Txt variant="bodySm">{r.pickup.label}</Txt>} />
-                <LineItem label="Tujuan" hint={r.dropoff.address} value={<Txt variant="bodySm">{r.dropoff.label}</Txt>} />
+                <LineItem label="Jemput" hint={r.pickup.note ? `${r.pickup.address}
+${t('Patokan: {0}', [r.pickup.note])}` : r.pickup.address} value={<Txt variant="bodySm">{r.pickup.label}</Txt>} />
+                <LineItem label="Tujuan" hint={r.dropoff.note ? `${r.dropoff.address}
+${t('Patokan: {0}', [r.dropoff.note])}` : r.dropoff.address} value={<Txt variant="bodySm">{r.dropoff.label}</Txt>} />
                 <LineItem label="Waktu" value={<Txt variant="bodySm">{`${timingLabel[r.timing.kind]} · ${r.timing.start ? formatShortDateTime(r.timing.start) : 'segera'}${r.timing.end ? `–${formatShortDateTime(r.timing.end)}` : ''}`}</Txt>} />
                 <LineItem label="Pihak terkait" hint={t('Diserahkan oleh {0} · diterima oleh {1}', [r.parties.sender, r.parties.receiver])} value={<Txt variant="bodySm">{t('Bayar: {0}', [r.parties.payer])}</Txt>} />
                 {r.businessAccount ? <LineItem label="Akun bisnis" hint={t('Syarat {0}{1}', [r.businessAccount.termsVersion, r.businessAccount.poRequired ? ' · PO wajib' : ''])} value={<Txt variant="bodySm">{r.poRef ?? 'PO belum ada'}</Txt>} /> : null}

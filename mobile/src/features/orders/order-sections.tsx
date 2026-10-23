@@ -27,7 +27,7 @@ import { formatDateTime, formatShortDateTime, formatTime } from '@/core/format/t
 import { formatNumber, formatRupiah } from '@/core/format/money';
 import { t } from '@/core/i18n';
 
-function Place({ kind, label, address, time }: { kind: 'Jemput' | 'Tujuan'; label: string; address: string; time?: string }) {
+function Place({ kind, label, address, time, note }: { kind: 'Jemput' | 'Tujuan'; label: string; address: string; time?: string; note?: string | null }) {
   const styles = useStyles();
   return (
     <View style={styles.place}>
@@ -36,6 +36,7 @@ function Place({ kind, label, address, time }: { kind: 'Jemput' | 'Tujuan'; labe
         <Txt variant="label" tone="inkSecondary">{kind}{time ? ` · ${time}` : ''}</Txt>
         <Txt variant="bodyStrong">{label}</Txt>
         <Txt variant="bodySm" tone="inkSecondary">{address}</Txt>
+        {note ? <Txt variant="bodySm" tone="accentInk">{t('Patokan: {0}', [note])}</Txt> : null}
       </View>
     </View>
   );
@@ -62,8 +63,8 @@ export function TripDocument({ d }: { d: OrderDetail }) {
       </Txt>
       <Rule />
       <View style={{ gap: space.md, marginTop: space.md }}>
-        <Place kind="Jemput" label={s.pickup.label} address={s.pickup.address} time={formatTime(s.scheduleStart)} />
-        <Place kind="Tujuan" label={s.dropoff.label} address={s.dropoff.address} time={t('selesai ±{0}', [formatTime(s.scheduleEnd)])} />
+        <Place kind="Jemput" label={s.pickup.label} address={s.pickup.address} note={s.pickup.note} time={formatTime(s.scheduleStart)} />
+        <Place kind="Tujuan" label={s.dropoff.label} address={s.dropoff.address} note={s.dropoff.note} time={t('selesai ±{0}', [formatTime(s.scheduleEnd)])} />
       </View>
       <View style={styles.metaGrid}>
         <Meta label="Jadwal" value={`${timingLabel[d.timing.kind]} · ${formatShortDateTime(s.scheduleStart)}`} />

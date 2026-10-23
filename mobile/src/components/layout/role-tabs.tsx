@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Platform, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { Redirect, Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -27,11 +27,11 @@ function TabIcon({ icon, focused }: { icon: string; focused: boolean }) {
   useEffect(() => {
     p.value = reduced ? (focused ? 1 : 0) : withSpring(focused ? 1 : 0, glideSpring);
   }, [focused, reduced, p]);
-  const pill = useAnimatedStyle(() => ({ opacity: p.value, transform: [{ scaleX: 0.5 + p.value * 0.5 }] }));
+  const pill = useAnimatedStyle(() => ({ opacity: p.value, transform: [{ scaleX: 0.6 + p.value * 0.4 }] }));
   return (
     <View style={s.iconWrap}>
       <Animated.View style={[s.pill, pill]} />
-      <Icon name={focused ? icon.replace('-outline', '') : icon} size={22} tone={focused ? 'accentInk' : 'inkSecondary'} />
+      <Icon name={focused ? icon.replace('-outline', '') : icon} size={22} tone={focused ? 'modeAccentInk' : 'inkSecondary'} />
     </View>
   );
 }
@@ -47,18 +47,24 @@ export function RoleTabs({ view, tabs }: { view: ViewGroup; tabs: TabDef[] }) {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: c.accentInk,
+        tabBarActiveTintColor: c.modeAccentInk,
         tabBarInactiveTintColor: c.inkSecondary,
         tabBarStyle: {
           backgroundColor: c.surface,
           borderTopColor: c.line,
+          borderTopWidth: StyleSheet.hairlineWidth,
           minHeight: 64 + insets.bottom,
           paddingTop: 8,
         },
         tabBarLabelStyle: { fontSize: 12, fontWeight: '600', marginTop: 2, marginBottom: Platform.OS === 'android' ? 6 : 0 },
         tabBarAllowFontScaling: true,
         sceneStyle: { backgroundColor: c.bg },
-        animation: 'shift',
+        // Pindah tab = pudar singkat. Tab yang tidak terlihat dibekukan agar tidak ikut menggambar ulang
+        // (mis. peta yang memuat posisi tiap beberapa detik) dan membuat aplikasi tersendat.
+        animation: 'fade',
+        transitionSpec: { animation: 'timing', config: { duration: 160 } },
+        freezeOnBlur: true,
+        lazy: true,
       }}
     >
       {tabs.map((tab) => (
@@ -81,5 +87,5 @@ export function RoleTabs({ view, tabs }: { view: ViewGroup; tabs: TabDef[] }) {
 
 const useStyles = makeStyles((c) => ({
   iconWrap: { width: 60, height: 30, alignItems: 'center', justifyContent: 'center' },
-  pill: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, borderRadius: radius.pill, backgroundColor: c.accentSoft },
+  pill: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, borderRadius: radius.pill, backgroundColor: c.modeAccentSoft },
 }));

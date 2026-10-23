@@ -80,6 +80,7 @@ export function createDemoApi(store: DemoStore, session: () => SessionRef | null
     getRequest: (id: string) => read((c) => rq.getRequest(c, id)),
     listCustomers: () => read(rq.listCustomers),
     listPlaces: async () => rq.demoPlaces(),
+    getPlaceBook: () => read(rq.placeBook),
     getCaptureContext: (id: string) => read((c) => rq.captureContext(c, id)),
     createRequest: (input: Parameters<typeof rq.createRequest>[1]) => write((c) => rq.createRequest(c, input)),
     submitDraft: (id: string) => write((c) => rq.submitDraft(c, id)),

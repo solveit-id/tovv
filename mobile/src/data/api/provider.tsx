@@ -22,6 +22,9 @@ interface ApiState {
   session: SessionRef | null;
   setSession: (s: SessionRef | null) => Promise<void>;
   switchView: (view: ViewGroup) => Promise<void>;
+  /** Perpindahan mode owner ↔ driver yang sedang ditampilkan transisinya (lihat ModeSwitchOverlay). */
+  modeShift: { to: ViewGroup; key: number } | null;
+  clearModeShift: () => void;
   queryClient: QueryClient;
 }
 
@@ -43,11 +46,15 @@ export const useSession = () => useApiState().session;
 export function ApiProvider({ children, fallback }: { children: React.ReactNode; fallback: React.ReactNode }) {
   const [store, setStore] = useState<DemoStore | null>(null);
   const [session, setSessionState] = useState<SessionRef | null>(null);
+  const [modeShift, setModeShift] = useState<ApiState['modeShift']>(null);
+  const clearModeShift = useCallback(() => setModeShift(null), []);
   const queryClient = useMemo(
     () =>
       new QueryClient({
         defaultOptions: {
-          queries: { retry: 0, staleTime: 5_000, refetchOnWindowFocus: false },
+          // Data demo dibaca ulang otomatis setiap ada perubahan (store.subscribe), jadi cache boleh awet:
+          // berpindah tab tidak memicu pemuatan ulang yang tidak perlu.
+          queries: { retry: 0, staleTime: 60_000, gcTime: 5 * 60_000, refetchOnWindowFocus: false },
           mutations: { retry: 0 },
         },
       }),
@@ -101,6 +108,7 @@ export function ApiProvider({ children, fallback }: { children: React.ReactNode;
   const switchView = useCallback(
     async (view: ViewGroup) => {
       if (!sessionHolder.value) return;
+      if (sessionHolder.value.view !== view) setModeShift({ to: view, key: Date.now() });
       await setSession({ ...sessionHolder.value, view });
     },
     [setSession],
@@ -108,7 +116,7 @@ export function ApiProvider({ children, fallback }: { children: React.ReactNode;
 
   if (!store || !api) return <>{fallback}</>;
   return (
-    <ApiContext.Provider value={{ api, store, session, setSession, switchView, queryClient }}>
+    <ApiContext.Provider value={{ api, store, session, setSession, switchView, modeShift, clearModeShift, queryClient }}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </ApiContext.Provider>
   );

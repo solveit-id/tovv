@@ -12,7 +12,8 @@ import { SectionTitle, Card } from '@/components/ui/surface';
 import { StatusTag } from '@/components/ui/status-tag';
 import { ErrorBlock, LoadingBlock } from '@/components/ui/states';
 import { StageLine } from '@/components/business/stage-line';
-import { RouteSchematic } from '@/components/business/route-schematic';
+import { MiniTrackMap } from '@/features/map/mini-track-map';
+import { useSession } from '@/data/api/provider';
 import { useTovvQuery } from '@/data/api/hooks';
 import { executionStatus } from '@/core/i18n/status';
 import { formatAge, formatTime, formatDateTime, addMinutes } from '@/core/format/time';
@@ -28,6 +29,7 @@ export function TrackingScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const focused = useIsFocused();
+  const session = useSession();
   const now = useDemoNow(15_000);
   const order = useTovvQuery(['order', id], (a) => a.getOrder(id));
   const track = useTovvQuery(['tracking', id], (a) => a.getTracking(id), { refetchInterval: focused ? 15_000 : false });
@@ -42,7 +44,7 @@ export function TrackingScreen() {
       header={<DetailHeader serial={d ? `O-${d.summary.alias}` : undefined} title="Perjalanan" subtitle={d ? `${d.vehicle.label} · ${d.vehicle.plate}` : undefined} />}
       footer={<Button label="Dokumen & bukti pekerjaan" icon="file-document-multiple-outline" variant="secondary" onPress={() => router.push(`/order/${id}`)} />}
     >
-      {track.isPending || order.isPending ? <LoadingBlock label="Mengambil posisi terakhir…" /> : track.isError ? <ErrorBlock error={track.error} onRetry={() => void track.refetch()} /> : snap && d ? (
+      {track.isPending || order.isPending ? <LoadingBlock kind="detail" label="Mengambil posisi terakhir…" /> : track.isError ? <ErrorBlock error={track.error} onRetry={() => void track.refetch()} /> : snap && d ? (
         <>
           <Card>
             <StatusTag look={executionStatus[d.summary.status]} />
@@ -51,7 +53,7 @@ export function TrackingScreen() {
                 <Txt variant="label" tone="inkSecondary">Perkiraan tiba</Txt>
                 <View style={styles.etaRow}>
                   <Txt variant="figureLg" style={{ fontSize: 34, lineHeight: 40 }}>{t('±{0} mnt', [snap.eta.minutes])}</Txt>
-                  <Txt variant="bodySm" tone="inkSecondary">{`sekitar ${formatTime(addMinutes(now, snap.eta.minutes))}`}</Txt>
+                  <Txt variant="bodySm" tone="inkSecondary">{t('tiba sekitar {0}', [formatTime(addMinutes(now, snap.eta.minutes))])}</Txt>
                 </View>
                 <Txt variant="caption" tone="inkSecondary">{`${snap.eta.source}. ${snap.eta.warning}`}</Txt>
               </View>
@@ -77,12 +79,12 @@ export function TrackingScreen() {
                 </View>
               </View>
               <View style={{ marginTop: space.md }}>
-                <RouteSchematic
+                <MiniTrackMap
                   pickup={snap.pickup}
                   dropoff={snap.dropoff}
                   position={snap.lat !== null && snap.lng !== null ? { lat: snap.lat, lng: snap.lng } : null}
                   stale={snap.freshness === 'stale'}
-                  accuracyM={snap.accuracyM}
+                  onExpand={() => router.push(`/${session?.view === 'admin' ? 'owner' : (session?.view ?? 'customer')}/map`)}
                 />
               </View>
             </>
@@ -91,7 +93,7 @@ export function TrackingScreen() {
           <SectionTitle title="Unit & sopir" />
           <Card style={styles.unit}>
             <View style={styles.unitIcon}>
-              <Icon name="tow-truck" size={26} tone="onHero" />
+              <Icon name="tow-truck" size={26} tone="onAccent" />
             </View>
             <View style={{ flex: 1 }}>
               <Txt variant="bodyStrong">{t('Unit {0} · {1}', [d.summary.unitCode, d.summary.driverName ?? 'petugas belum ditetapkan'])}</Txt>
@@ -118,5 +120,5 @@ const useStyles = makeStyles((color) => ({
   fresh: { flexDirection: 'row', gap: space.md, padding: space.md, marginTop: space.md, borderRadius: radius.lg, backgroundColor: color.accentSoft },
   stale: { backgroundColor: color.warnWash, borderWidth: 1.5, borderStyle: 'dashed', borderColor: color.warnInk },
   unit: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  unitIcon: { width: 48, height: 48, borderRadius: radius.md, backgroundColor: color.heroFrom, alignItems: 'center', justifyContent: 'center' },
+  unitIcon: { width: 48, height: 48, borderRadius: radius.md, backgroundColor: color.accent, alignItems: 'center', justifyContent: 'center' },
 }));

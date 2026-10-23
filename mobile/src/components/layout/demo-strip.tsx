@@ -16,7 +16,8 @@ const VIEW_LABEL = { owner: 'Owner', admin: 'Admin', driver: 'Driver', customer:
  * Ketuk untuk membuka pemilih akun demo — hanya ada pada mode demo lokal, bukan autentikasi produksi.
  * Tinggi 40 + hitSlop vertikal 4 = target sentuh 48 dp; peran ditulis sebelum usaha agar tidak terpotong.
  */
-export function DemoStrip() {
+/** `interactive={false}` di dalam Modal (mis. pemilih lokasi): pita tetap terlihat, tetapi tidak membuka pemilih akun. */
+export function DemoStrip({ interactive = true }: { interactive?: boolean }) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const s = useStyles();
@@ -27,7 +28,8 @@ export function DemoStrip() {
   return (
     <View style={[s.strip, { paddingTop: insets.top }]}>
       <Pressable
-        onPress={() => router.push('/demo')}
+        onPress={interactive ? () => router.push('/demo') : undefined}
+        disabled={!interactive}
         accessibilityRole="button"
         accessibilityLabel={t('Mode demo, simulasi frontend. {0}. Ketuk untuk ganti akun demo.', [d ? `${d.tenantName}, ${VIEW_LABEL[d.view]}, ${d.userName}` : ''])}
         style={({ pressed }) => [s.row, pressed && { opacity: 0.7 }]}
@@ -53,10 +55,12 @@ export function DemoStrip() {
             <Txt variant="caption" tone="onInverse" maxFontSizeMultiplier={1.3} bold>Offline</Txt>
           </View>
         ) : null}
-        <View style={s.swap}>
-          <Icon name="swap-horizontal" size={14} tone="demoInk" />
-          <Txt variant="caption" tone="demoInk" bold maxFontSizeMultiplier={1.3}>Ganti</Txt>
-        </View>
+        {interactive ? (
+          <View style={s.swap}>
+            <Icon name="swap-horizontal" size={14} tone="demoInk" />
+            <Txt variant="caption" tone="demoInk" bold maxFontSizeMultiplier={1.3}>Ganti</Txt>
+          </View>
+        ) : null}
       </Pressable>
     </View>
   );

@@ -22,7 +22,7 @@ import { t } from '@/core/i18n';
 export function SaasScreen() {
   const color = useColors();
   const q = useTovvQuery(['saas'], (a) => a.getSaas());
-  const change = useTovvMutation((a, kind: 'subscription' | 'success') => a.schedulePlanChange(kind), { success: 'Perubahan paket dijadwalkan untuk periode berikutnya; order aktif tetap memakai snapshot lama.' });
+  const change = useTovvMutation((a, kind: 'subscription' | 'success') => a.schedulePlanChange(kind), { success: 'Paket baru berlaku mulai periode berikutnya. Pesanan yang sedang jalan tetap memakai ketentuan lama.' });
   return (
     <Screen header={<DetailHeader title="Paket langganan Tovv (DEMO)" subtitle="Harga contoh · tidak ditagih" />}>
       <QueryView q={q}>

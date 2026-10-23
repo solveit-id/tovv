@@ -27,7 +27,7 @@ export function AssignScreen() {
   const fleet = useTovvQuery(['fleet'], (a) => a.getFleet());
   const [pick, setPick] = useState<string | null>(null);
   const offer = useTovvMutation((a, driverId: string) => a.offerAssignment(id, driverId), {
-    success: 'Tawaran terkirim. Order tetap terkonfirmasi sampai petugas menerima.',
+    success: 'Tawaran tugas terkirim ke sopir. Pesanan tetap aman sampai sopir menerimanya.',
     onSuccess: () => goBack(),
   });
   const current = order.data?.assignments.find((a) => a.status === 'offered' || a.status === 'accepted');
