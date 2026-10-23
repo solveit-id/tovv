@@ -1,19 +1,21 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useRouter, type Href } from 'expo-router';
 import { radius, space, cardChrome, type ColorToken } from '@/core/design/tokens';
 import { makeStyles, useColors } from '@/core/design/theme';
 import { useEnter } from '@/core/design/motion';
+import { useScrollReveal } from '@/components/layout/use-scroll-reveal';
 import { Txt } from '@/components/ui/txt';
 import { Icon, IconTile } from '@/components/ui/icon';
 import { Money } from '@/components/ui/surface';
 import { PressableScale } from '@/components/ui/pressable-scale';
 import type { DailyAction } from '@/data/api/contract';
 import { formatShortDateTime } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 const SEVERITY: Record<DailyAction['severity'], { icon: string; label: string; ink: ColorToken; wash: ColorToken }> = {
-  blocker: { icon: 'alert-octagon-outline', label: 'Menghambat', ink: 'dangerInk', wash: 'dangerWash' },
+  blocker: { icon: 'alert-octagon-outline', label: 'Mendesak', ink: 'dangerInk', wash: 'dangerWash' },
   attention: { icon: 'alert-circle-outline', label: 'Perlu perhatian', ink: 'warnInk', wash: 'warnWash' },
   info: { icon: 'information-outline', label: 'Untuk diketahui', ink: 'accentInk', wash: 'accentSoft' },
 };
@@ -27,14 +29,16 @@ export function ActionItem({ item, index = 0 }: { item: DailyAction; index?: num
   const s = useStyles();
   const c = useColors();
   const entering = useEnter(index);
+  const revealRef = useRef<View>(null);
+  const reveal = useScrollReveal(revealRef);
   const sev = SEVERITY[item.severity];
   return (
-    <Animated.View entering={entering}>
+    <Animated.View ref={revealRef} onLayout={reveal.onLayout} entering={entering} style={reveal.style}>
       <PressableScale
         onPress={() => router.push(item.link as Href)}
         accessibilityRole="button"
-        accessibilityLabel={`${sev.label}: ${item.title}. ${item.reason}. Penanggung jawab ${item.picName}.`}
-        accessibilityHint="Buka sumber tindakan"
+        accessibilityLabel={t('{0}: {1}. {2}. Penanggung jawab {3}.', [sev.label, item.title, item.reason, item.picName])}
+        accessibilityHint={t('Buka sumber tindakan')}
         style={s.card}
       >
         <IconTile name={sev.icon} size={40} tone={sev.ink} wash={sev.wash} />
@@ -45,7 +49,7 @@ export function ActionItem({ item, index = 0 }: { item: DailyAction; index?: num
             <View style={[s.chip, { backgroundColor: c[sev.wash] }]}>
               <Txt variant="caption" tone={sev.ink} bold maxFontSizeMultiplier={1.3}>{sev.label}</Txt>
             </View>
-            {item.dueAt ? <Txt variant="caption" tone="inkSecondary" numberOfLines={1} style={{ flexShrink: 1 }}>{`Tenggat ${formatShortDateTime(item.dueAt)}`}</Txt> : null}
+            {item.dueAt ? <Txt variant="caption" tone="inkSecondary" numberOfLines={1} style={{ flexShrink: 1 }}>{t('Batas {0}', [formatShortDateTime(item.dueAt)])}</Txt> : null}
           </View>
           <View style={s.foot}>
             <View style={s.pic}>

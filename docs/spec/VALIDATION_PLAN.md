@@ -7,6 +7,10 @@ Paket **2.1 — 21 Oktober 2026**. Produk **Tovv**; pemilik, pengembang dan pene
 Baseline yang benar-benar dibaca: PRD v2.0 (file sumber PRD(2).md, identik dengan salinan PRD (1).md), ARCHITECTURE, IMPLEMENTATION_PLAN, INTEGRATION_PLAN dan TEST_PLAN masing-masing berlabel v1.0 dengan acuan PRD v2.0. Tidak ditemukan versi lebih baru. VALIDATION_PLAN.md tidak ditemukan setelah pencarian nama; dokumen itu **disusun kembali**, bukan hasil pemeriksaan file lama. Pesan pengguna terbaru mengungguli baseline. Seluruh enam dokumen kini memakai versi paket 2.1.
 
 Urutan baca: [PRD](PRD.md) → [ARCHITECTURE](ARCHITECTURE.md) → [INTEGRATION_PLAN](INTEGRATION_PLAN.md) → [IMPLEMENTATION_PLAN](IMPLEMENTATION_PLAN.md) → [TEST_PLAN](TEST_PLAN.md) → [VALIDATION_PLAN](VALIDATION_PLAN.md). PRD menguasai scope/aturan bisnis; kontrak dan model harus mematuhinya. Perubahan mengharuskan pembaruan requirement, task, test, fixture dan keputusan terkait pada paket yang sama.
+## Catatan implementasi (23 Oktober 2026)
+
+Belum ada sesi validasi yang dijalankan. Prototype frontend dengan data sintetis berlabel DEMO sudah bisa dipakai untuk Fase B (uji kegunaan) dalam bahasa Indonesia atau Inggris, untuk tiga peran yang dibuka aplikasi (owner, driver, pelanggan). Hasil uji kegunaan nanti tidak boleh dibaca sebagai bukti backend atau manfaat operasional.
+
 ## 1. Status, tujuan dan batas kesimpulan
 
 **Dokumen disusun kembali** dari PRD2.1, dokumen baseline yang ditemukan, dan instruksi pengguna. Tidak ditemukan VALIDATION_PLAN lama, sehingga tidak ada klaim mempertahankan ID hipotesis atau hasil riset dari file tersebut. Semua aktivitas di sini PLANNED/NOT_RUN; belum ada wawancara, observasi, pembayaran atau hasil eksperimen yang diklaim.

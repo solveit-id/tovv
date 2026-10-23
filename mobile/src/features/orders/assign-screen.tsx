@@ -15,6 +15,7 @@ import { QueryView } from '@/components/ui/states';
 import { useTovvMutation, useTovvQuery } from '@/data/api/hooks';
 import { assignmentStatus } from '@/core/i18n/status';
 import { formatShortDateTime, formatTime } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 /** Tawarkan/alihkan tugas (FLT-05). Tawaran belum diterima tidak dianggap dispatch pasti; akses lama dicabut. */
 export function AssignScreen() {
@@ -32,18 +33,18 @@ export function AssignScreen() {
   const current = order.data?.assignments.find((a) => a.status === 'offered' || a.status === 'accepted');
   return (
     <Screen
-      header={<DetailHeader serial={order.data ? `O-${order.data.summary.alias}` : undefined} title="Penugasan" subtitle={order.data ? `${formatShortDateTime(order.data.summary.scheduleStart)}–${formatTime(order.data.summary.scheduleEnd)} · unit ${order.data.summary.unitCode}` : undefined} />}
-      footer={<Button label={current ? 'Alihkan ke petugas terpilih' : 'Tawarkan tugas'} icon="send-outline" size="lg" disabled={!pick} loading={offer.isPending} onPress={() => pick && offer.mutate(pick)} />}
+      header={<DetailHeader serial={order.data ? `O-${order.data.summary.alias}` : undefined} title="Penugasan" subtitle={order.data ? t('{0}–{1} · unit {2}', [formatShortDateTime(order.data.summary.scheduleStart), formatTime(order.data.summary.scheduleEnd), order.data.summary.unitCode]) : undefined} />}
+      footer={<Button label={current ? 'Pindahkan ke sopir terpilih' : 'Tawarkan tugas'} icon="send-outline" size="lg" disabled={!pick} loading={offer.isPending} onPress={() => pick && offer.mutate(pick)} />}
     >
       {current ? (
         <Card>
           <Txt variant="label" tone="inkSecondary">Saat ini</Txt>
           <Txt variant="bodyStrong">{current.driverName}</Txt>
           <StatusTag look={assignmentStatus[current.status]} size="sm" />
-          <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.sm }}>Mengalihkan mencabut akses tugas petugas lama dan menyimpan histori.</Txt>
+          <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.sm }}>Memindahkan tugas mencabut akses sopir lama, riwayatnya tetap tersimpan.</Txt>
         </Card>
       ) : null}
-      <SectionTitle title="Pilih petugas" />
+      <SectionTitle title="Pilih sopir" />
       <QueryView q={fleet}>
         {(f) => (
           <Card padded={false}>
@@ -62,7 +63,7 @@ export function AssignScreen() {
                   <Icon name={on ? 'radiobox-marked' : 'radiobox-blank'} tone={isCurrent ? 'inkMuted' : on ? 'accentInk' : 'inkSecondary'} />
                   <View style={{ flex: 1 }}>
                     <Txt variant="bodyStrong" tone={isCurrent ? 'inkSecondary' : 'ink'}>{dr.name}{isCurrent ? ' · saat ini' : ''}</Txt>
-                    <Txt variant="caption" tone="inkSecondary">{dr.roles.includes('owner') ? 'Owner merangkap driver' : dr.roles.includes('partner') ? 'Mitra kelolaan' : 'Driver'}{dr.activeAssignment ? ` · ${dr.activeAssignment}` : ' · tidak ada tugas aktif'}</Txt>
+                    <Txt variant="caption" tone="inkSecondary">{dr.roles.includes('owner') ? 'Owner yang juga menyetir' : dr.roles.includes('partner') ? 'Mitra kelolaan' : 'Driver'}{dr.activeAssignment ? ` · ${dr.activeAssignment}` : ' · tidak ada tugas aktif'}</Txt>
                   </View>
                 </Pressable>
               );
@@ -70,7 +71,7 @@ export function AssignScreen() {
           </Card>
         )}
       </QueryView>
-      <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.md }}>Bentrok jadwal petugas diperiksa saat mengirim tawaran; konflik ditolak, bukan ditimpa.</Txt>
+      <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.md }}>Jadwal sopir dicek saat tawaran dikirim; kalau bentrok, tawaran ditolak, bukan menimpa.</Txt>
     </Screen>
   );
 }

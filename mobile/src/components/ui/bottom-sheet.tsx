@@ -5,6 +5,7 @@ import { radius, space } from '@/core/design/tokens';
 import { makeStyles } from '@/core/design/theme';
 import { Txt } from './txt';
 import { HeaderIconButton } from '@/components/layout/app-header';
+import { t } from '@/core/i18n';
 
 /**
  * Bottom sheet untuk tugas fokus yang dapat dibatalkan (alasan tolak, kendala, verifikasi).
@@ -16,7 +17,7 @@ export function BottomSheet({ visible, title, onClose, children, footer }: { vis
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent navigationBarTranslucent>
       <View style={s.fill}>
-        <Pressable style={s.backdrop} onPress={onClose} accessibilityRole="button" accessibilityLabel="Tutup" />
+        <Pressable style={s.backdrop} onPress={onClose} accessibilityRole="button" accessibilityLabel={t('Tutup')} />
         <KeyboardAvoidingView style={s.root} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} pointerEvents="box-none">
           <View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, space.lg) }]} accessibilityViewIsModal>
             <View style={s.grabber} />

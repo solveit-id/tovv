@@ -158,7 +158,7 @@ Sistem ini dicatat dari build yang dikirim: `mobile/src/core/design/tokens.ts` (
 
 Tovv memakai bahasa yang sudah dikenal pengguna Indonesia dari Gojek/GoPay, Grab/Tokopedia, dan Bank Jago/Jenius: header gradien biru merek di puncak layar akar, kartu ringkasan putih yang melayang menimpa tepi bawah header dengan satu angka uang besar, grid pintasan berikon, lalu daftar kartu membulat. Setiap kartu menjawab satu pertanyaan dalam bahasa sehari-hari dan dapat diketuk untuk diselesaikan.
 
-Biru merek diturunkan dari logo Solveit (#1136D6 → #19B8F2). Gradien hanya hidup di header; isi layar duduk di latar dingin dengan kartu putih (terang) atau permukaan biru-arang (gelap). Tema mengikuti sistem kecuali pengguna memilih lain di Lainnya → Tampilan; kedua palet berkunci sama dan diuji kontrasnya. Font sistem, satu keluarga ikon (MaterialCommunityIcons) dalam tile ikon membulat, salinan Bahasa Indonesia. Navigasi, back gesture, safe area, keyboard dan ukuran teks tetap native.
+Biru merek diturunkan dari logo Solveit (#1136D6 → #19B8F2). Gradien hanya hidup di header; isi layar duduk di latar dingin dengan kartu putih (terang) atau permukaan biru-arang (gelap). Tema mengikuti sistem kecuali pengguna memilih lain di Lainnya → Tampilan; kedua palet berkunci sama dan diuji kontrasnya. Font sistem, satu keluarga ikon (MaterialCommunityIcons) dalam tile ikon membulat, salinan dua bahasa (Indonesia sumber, Inggris lewat `core/i18n`) yang ditulis seperti orang berbicara. Navigasi, back gesture, safe area, keyboard dan ukuran teks tetap native.
 
 Gerak terasa fisik tetapi pendek: header bergerak setengah kecepatan saat digulir lalu menyerahkan judul ke bar ringkas, kartu masuk bertahap, kartu yang ditekan turun dan miring halus ke arah jari, angka ringkasan menghitung naik sekali, pil tab meluncur. Semua di UI thread (Reanimated); "kurangi gerakan" berarti tanpa gerak.
 
@@ -226,7 +226,7 @@ Satu biru merek dengan tonal wash, netral biru-dingin, empat pasangan status ink
 
 - Ritme 4 dp (`space`): padding layar horizontal `lg` (16), padding kartu `lg` (16; ActionItem 14), jarak antar kartu `sm`–`md` (8–12), SectionTitle 28 di atas dan 12 di bawah.
 - **Layar akar** (`Screen headerScrolls`): pita DEMO terpaku di atas; RootHeader ikut bergulir dengan parallax; `overlap` menambah 56 dp di bawah header dan HeroCard naik −72 dp menimpanya; lalu ShortcutGrid 4 kolom (tile 52), lalu bagian kartu. Bar ringkas 52 dp bergradien muncul saat header hampir hilang.
-- **Aksi utama**: owner/admin = extended FAB 56 dp di kanan bawah (16 dp dari tepi, di atas footer bila ada) yang menyusut menjadi ikon saat menggulir turun; pelanggan = tombol penuh di dalam HeroCard; driver = tombol langkah berikutnya di kartu tugas. Layar detail memakai footer putih bergaris atas di area ibu jari yang naik bersama keyboard.
+- **Aksi utama**: owner = extended FAB 56 dp di kanan bawah (16 dp dari tepi, di atas footer bila ada) yang menyusut menjadi ikon saat menggulir turun; pelanggan = tombol penuh di dalam HeroCard; driver = tombol langkah berikutnya di kartu tugas. Layar detail memakai footer putih bergaris atas di area ibu jari yang naik bersama keyboard.
 - Lebar isi maksimal 720 dp di tablet/lanskap, terpusat; header tetap selebar layar.
 - Target sentuh minimum `touch.min` 48 dp di kedua OS; tombol `lg` 56 dp; tombol ikon 44 dp + margin ke 48.
 - `CellGrid` 2 kolom dapat turun ke 1 kolom saat teks diperbesar.
@@ -292,6 +292,21 @@ Label `label` di atas, kotak `surface` bergaris `line` 1,5, `md` 12, min 52 dp, 
 - **LoadingBlock:** kerangka baris (tile 44 + dua bar) berwarna `skeleton` yang berdenyut pelan (750 ms) hanya selama memuat; tanpa denyut saat "kurangi gerakan".
 - **ErrorBlock / EmptyBlock:** tile ikon bulat 56 (danger / netral), judul, isi, tombol compact secondary "Coba lagi".
 
+### Akun (masuk, daftar, lupa kata sandi)
+- **AuthShell:** latar `HeroBackground` penuh dengan wordmark 40, judul `display` `onHero` dan subjudul `onHeroSecondary`; kartu isi `bg` bersudut atas 28 yang naik 80 dp dari bawah sambil tegak dari kemiringan 14° (`perspective` 1000, pegas damping 18). Saat digulir, judul bergerak 0,45× kecepatan dan memudar.
+- **Masuk:** field email dan kata sandi dengan ikon dan tombol tampil/sembunyi, tautan "Lupa kata sandi?", tombol `lg`, pemisah "atau coba akun demo", tiga tile akun cepat (Owner/Driver/Pelanggan), catatan kuning `demoWash` berisi kata sandi demo.
+- **Lupa kata sandi:** setelah dikirim, tile ikon bulat 72 `okWash` muncul dengan pegas dan teks yang tidak membocorkan apakah email terdaftar.
+
+### Splash
+`SplashOverlay` menutupi aplikasi ±1,4 detik saat dibuka: gradien merek, wordmark 64 muncul dengan pegas (skala 0,7 → 1), garis `brandSky` 120×4 melintas 700 ms, lalu lapisan membesar 6% dan memudar 320 ms. Pil DEMO tetap tampil. "Kurangi gerakan" = pudar singkat.
+
+### Peta langsung
+- Peta bawaan OS (react-native-maps) penuh layar; tema gelap memakai gaya peta redup (Android) / `userInterfaceStyle` (iOS). Tempat usaha dan transit disembunyikan.
+- **Header mengambang:** kartu `surface` sudut `xl`, bayangan level 3, judul `headline`, titik status berdenyut (`okInk` langsung / `warnInk` lama) dengan teks "Langsung · diperbarui tiap 3 detik · posisi simulasi", chip filter unit untuk owner, tombol lokasi saya 48 untuk driver.
+- **Penanda truk:** lingkaran 38 (46 saat dipilih) bergaris putih 3, isi `accent` (bertugas) / `okInk` (siap) / `neutralInk` (tidak beroperasi), tag kode unit di bawahnya; posisi lama digambar putus-putus `warnInk`. Meluncur 2,6 detik ke posisi baru.
+- **Rute:** garis putus-putus `lineStrong` jemput → tujuan, ruas yang sudah ditempuh utuh `accent` 5; jemput = cincin `accent`, tujuan = pin `dangerInk`.
+- **Karosel kartu:** kartu `surface` sudut `xl` lebar layar − 56, digeser dengan snap; mengetuk penanda menggulir ke kartunya, menggeser kartu memindahkan kamera. Kartu pekerjaan memuat progres 8 dp, perkiraan tiba, atau alasan lokasi belum tampil.
+
 ### Pelacakan & Dokumen
 - **StageLine / StageTicks:** penanda 22 dp: selesai = lingkaran `accent` bercentang, sekarang = cincin `accent` 3 dengan titik, menunggu sinkron = putus-putus `warnInk` di atas `warnWash`, belum = cincin `lineStrong`; ruas utuh hanya antara tahap yang sudah terjadi. Versi ringkas: ruas pil 6 dp per tahap.
 - **DocumentStack:** versi aktif sebagai kartu level 2; maksimal 3 versi lama mengintip di belakang (offset 6 dp, menyempit 8 dp per tingkat), sejumlah versi sebelumnya yang nyata; pil `accentSoft` "N versi sebelumnya" membuka riwayat.
@@ -301,7 +316,7 @@ Label `label` di atas, kotak `surface` bergaris `line` 1,5, `md` 12, min 52 dp, 
 - **DemoStrip:** pita `demoWash` permanen, tinggi 40 + hitSlop 4 = 48 dp, ikon labu + "DEMO — SIMULASI FRONTEND" 800 + peran + usaha + pil "Ganti"; membuka pemilih akun demo lokal.
 
 ### Motion
-Durasi `fast` 140, `base` 240, `slow` 360, `count` 700 ms; `easeOut` eksponensial untuk kemunculan, `easeInOut` kubik untuk denyut kerangka; pegas `pressSpring` (damping 18, stiffness 320, mass 0,6) untuk tekan dan `glideSpring` (20, 220, 0,8) untuk indikator. Masuk bertahap `useEnter`: naik 12 dp + memudar 360 ms, jeda 60 + 45 × indeks, hanya 8 item pertama. Hanya Reanimated/native; `useMotionDuration` dan `useReducedMotion` mematikan gerak. Tidak ada loop dekoratif.
+Durasi `fast` 140, `base` 240, `slow` 360, `count` 700 ms; `easeOut` eksponensial untuk kemunculan, `easeInOut` kubik untuk denyut kerangka; pegas `pressSpring` (damping 18, stiffness 320, mass 0,6) untuk tekan dan `glideSpring` (20, 220, 0,8) untuk indikator. Masuk bertahap `useEnter`: naik 12 dp + memudar 360 ms, jeda 60 + 45 × indeks, hanya 8 item pertama. Scroll-trigger `useScrollReveal`: kartu yang awalnya di bawah layar naik 24 dp, skala 0,97 → 1, dan opasitas 0,35 → 1 dalam 140 dp pertama setelah masuk layar; yang sudah terlihat saat layar dibuka tidak dianimasikan. Hanya Reanimated/native; `useMotionDuration` dan `useReducedMotion` mematikan gerak. Tidak ada loop dekoratif.
 
 ### Identitas
 Wordmark "tovv" **SEMENTARA** (`components/brand/wordmark.tsx`, SVG; "v" kedua `brandSky` di header, `accentInk` di permukaan terang) karena logo resmi belum tersedia; ganti komponen ini saat logo diterima. Logo Solveit Indonesia hanya di layar Tentang.

@@ -20,6 +20,7 @@ import { evaluatePrice } from '@/domain/pricing';
 import { parseMoneyString, formatRupiah, formatNumber } from '@/core/format/money';
 import { addMinutes, formatDateTime, timePresets } from '@/core/format/time';
 import { PricingResultView } from '@/features/pricing/pricing-result';
+import { t } from '@/core/i18n';
 
 function UnitOption({ c, on, onPress }: { c: UnitCandidate; on: boolean; onPress: () => void }) {
   const styles = useStyles();
@@ -30,23 +31,23 @@ function UnitOption({ c, on, onPress }: { c: UnitCandidate; on: boolean; onPress
       disabled={!selectable}
       accessibilityRole="radio"
       accessibilityState={{ checked: on, disabled: !selectable }}
-      accessibilityLabel={`Unit ${c.code}. ${c.reason}`}
+      accessibilityLabel={t('Unit {0}. {1}', [c.code, c.reason])}
       style={({ pressed }) => [styles.unit, on && styles.unitOn, !selectable && styles.unitOff, pressed && { opacity: 0.85 }]}
     >
       <View style={styles.unitHead}>
         <Icon name={!c.eligible ? 'close-octagon-outline' : c.conflict ? 'calendar-alert' : on ? 'radiobox-marked' : 'radiobox-blank'} tone={!c.eligible ? 'dangerInk' : c.conflict ? 'warnInk' : on ? 'accentInk' : 'inkSecondary'} />
-        <Txt variant="bodyStrong" style={{ flex: 1 }} strike={!c.eligible}>{`${c.code} · ${c.label}${c.ownership === 'partner' ? ` (mitra ${c.partnerName})` : ''}`}</Txt>
+        <Txt variant="bodyStrong" style={{ flex: 1 }} strike={!c.eligible}>{`${c.code} · ${c.label}${c.ownership === 'partner' ? t(' (mitra {0})', [c.partnerName]) : ''}`}</Txt>
         {c.rank ? (
           <View style={[styles.rank, c.rank === 1 && styles.rankTop]}>
-            <Txt variant="caption" tone={c.rank === 1 ? 'okInk' : 'inkSecondary'} bold>{c.rank === 1 ? 'Rekomendasi' : `Pilihan ${c.rank}`}</Txt>
+            <Txt variant="caption" tone={c.rank === 1 ? 'okInk' : 'inkSecondary'} bold>{c.rank === 1 ? 'Rekomendasi' : t('Pilihan {0}', [c.rank])}</Txt>
           </View>
         ) : null}
       </View>
       <Txt variant="bodySm" tone={!c.eligible ? 'dangerInk' : c.conflict ? 'warnInk' : 'ink'}>{c.reason}</Txt>
       <Txt variant="caption" tone="inkSecondary">
-        {`Kapasitas ${formatNumber(c.capacityKg)} kg · dek ${c.deck.replace(/\d{4,}/g, (n) => formatNumber(Number(n)))} · ${c.distanceKm !== null ? `${String(c.distanceKm).replace('.', ',')} km garis lurus` : 'jarak tidak diketahui'} · posisi ${c.positionAge}${c.positionFreshness === 'stale' ? ' (lama)' : ''}`}
+        {t('Kapasitas {0} kg · dek {1} · {2} · posisi {3}{4}', [formatNumber(c.capacityKg), c.deck.replace(/\d{4,}/g, (n) => formatNumber(Number(n))), c.distanceKm !== null ? `${String(c.distanceKm).replace('.', ',')} km garis lurus` : 'jarak tidak diketahui', c.positionAge, c.positionFreshness === 'stale' ? ' (lama)' : ''])}
       </Txt>
-      {c.estimatedDirect && !c.reason.includes(formatRupiah(c.estimatedDirect)) ? <Txt variant="caption" tone="inkSecondary">{`Estimasi biaya langsung ${formatRupiah(c.estimatedDirect)}`}</Txt> : null}
+      {c.estimatedDirect && !c.reason.includes(formatRupiah(c.estimatedDirect)) ? <Txt variant="caption" tone="inkSecondary">{t('Estimasi biaya langsung {0}', [formatRupiah(c.estimatedDirect)])}</Txt> : null}
     </Pressable>
   );
 }
@@ -92,7 +93,7 @@ export function QuoteBuilderScreen() {
 
   const send = async () => {
     if (!unitId) {
-      setErr('Pilih unit yang layak.');
+      setErr(t('Pilih unit yang layak.'));
       return;
     }
     setBusy(true);
@@ -108,11 +109,11 @@ export function QuoteBuilderScreen() {
         allocation: alloc ?? 0,
         reserve: reserve ?? 0,
         targetSurplus: target ?? 0,
-        priority: priority ? { fee: priorityFee ?? 0, commitment: `Mobilisasi unit untuk jadwal ${formatDateTime(start)}`, failureTerms: 'Tarif prioritas tidak ditagih bila unit tiba lewat dari jendela yang disepakati (demo).' } : null,
+        priority: priority ? { fee: priorityFee ?? 0, commitment: t('Mobilisasi unit untuk jadwal {0}', [formatDateTime(start)]), failureTerms: 'Tarif prioritas tidak ditagih bila unit tiba lewat dari jendela yang disepakati (demo).' } : null,
         belowTargetReason: below ? reason : null,
         validHours: Number(valid) || 24,
       });
-      toast.show(q.version > 1 ? `Penawaran v${q.version} terkirim. Versi sebelumnya otomatis diganti.` : 'Penawaran v1 terkirim ke pelanggan.', 'ok');
+      toast.show(q.version > 1 ? t('Penawaran v{0} terkirim. Versi sebelumnya otomatis tidak berlaku.', [q.version]) : 'Penawaran v1 terkirim ke pelanggan.', 'ok');
       goBack();
     } catch (e) {
       setErr(errorMessage(e));
@@ -123,28 +124,28 @@ export function QuoteBuilderScreen() {
 
   return (
     <Screen
-      header={<DetailHeader serial={req.data ? `Permintaan ${req.data.alias}` : undefined} title="Susun penawaran" subtitle={req.data ? `${req.data.vehicleLabel} · ${req.data.pickupLabel} → ${req.data.dropoffLabel}` : undefined} />}
+      header={<DetailHeader serial={req.data ? t('Permintaan {0}', [req.data.alias]) : undefined} title="Susun penawaran" subtitle={req.data ? `${req.data.vehicleLabel} · ${req.data.pickupLabel} → ${req.data.dropoffLabel}` : undefined} />}
       footer={
         <>
           {err ? <Txt variant="bodySm" tone="dangerInk" accessibilityLiveRegion="polite">{err}</Txt> : null}
-          <Button label={`Kirim penawaran ${formatRupiah(pEff + (priority ? priorityFee ?? 0 : 0))}`} icon="file-send-outline" size="lg" loading={busy} onPress={() => void send()} />
+          <Button label={t('Kirim penawaran {0}', [formatRupiah(pEff + (priority ? priorityFee ?? 0 : 0))])} icon="file-send-outline" size="lg" loading={busy} onPress={() => void send()} />
         </>
       }
     >
       {session.data?.delegation ? (
         <Card style={{ marginBottom: space.md }}>
-          <Txt variant="bodySm">{`Delegasi dari ${session.data.delegation.delegatorName}: diskon sampai ${formatRupiah(session.data.delegation.limit)} di bawah target, berlaku sampai ${formatDateTime(session.data.delegation.expiresAt)}.`}</Txt>
+          <Txt variant="bodySm">{t('Delegasi dari {0}: diskon sampai {1} di bawah target, berlaku sampai {2}.', [session.data.delegation.delegatorName, formatRupiah(session.data.delegation.limit), formatDateTime(session.data.delegation.expiresAt)])}</Txt>
         </Card>
       ) : null}
       <SectionTitle title="Jadwal" />
-      <Choice label="Jadwal" hideLabel helper="Rentang ±2,5 jam ditambah buffer 30 menit." value={slot} onChange={(v) => { setSlot(v); setUnitId(null); }} options={presets.map((p, i) => ({ value: String(i), label: p.label }))} />
+      <Choice label="Jadwal" hideLabel helper="Rentang ±2,5 jam plus jeda 30 menit." value={slot} onChange={(v) => { setSlot(v); setUnitId(null); }} options={presets.map((p, i) => ({ value: String(i), label: p.label }))} />
 
       <SectionTitle title="Unit" />
-      <QueryView q={cands} loadingLabel="Memeriksa kelayakan unit…">
+      <QueryView q={cands} loadingLabel="Mengecek unit yang cocok…">
         {(list) => (
           <View style={{ gap: space.sm }}>
             {list.map((c) => <UnitOption key={c.unitId} c={c} on={unitId === c.unitId} onPress={() => { setUnitId(c.unitId); setErr(null); }} />)}
-            <Txt variant="caption" tone="inkSecondary">Unit tidak layak tidak dapat dipilih — harga atau override owner tidak meloloskan kapasitas.</Txt>
+            <Txt variant="caption" tone="inkSecondary">Unit yang tidak cocok tidak bisa dipilih — harga atau keputusan owner tidak mengubah kapasitas.</Txt>
           </View>
         )}
       </QueryView>
@@ -152,13 +153,13 @@ export function QuoteBuilderScreen() {
       <SectionTitle title="Harga & biaya" />
       {req.data ? <Txt variant="caption" tone="inkSecondary" style={{ marginBottom: space.sm }}>{`${req.data.rate.note}${req.data.rate.amount ? ` · ${formatRupiah(req.data.rate.amount)}` : ''}`}</Txt> : null}
       <MoneyField label="Harga jasa" value={price ?? rate} onChange={(v) => { setPrice(v); setErr(null); }} />
-      <MoneyField label="Biaya langsung (D)" value={dEff} onChange={(v) => { setDirectTouched(true); setDirect(v); }} helper={selected ? `Dari estimasi unit ${selected.code}; ubah bila perlu. Kosong = belum diketahui.` : 'Pilih unit untuk estimasi.'} />
+      <MoneyField label="Biaya langsung (D)" value={dEff} onChange={(v) => { setDirectTouched(true); setDirect(v); }} helper={selected ? t('Dari perkiraan unit {0}; ubah kalau perlu. Kosong = belum tahu.', [selected.code]) : 'Pilih unit untuk melihat perkiraan.'} />
       <View style={{ flexDirection: 'row', gap: space.sm }}>
         <View style={{ flex: 1 }}><MoneyField label="Alokasi (A)" value={alloc} onChange={setAlloc} /></View>
         <View style={{ flex: 1 }}><MoneyField label="Cadangan (R)" value={reserve} onChange={setReserve} /></View>
         <View style={{ flex: 1 }}><MoneyField label="Target (T)" value={target} onChange={setTarget} /></View>
       </View>
-      <Toggle label="Tarif prioritas" hint="Membayar mobilisasi/komitmen jadwal; bukan janji kecepatan berkendara." value={priority} onChange={setPriority} />
+      <Toggle label="Tarif prioritas" hint="Untuk mendahulukan jadwal, bukan janji mengebut di jalan." value={priority} onChange={setPriority} />
       {priority ? <MoneyField label="Biaya prioritas" value={priorityFee} onChange={setPriorityFee} /> : null}
       {below ? <Field label="Alasan harga di bawah target" value={reason} onChangeText={setReason} multiline /> : null}
       <Choice label="Masa berlaku" value={valid} onChange={setValid} options={[{ value: '4', label: '4 jam' }, { value: '24', label: '24 jam' }, { value: '48', label: '48 jam' }]} />
@@ -168,7 +169,7 @@ export function QuoteBuilderScreen() {
       {selected ? (
         <View style={styles.sel}>
           <Txt variant="caption" tone="inkSecondary">Unit terpilih</Txt>
-          <Txt variant="bodyStrong">{`${selected.code} · estimasi D`}</Txt>
+          <Txt variant="bodyStrong">{t('{0} · perkiraan D', [selected.code])}</Txt>
           <Money value={selected.estimatedDirect} align="left" />
         </View>
       ) : null}

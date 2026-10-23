@@ -18,10 +18,11 @@ import {
 } from '@/data/api/contract';
 import type { ExecutionStatus, Incident, MediaPacket, Order } from '@/domain/types';
 import { toMoneyString, formatRupiah } from '@/core/format/money';
+import { t } from '@/core/i18n';
 
 function orderFor(ctx: Ctx, db: DemoDb, id: string): Order {
   const o = db.orders.find((x) => x.id === id);
-  if (!o) throw new ApiError('NOT_FOUND', 'Order tidak ditemukan.');
+  if (!o) throw new ApiError('NOT_FOUND', t('Order tidak ditemukan.'));
   assertCanSeeOrder(db, ctx.actor, o);
   return o;
 }
@@ -32,8 +33,8 @@ const ACTIVE: ExecutionStatus[] = ['confirmed', 'assigned', 'en_route_pickup', '
 
 export function listOrders(ctx: Ctx, filter: OrderListFilter): OrderSummary[] {
   const db = ctx.store.db;
-  const t = ctx.actor.user.tenantId;
-  let orders = db.orders.filter((o) => o.tenantId === t);
+  const tenant = ctx.actor.user.tenantId;
+  let orders = db.orders.filter((o) => o.tenantId === tenant);
   if (ctx.actor.view === 'customer') orders = orders.filter((o) => customerCanSeeRequest(ctx.actor.user, requestOf(db, o.requestId)));
   if (ctx.actor.view === 'driver') {
     orders = orders.filter((o) => db.assignments.some((a) => a.orderId === o.id && a.driverId === ctx.actor.user.id && ['offered', 'accepted', 'completed'].includes(a.status)));
@@ -90,25 +91,25 @@ export function offerAssignment(ctx: Ctx, orderId: string, driverId: string): Or
   requireOnline(ctx.store.db, 'Mengubah penugasan');
   return ctx.store.transact((db) => {
     const o = orderFor(ctx, db, orderId);
-    if (!['confirmed', 'assigned'].includes(o.status)) throw new ApiError('VERSION_CONFLICT', 'Penugasan hanya dapat diubah sebelum perjalanan dimulai.');
+    if (!['confirmed', 'assigned'].includes(o.status)) throw new ApiError('VERSION_CONFLICT', t('Penugasan hanya bisa diubah sebelum perjalanan dimulai.'));
     const driver = db.users.find((u) => u.id === driverId && u.tenantId === o.tenantId && (u.staffRoles.includes('driver') || u.staffRoles.includes('partner')));
-    if (!driver) throw new ApiError('VALIDATION', 'Pilih petugas dari tenant ini.');
+    if (!driver) throw new ApiError('VALIDATION', t('Pilih sopir dari usaha ini.'));
     const busy = db.reservations.find(
       (r) => r.driverId === driverId && r.status === 'confirmed' && r.orderId !== o.id && Date.parse(r.start) < Date.parse(o.scheduleEnd) + 30 * 60_000 && Date.parse(r.end) > Date.parse(o.scheduleStart),
     );
-    if (busy) throw new ApiError('CAPACITY_CONFLICT', `${driver.name} sudah bertugas pada jadwal yang bertumpuk (${db.orders.find((x) => x.id === busy.orderId)?.alias}).`);
+    if (busy) throw new ApiError('CAPACITY_CONFLICT', t('{0} sudah bertugas pada jadwal yang bertumpuk ({1}).', [driver.name, db.orders.find((x) => x.id === busy.orderId)?.alias]));
     // Pergantian mengunci resource lama+baru dan mencabut akses tugas lama (FLT-05).
     db.assignments.filter((a) => a.orderId === o.id && (a.status === 'offered' || a.status === 'accepted')).forEach((a) => {
       a.status = 'revoked';
       a.respondedAt = a.respondedAt ?? ctx.now;
-      a.reason = `Dialihkan ke ${driver.name}`;
+      a.reason = t('Dialihkan ke {0}', [driver.name]);
     });
     db.assignments.push({ id: `AS-${o.alias}-${db.assignments.filter((a) => a.orderId === o.id).length + 1}`, orderId: o.id, tenantId: o.tenantId, driverId, unitId: o.unitId, status: 'offered', offeredAt: ctx.now, respondedAt: null, reason: null, offeredBy: ctx.actor.user.id });
     if (o.status === 'assigned') {
       o.status = 'confirmed';
-      o.events.push({ id: `EV-${o.alias}-${o.events.length + 1}`, status: 'confirmed', occurredAt: ctx.now, actorId: ctx.actor.user.id, note: 'Penugasan diganti; menunggu petugas baru menerima', source: 'server' });
+      o.events.push({ id: `EV-${o.alias}-${o.events.length + 1}`, status: 'confirmed', occurredAt: ctx.now, actorId: ctx.actor.user.id, note: 'Penugasan diganti; menunggu sopir baru menerima', source: 'server' });
     }
-    db.inbox.push({ id: `IB-${db.inbox.length + 1}`, eventId: `evt-offer-${o.id}-${ctx.now}`, tenantId: o.tenantId, userId: driverId, type: 'assignment', title: `Tawaran tugas ${o.alias}`, body: 'Terima atau tolak dari daftar tugas.', link: `/order/${o.id}`, createdAt: ctx.now, read: false });
+    db.inbox.push({ id: `IB-${db.inbox.length + 1}`, eventId: `evt-offer-${o.id}-${ctx.now}`, tenantId: o.tenantId, userId: driverId, type: 'assignment', title: t('Tawaran tugas {0}', [o.alias]), body: 'Terima atau tolak dari daftar tugas.', link: `/order/${o.id}`, createdAt: ctx.now, read: false });
     o.version += 1;
     return orderDetail(db, o, ctx.actor, ctx.now);
   });
@@ -120,8 +121,8 @@ export function respondAssignment(ctx: Ctx, orderId: string, accept: boolean, re
   return ctx.store.transact((db) => {
     const o = orderFor(ctx, db, orderId);
     const a = db.assignments.find((x) => x.orderId === o.id && x.driverId === ctx.actor.user.id && x.status === 'offered');
-    if (!a) throw new ApiError('VERSION_CONFLICT', 'Tawaran sudah tidak berlaku.');
-    if (!accept && !reason?.trim()) throw new ApiError('VALIDATION', 'Tuliskan alasan menolak agar admin dapat mencari pengganti.');
+    if (!a) throw new ApiError('VERSION_CONFLICT', t('Tawaran ini sudah tidak berlaku.'));
+    if (!accept && !reason?.trim()) throw new ApiError('VALIDATION', t('Tulis alasan menolak supaya owner bisa mencari pengganti.'));
     a.status = accept ? 'accepted' : 'rejected';
     a.respondedAt = ctx.now;
     a.reason = accept ? null : reason;
@@ -153,21 +154,21 @@ export function advanceTrip(ctx: Ctx, orderId: string, action: keyof typeof TRAN
   requireScope(ctx.scopes, 'assignment.execute', 'Hanya petugas aktif yang dapat memperbarui tahap.');
   return ctx.store.transact((db) => {
     const o = orderFor(ctx, db, orderId);
-    const t = TRANSITIONS[action];
-    if (!t) throw new ApiError('VALIDATION', 'Aksi tidak dikenal.');
+    const tr = TRANSITIONS[action];
+    if (!tr) throw new ApiError('VALIDATION', t('Aksi tidak dikenal.'));
     const a = currentAssignment(db, o.id);
-    if (!a || a.driverId !== ctx.actor.user.id || a.status !== 'accepted') throw new ApiError('FORBIDDEN', 'Tugas ini tidak lagi milik Anda.');
-    if (o.status !== t.from) throw new ApiError('VERSION_CONFLICT', 'Tahap sudah berubah. Muat ulang tugas.');
+    if (!a || a.driverId !== ctx.actor.user.id || a.status !== 'accepted') throw new ApiError('FORBIDDEN', t('Tugas ini tidak lagi milik Anda.'));
+    if (o.status !== tr.from) throw new ApiError('VERSION_CONFLICT', t('Tahapnya sudah berubah. Muat ulang tugas.'));
     let note: string | undefined;
     if (action === 'start_loading') {
       const photos = db.media.filter((m) => m.orderId === o.id && m.stage === 'pickup_before_loading').length;
-      if (photos < 2 && !exceptionReason?.trim()) throw new ApiError('VALIDATION', 'Ambil dua foto pickup atau isi alasan pengecualian.');
-      if (photos < 2) note = `Pengecualian foto: ${exceptionReason}`;
+      if (photos < 2 && !exceptionReason?.trim()) throw new ApiError('VALIDATION', t('Ambil dua foto saat jemput, atau tulis alasan kenapa tidak bisa.'));
+      if (photos < 2) note = t('Alasan tanpa foto: {0}', [exceptionReason]);
     }
     const offline = db.faults.offline;
-    o.status = t.to;
-    o.events.push({ id: `EV-${o.alias}-${o.events.length + 1}`, status: t.to, occurredAt: ctx.now, actorId: ctx.actor.user.id, note, source: offline ? 'local_pending' : 'server' });
-    if (offline) queueOutbox(db, ctx, { aggregateId: o.id, commandType: 'status.event', label: `${o.alias}: ${t.to.replace(/_/g, ' ')}`, eventAt: ctx.now }, `LOC-${db.outbox.length + 1}`);
+    o.status = tr.to;
+    o.events.push({ id: `EV-${o.alias}-${o.events.length + 1}`, status: tr.to, occurredAt: ctx.now, actorId: ctx.actor.user.id, note, source: offline ? 'local_pending' : 'server' });
+    if (offline) queueOutbox(db, ctx, { aggregateId: o.id, commandType: 'status.event', label: `${o.alias}: ${tr.to.replace(/_/g, ' ')}`, eventAt: ctx.now }, `LOC-${db.outbox.length + 1}`);
     o.version += 1;
     return orderDetail(db, o, ctx.actor, ctx.now);
   });
@@ -176,32 +177,32 @@ export function advanceTrip(ctx: Ctx, orderId: string, action: keyof typeof TRAN
 export function markReadiness(ctx: Ctx, orderId: string, patch: Partial<Order['readiness']>): OrderDetail {
   return ctx.store.transact((db) => {
     const o = orderFor(ctx, db, orderId);
-    if (!isStaffView(ctx.actor) && ctx.actor.view !== 'driver') throw new ApiError('FORBIDDEN', 'Tidak dapat mengubah kesiapan.');
+    if (!isStaffView(ctx.actor) && ctx.actor.view !== 'driver') throw new ApiError('FORBIDDEN', t('Kesiapan tidak bisa diubah.'));
     o.readiness = { ...o.readiness, ...patch };
     return orderDetail(db, o, ctx.actor, ctx.now);
   });
 }
 
 export function reportIncident(ctx: Ctx, orderId: string, type: Incident['type'], note: string): OrderDetail {
-  if (!note.trim()) throw new ApiError('VALIDATION', 'Jelaskan kendala singkat.');
+  if (!note.trim()) throw new ApiError('VALIDATION', t('Jelaskan kendalanya singkat saja.'));
   return ctx.store.transact((db) => {
     const o = orderFor(ctx, db, orderId);
-    if (!isStaffView(ctx.actor) && ctx.actor.view !== 'driver') throw new ApiError('FORBIDDEN', 'Tidak dapat melaporkan kendala.');
+    if (!isStaffView(ctx.actor) && ctx.actor.view !== 'driver') throw new ApiError('FORBIDDEN', t('Kendala tidak bisa dilaporkan.'));
     const dispatcher = db.users.find((u) => u.tenantId === o.tenantId && u.staffRoles.includes('dispatcher'));
     const id = `IC-${o.alias}-${db.incidents.filter((i) => i.orderId === o.id).length + 1}`;
     db.incidents.push({ id, orderId: o.id, type, status: 'open', pic: dispatcher?.id ?? ctx.actor.user.id, note, openedAt: ctx.now, resolvedAt: null, followUp: 'Admin menindaklanjuti; status perjalanan tidak berubah otomatis.' });
     if (type === 'receiver_not_ready') o.readiness.receiverReady = false;
-    if (db.faults.offline) queueOutbox(db, ctx, { aggregateId: id, commandType: 'incident.open', label: `${o.alias}: kendala ${type}`, eventAt: ctx.now }, `LOC-${db.outbox.length + 1}`);
+    if (db.faults.offline) queueOutbox(db, ctx, { aggregateId: id, commandType: 'incident.open', label: t('{0}: kendala {1}', [o.alias, type]), eventAt: ctx.now }, `LOC-${db.outbox.length + 1}`);
     return orderDetail(db, o, ctx.actor, ctx.now);
   });
 }
 
 export function resolveIncident(ctx: Ctx, incidentId: string, followUp: string): OrderDetail {
   requireScope(ctx.scopes, 'request.manage', 'Hanya admin/owner yang menutup kendala.');
-  if (!followUp.trim()) throw new ApiError('VALIDATION', 'Catat tindak lanjut sebelum menutup kendala.');
+  if (!followUp.trim()) throw new ApiError('VALIDATION', t('Catat tindak lanjutnya sebelum menutup kendala.'));
   return ctx.store.transact((db) => {
     const i = db.incidents.find((x) => x.id === incidentId);
-    if (!i) throw new ApiError('NOT_FOUND', 'Kendala tidak ditemukan.');
+    if (!i) throw new ApiError('NOT_FOUND', t('Kendala tidak ditemukan.'));
     const o = orderFor(ctx, db, i.orderId);
     i.status = 'resolved';
     i.resolvedAt = ctx.now;
@@ -214,7 +215,7 @@ export function resolveIncident(ctx: Ctx, incidentId: string, followUp: string):
 
 export function proposeChange(ctx: Ctx, orderId: string, amount: number, reason: string): OrderDetail {
   requireScope(ctx.scopes, 'change.propose', 'Akun ini tidak dapat mengajukan biaya tambahan.');
-  if (!Number.isSafeInteger(amount) || amount <= 0 || !reason.trim()) throw new ApiError('VALIDATION', 'Nominal dan alasan wajib diisi.');
+  if (!Number.isSafeInteger(amount) || amount <= 0 || !reason.trim()) throw new ApiError('VALIDATION', t('Nominal dan alasan wajib diisi.'));
   return ctx.store.transact((db) => {
     const o = orderFor(ctx, db, orderId);
     db.changeOrders.push({ id: `CO-${o.alias}-${db.changeOrders.filter((c) => c.orderId === o.id).length + 1}`, orderId: o.id, amount, reason, status: 'pending', createdAt: ctx.now, createdBy: ctx.actor.user.id, decidedBy: null, decidedAt: null });
@@ -226,16 +227,16 @@ export function decideChange(ctx: Ctx, changeId: string, approve: boolean, assis
   requireOnline(ctx.store.db, 'Menyetujui biaya tambahan');
   return ctx.store.transact((db) => {
     const c = db.changeOrders.find((x) => x.id === changeId);
-    if (!c) throw new ApiError('NOT_FOUND', 'Biaya tambahan tidak ditemukan.');
+    if (!c) throw new ApiError('NOT_FOUND', t('Biaya tambahan tidak ditemukan.'));
     const o = orderFor(ctx, db, c.orderId);
     const req = requestOf(db, o.requestId);
     if (ctx.actor.view === 'customer') {
-      if (req.businessAccountId && !ctx.scopes.has('change.approve')) throw new ApiError('FORBIDDEN', 'Persetujuan biaya tambahan memerlukan approver organisasi.');
+      if (req.businessAccountId && !ctx.scopes.has('change.approve')) throw new ApiError('FORBIDDEN', t('Persetujuan biaya tambahan perlu penyetuju dari organisasi.'));
     } else {
       requireScope(ctx.scopes, 'request.manage', 'Tidak dapat mencatat keputusan.');
-      if (!assistedNote?.trim()) throw new ApiError('VALIDATION', 'Catat pernyataan pelanggan (kanal, waktu) untuk keputusan yang dibantu.');
+      if (!assistedNote?.trim()) throw new ApiError('VALIDATION', t('Catat pernyataan pelanggan (lewat apa, kapan) untuk keputusan yang dibantu petugas.'));
     }
-    if (c.status !== 'pending') throw new ApiError('VERSION_CONFLICT', 'Keputusan sudah tercatat.');
+    if (c.status !== 'pending') throw new ApiError('VERSION_CONFLICT', t('Keputusan sudah dicatat.'));
     c.status = approve ? 'approved' : 'rejected';
     c.decidedBy = ctx.actor.user.id;
     c.decidedAt = ctx.now;
@@ -252,20 +253,20 @@ export interface HandoverInput {
 
 export function handover(ctx: Ctx, orderId: string, input: HandoverInput): OrderDetail {
   requireScope(ctx.scopes, 'assignment.execute', 'Hanya petugas aktif yang mencatat serah-terima.');
-  if (!input.receiverName.trim()) throw new ApiError('VALIDATION', 'Nama penerima wajib diisi.', false, { receiverName: 'Wajib' });
-  if (input.acceptance === 'objection' && !input.objectionNote?.trim()) throw new ApiError('VALIDATION', 'Catat keberatan penerima.', false, { objectionNote: 'Wajib' });
+  if (!input.receiverName.trim()) throw new ApiError('VALIDATION', t('Nama penerima wajib diisi.'), false, { receiverName: 'Wajib' });
+  if (input.acceptance === 'objection' && !input.objectionNote?.trim()) throw new ApiError('VALIDATION', t('Catat keberatan penerima.'), false, { objectionNote: 'Wajib' });
   return ctx.store.transact((db) => {
     const o = orderFor(ctx, db, orderId);
     const a = currentAssignment(db, o.id);
-    if (!a || a.driverId !== ctx.actor.user.id || a.status !== 'accepted') throw new ApiError('FORBIDDEN', 'Tugas ini tidak lagi milik Anda.');
-    if (o.status !== 'arrived_delivery') throw new ApiError('VERSION_CONFLICT', 'Serah-terima hanya setelah tiba di tujuan.');
+    if (!a || a.driverId !== ctx.actor.user.id || a.status !== 'accepted') throw new ApiError('FORBIDDEN', t('Tugas ini tidak lagi milik Anda.'));
+    if (o.status !== 'arrived_delivery') throw new ApiError('VERSION_CONFLICT', t('Serah-terima hanya setelah sampai di tujuan.'));
     const delivery = db.media.filter((m) => m.orderId === o.id && m.stage === 'delivery_handover').length;
-    if (!delivery && !input.photoExceptionReason?.trim()) throw new ApiError('VALIDATION', 'Ambil foto serah-terima atau isi alasan pengecualian.');
+    if (!delivery && !input.photoExceptionReason?.trim()) throw new ApiError('VALIDATION', t('Ambil foto serah-terima, atau tulis alasan kenapa tidak bisa.'));
     const offline = db.faults.offline;
     o.status = 'handed_over';
     o.handedOverAt = ctx.now;
     o.handover = { receiverName: input.receiverName, acceptance: input.acceptance, objectionNote: input.objectionNote ?? undefined, at: ctx.now };
-    o.events.push({ id: `EV-${o.alias}-${o.events.length + 1}`, status: 'handed_over', occurredAt: ctx.now, actorId: ctx.actor.user.id, note: input.acceptance === 'objection' ? `Keberatan: ${input.objectionNote}` : undefined, source: offline ? 'local_pending' : 'server' });
+    o.events.push({ id: `EV-${o.alias}-${o.events.length + 1}`, status: 'handed_over', occurredAt: ctx.now, actorId: ctx.actor.user.id, note: input.acceptance === 'objection' ? t('Keberatan: {0}', [input.objectionNote]) : undefined, source: offline ? 'local_pending' : 'server' });
     const pickup = db.media.filter((m) => m.orderId === o.id && m.stage === 'pickup_before_loading').length;
     o.evidence = input.acceptance === 'objection' ? 'disputed' : pickup >= 2 && delivery >= 1 ? 'complete' : 'incomplete';
     a.status = 'completed';
@@ -280,7 +281,7 @@ export function handover(ctx: Ctx, orderId: string, input: HandoverInput): Order
       usage.amount = o.planSnapshot.feePerService;
       usage.note = o.evidence === 'complete' ? '' : 'Menunggu review bukti/keberatan';
     }
-    if (offline) queueOutbox(db, ctx, { aggregateId: o.id, commandType: 'handover.submit', label: `${o.alias}: serah-terima`, eventAt: ctx.now }, `LOC-${db.outbox.length + 1}`);
+    if (offline) queueOutbox(db, ctx, { aggregateId: o.id, commandType: 'handover.submit', label: t('{0}: serah-terima', [o.alias]), eventAt: ctx.now }, `LOC-${db.outbox.length + 1}`);
     o.version += 1;
     return orderDetail(db, o, ctx.actor, ctx.now);
   });
@@ -288,11 +289,11 @@ export function handover(ctx: Ctx, orderId: string, input: HandoverInput): Order
 
 export function cancelOrder(ctx: Ctx, orderId: string, reason: string): OrderDetail {
   requireScope(ctx.scopes, 'request.manage', 'Hanya admin/owner yang dapat membatalkan order.');
-  if (!reason.trim()) throw new ApiError('VALIDATION', 'Alasan pembatalan wajib.');
+  if (!reason.trim()) throw new ApiError('VALIDATION', t('Alasan pembatalan wajib.'));
   return ctx.store.transact((db) => {
     const o = orderFor(ctx, db, orderId);
     if (!['confirmed', 'assigned', 'en_route_pickup', 'arrived_pickup'].includes(o.status)) {
-      throw new ApiError('VERSION_CONFLICT', 'Setelah loading tidak dapat dibatalkan; gunakan abort dengan custody dan PIC.');
+      throw new ApiError('VERSION_CONFLICT', t('Setelah dimuat tidak bisa dibatalkan; gunakan "Hentikan perjalanan" dan catat siapa yang memegang kendaraan serta penanggung jawabnya.'));
     }
     o.status = 'canceled';
     o.canceledAt = ctx.now;
@@ -308,13 +309,13 @@ export function cancelOrder(ctx: Ctx, orderId: string, reason: string): OrderDet
 
 export function abortOrder(ctx: Ctx, orderId: string, info: { location: string; custody: string; pic: string; plan: string }): OrderDetail {
   if (!info.location.trim() || !info.custody.trim() || !info.pic.trim() || !info.plan.trim()) {
-    throw new ApiError('VALIDATION', 'Abort wajib mencatat lokasi, custody kendaraan, PIC dan rencana penyelesaian.');
+    throw new ApiError('VALIDATION', t('Menghentikan perjalanan wajib mencatat lokasi, siapa yang memegang kendaraan, penanggung jawab, dan rencana penyelesaian.'));
   }
   return ctx.store.transact((db) => {
     const o = orderFor(ctx, db, orderId);
     const isDriver = ctx.actor.view === 'driver' && currentAssignment(db, o.id)?.driverId === ctx.actor.user.id;
     if (!isDriver) requireScope(ctx.scopes, 'request.manage', 'Tidak dapat menghentikan order.');
-    if (!['loading', 'in_transit', 'arrived_delivery'].includes(o.status)) throw new ApiError('VERSION_CONFLICT', 'Abort hanya setelah loading; sebelum itu gunakan pembatalan.');
+    if (!['loading', 'in_transit', 'arrived_delivery'].includes(o.status)) throw new ApiError('VERSION_CONFLICT', t('"Hentikan perjalanan" hanya setelah dimuat; sebelum itu gunakan pembatalan.'));
     o.status = 'aborted';
     o.abortedAt = ctx.now;
     o.abortInfo = info;
@@ -329,11 +330,11 @@ export function closeOrder(ctx: Ctx, orderId: string): OrderDetail {
   requireScope(ctx.scopes, 'request.manage', 'Hanya admin/owner yang menutup order.');
   return ctx.store.transact((db) => {
     const o = orderFor(ctx, db, orderId);
-    if (o.status !== 'handed_over') throw new ApiError('VERSION_CONFLICT', 'Order belum diserahkan.');
-    if (o.evidence === 'disputed') throw new ApiError('VALIDATION', 'Tinjau keberatan serah-terima sebelum menutup order.');
+    if (o.status !== 'handed_over') throw new ApiError('VERSION_CONFLICT', t('Order belum diserahkan.'));
+    if (o.evidence === 'disputed') throw new ApiError('VALIDATION', t('Cek dulu keberatan serah-terima sebelum menutup order.'));
     o.status = 'closed';
     o.closedAt = ctx.now;
-    o.events.push({ id: `EV-${o.alias}-${o.events.length + 1}`, status: 'closed', occurredAt: ctx.now, actorId: ctx.actor.user.id, note: 'Ditutup; piutang boleh masih ada', source: 'server' });
+    o.events.push({ id: `EV-${o.alias}-${o.events.length + 1}`, status: 'closed', occurredAt: ctx.now, actorId: ctx.actor.user.id, note: 'Ditutup; tagihan boleh masih ada yang belum dibayar', source: 'server' });
     return orderDetail(db, o, ctx.actor, ctx.now);
   });
 }
@@ -350,15 +351,15 @@ export function listExpenses(ctx: Ctx): ExpenseDTO[] {
 }
 
 export function addExpense(ctx: Ctx, orderId: string, category: string, amount: number, note: string): ExpenseDTO[] {
-  if (!category.trim() || !Number.isSafeInteger(amount) || amount <= 0) throw new ApiError('VALIDATION', 'Kategori dan nominal (rupiah bulat) wajib diisi.');
+  if (!category.trim() || !Number.isSafeInteger(amount) || amount <= 0) throw new ApiError('VALIDATION', t('Kategori dan nominal (rupiah bulat) wajib diisi.'));
   ctx.store.transact((db) => {
     const o = orderFor(ctx, db, orderId);
     const isDriver = ctx.actor.view === 'driver' && currentAssignment(db, o.id)?.driverId === ctx.actor.user.id;
-    if (!isDriver && !isStaffView(ctx.actor)) throw new ApiError('FORBIDDEN', 'Tidak dapat mencatat biaya.');
+    if (!isDriver && !isStaffView(ctx.actor)) throw new ApiError('FORBIDDEN', t('Biaya tidak bisa dicatat.'));
     const offline = db.faults.offline;
     const id = `EX-${o.alias}-${db.expenses.filter((e) => e.orderId === o.id).length + 1}`;
     db.expenses.push({ id, orderId: o.id, tenantId: o.tenantId, category, amount, status: 'submitted', submittedBy: ctx.actor.user.id, submittedAt: ctx.now, decidedBy: null, note, source: offline ? 'local_pending' : 'server' });
-    if (offline) queueOutbox(db, ctx, { aggregateId: id, commandType: 'expense.submit', label: `${o.alias}: biaya ${category} ${formatRupiah(amount)}`, eventAt: ctx.now }, `LOC-${db.outbox.length + 1}`);
+    if (offline) queueOutbox(db, ctx, { aggregateId: id, commandType: 'expense.submit', label: t('{0}: biaya {1} {2}', [o.alias, category, formatRupiah(amount)]), eventAt: ctx.now }, `LOC-${db.outbox.length + 1}`);
   });
   return listExpenses(ctx);
 }
@@ -367,10 +368,10 @@ export function decideExpense(ctx: Ctx, expenseId: string, approve: boolean): Ex
   requireScope(ctx.scopes, 'expense.approve', 'Persetujuan biaya memerlukan finance/owner atau delegasi expense.approve.');
   ctx.store.transact((db) => {
     const e = db.expenses.find((x) => x.id === expenseId && x.tenantId === ctx.actor.user.tenantId);
-    if (!e) throw new ApiError('NOT_FOUND', 'Biaya tidak ditemukan.');
-    if (e.source === 'local_pending') throw new ApiError('VERSION_CONFLICT', 'Biaya masih di antrean perangkat dan belum diterima server.');
-    if (e.submittedBy === ctx.actor.user.id) throw new ApiError('SELF_APPROVAL', 'Biaya yang Anda ajukan sendiri harus disetujui pihak lain.');
-    if (e.status !== 'submitted') throw new ApiError('VERSION_CONFLICT', 'Biaya sudah diputuskan.');
+    if (!e) throw new ApiError('NOT_FOUND', t('Biaya tidak ditemukan.'));
+    if (e.source === 'local_pending') throw new ApiError('VERSION_CONFLICT', t('Biaya ini masih di antrean HP dan belum diterima server.'));
+    if (e.submittedBy === ctx.actor.user.id) throw new ApiError('SELF_APPROVAL', t('Biaya yang Anda ajukan sendiri harus disetujui orang lain.'));
+    if (e.status !== 'submitted') throw new ApiError('VERSION_CONFLICT', t('Biaya sudah diputuskan.'));
     e.status = approve ? 'approved' : 'rejected';
     e.decidedBy = ctx.actor.user.id;
   });
@@ -381,8 +382,8 @@ export function finalizeCosts(ctx: Ctx, orderId: string): OrderDetail {
   requireScope(ctx.scopes, 'expense.approve', 'Finalisasi biaya memerlukan finance/owner.');
   return ctx.store.transact((db) => {
     const o = orderFor(ctx, db, orderId);
-    if (db.expenses.some((e) => e.orderId === o.id && e.status === 'submitted')) throw new ApiError('VALIDATION', 'Masih ada biaya menunggu persetujuan.');
-    if (!db.expenses.some((e) => e.orderId === o.id && e.status === 'approved')) throw new ApiError('VALIDATION', 'Belum ada biaya aktual yang disetujui; biaya kosong bukan nol.');
+    if (db.expenses.some((e) => e.orderId === o.id && e.status === 'submitted')) throw new ApiError('VALIDATION', t('Masih ada biaya yang menunggu persetujuan.'));
+    if (!db.expenses.some((e) => e.orderId === o.id && e.status === 'approved')) throw new ApiError('VALIDATION', t('Belum ada biaya aktual yang disetujui; biaya kosong bukan nol.'));
     o.costCompleteness = 'final';
     return orderDetail(db, o, ctx.actor, ctx.now);
   });
@@ -413,16 +414,16 @@ export function listAdvances(ctx: Ctx): AdvanceDTO[] {
 export function captureMedia(ctx: Ctx, input: MediaCaptureInput): MediaItem {
   requireScope(ctx.scopes, 'evidence.capture', 'Akun ini tidak dapat menambah bukti.');
   if (ctx.store.db.faults.lowStorage) {
-    throw new ApiError('UNAVAILABLE', 'Ruang penyimpanan perangkat tidak cukup. Foto TIDAK tersimpan; kosongkan ruang lalu ambil ulang. Foto lain yang menunggu tidak dihapus.');
+    throw new ApiError('UNAVAILABLE', t('Ruang penyimpanan HP tidak cukup. Foto TIDAK tersimpan; kosongkan ruang lalu ambil ulang. Foto lain yang menunggu tidak dihapus.'));
   }
   return ctx.store.transact((db) => {
     const req = requestOf(db, input.requestId);
-    if (req.tenantId !== ctx.actor.user.tenantId) throw new ApiError('NOT_FOUND', 'Permintaan tidak ditemukan.');
-    if (ctx.actor.view === 'customer' && !customerCanSeeRequest(ctx.actor.user, req)) throw new ApiError('NOT_FOUND', 'Permintaan tidak ditemukan.');
+    if (req.tenantId !== ctx.actor.user.tenantId) throw new ApiError('NOT_FOUND', t('Permintaan tidak ditemukan.'));
+    if (ctx.actor.view === 'customer' && !customerCanSeeRequest(ctx.actor.user, req)) throw new ApiError('NOT_FOUND', t('Permintaan tidak ditemukan.'));
     if (ctx.actor.view === 'driver') {
       const o = db.orders.find((x) => x.requestId === req.id);
       const a = o ? currentAssignment(db, o.id) : null;
-      if (!a || a.driverId !== ctx.actor.user.id || a.status !== 'accepted') throw new ApiError('FORBIDDEN', 'Foto hanya untuk tugas aktif Anda.');
+      if (!a || a.driverId !== ctx.actor.user.id || a.status !== 'accepted') throw new ApiError('FORBIDDEN', t('Foto hanya untuk tugas aktif Anda.'));
     }
     const existing = db.media.find((m) => m.clientMediaId === input.clientMediaId && m.tenantId === req.tenantId);
     if (existing) return mediaItem(db, existing);
@@ -458,7 +459,7 @@ export function captureMedia(ctx: Ctx, input: MediaCaptureInput): MediaItem {
       byteSize: input.byteSize,
     };
     db.media.push(packet);
-    queueOutbox(db, ctx, { aggregateId: id, commandType: 'media.upload', label: `Foto ${input.slot} · ${req.alias}`, eventAt: input.deviceRecordedAt }, `LOC-${db.outbox.length + 1}`);
+    queueOutbox(db, ctx, { aggregateId: id, commandType: 'media.upload', label: t('Foto {0} · {1}', [input.slot, req.alias]), eventAt: input.deviceRecordedAt }, `LOC-${db.outbox.length + 1}`);
     return mediaItem(db, packet);
   });
 }
@@ -476,7 +477,7 @@ export function listOutbox(ctx: Ctx): OutboxDTO[] {
  * upload ke server nyata. Event milik tugas yang sudah dialihkan menjadi needs_review, tidak memundurkan status.
  */
 export function syncOutbox(ctx: Ctx): OutboxDTO[] {
-  if (ctx.store.db.faults.offline) throw new ApiError('OFFLINE', 'Masih offline. Antrean tetap tersimpan dan akan dicoba lagi saat online.', true);
+  if (ctx.store.db.faults.offline) throw new ApiError('OFFLINE', t('Masih offline. Antrean tetap tersimpan dan akan dicoba lagi saat online.'), true);
   ctx.store.transact((db) => {
     db.outbox.filter((x) => x.actorId === ctx.actor.user.id && (x.status === 'pending' || x.status === 'sending')).forEach((x) => {
       x.attempts += 1;

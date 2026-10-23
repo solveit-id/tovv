@@ -6,6 +6,7 @@ import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import type { TimelineEntry } from '@/data/api/contract';
 import { formatShortDateTime } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 const RAIL = 28;
 
@@ -68,7 +69,7 @@ export function StageLine({ entries, tz }: { entries: TimelineEntry[]; tz?: stri
                 {e.label}
               </Txt>
               <Txt variant="caption" tone={e.state === 'pending_sync' ? 'warnInk' : e.state === 'current' ? 'accentInk' : 'inkSecondary'}>
-                {e.state === 'current' ? `Sedang berlangsung${e.at ? ` · sejak ${formatShortDateTime(e.at, tz)}` : ''}` : e.state === 'pending_sync' ? 'Tersimpan di ponsel · menunggu dikirim' : e.at ? formatShortDateTime(e.at, tz) : 'Belum'}
+                {e.state === 'current' ? t('Sedang berlangsung{0}', [e.at ? ` · sejak ${formatShortDateTime(e.at, tz)}` : '']) : e.state === 'pending_sync' ? 'Tersimpan di HP · menunggu dikirim' : e.at ? formatShortDateTime(e.at, tz) : 'Belum'}
               </Txt>
             </View>
           </View>
@@ -84,7 +85,7 @@ export function StageTicks({ entries }: { entries: TimelineEntry[] }) {
   const done = entries.filter((e) => e.state === 'done').length;
   const cur = entries.find((e) => e.state === 'current');
   return (
-    <View style={s.ticks} accessible accessibilityLabel={`Tahap ${done + (cur ? 1 : 0)} dari ${entries.length}${cur ? `: ${cur.label}` : ''}`}>
+    <View style={s.ticks} accessible accessibilityLabel={t('Tahap {0} dari {1}{2}', [done + (cur ? 1 : 0), entries.length, cur ? `: ${cur.label}` : ''])}>
       {entries.map((e, i) => (
         <View key={i} style={[s.tick, e.state === 'done' && s.tickDone, e.state === 'current' && s.tickCurrent, e.state === 'pending_sync' && s.tickPending]} />
       ))}

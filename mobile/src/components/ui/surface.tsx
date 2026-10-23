@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { StyleSheet, View, type ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { radius, space, cardChrome, type ColorToken } from '@/core/design/tokens';
 import { makeStyles, useTheme } from '@/core/design/theme';
 import { useEnter } from '@/core/design/motion';
+import { useScrollReveal } from '@/components/layout/use-scroll-reveal';
 import { formatRupiah } from '@/core/format/money';
 import type { MoneyString } from '@/domain/types';
 import { PressableScale } from './pressable-scale';
 import { Txt } from './txt';
 import { Icon } from './icon';
+import { t, tr } from '@/core/i18n';
 
 /**
  * Kartu: permukaan membulat 16 dengan bayangan lembut (terang) atau garis tipis (gelap).
@@ -28,21 +30,27 @@ export function Card({ children, style, padded = true, onPress, accessibilityLab
 }) {
   const s = useStyles();
   const entering = useEnter(enterIndex ?? 99);
+  const revealRef = useRef<View>(null);
+  const reveal = useScrollReveal(revealRef);
   const toneStyle = tone ? s[tone] : null;
   const body = onPress ? (
-    <PressableScale onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel} accessibilityHint={accessibilityHint} style={[s.card, padded && s.padded, toneStyle, style]}>
+    <PressableScale onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel ? tr(accessibilityLabel) : undefined} accessibilityHint={accessibilityHint ? tr(accessibilityHint) : undefined} style={[s.card, padded && s.padded, toneStyle, style]}>
       {children}
     </PressableScale>
   ) : (
     <View style={[s.card, padded && s.padded, toneStyle, style]}>{children}</View>
   );
-  return enterIndex !== undefined && entering ? <Animated.View entering={entering}>{body}</Animated.View> : body;
+  return (
+    <Animated.View ref={revealRef} onLayout={reveal.onLayout} entering={enterIndex !== undefined ? entering : undefined} style={reveal.style}>
+      {body}
+    </Animated.View>
+  );
 }
 
 /** Nomor dokumen (INV-…, Q-…): teks monospace sekunder; data, bukan dekorasi. */
 export function Serial({ children, accessibilityLabel }: { children: string; accessibilityLabel?: string }) {
   return (
-    <Txt variant="mono" tone="inkSecondary" accessibilityLabel={accessibilityLabel ?? `Nomor ${children}`}>
+    <Txt variant="mono" tone="inkSecondary" accessibilityLabel={accessibilityLabel ?? t('Nomor {0}', [children])}>
       {children}
     </Txt>
   );
@@ -70,7 +78,7 @@ export function Money({
   const variant = size === 'xl' ? 'figureXl' : size === 'lg' ? 'figureLg' : size === 'sm' ? 'bodyStrong' : 'figure';
   if (value === null) {
     return (
-      <View style={{ alignItems: align === 'right' ? 'flex-end' : 'flex-start' }} accessible accessibilityLabel={`Nilai ${missingLabel}`}>
+      <View style={{ alignItems: align === 'right' ? 'flex-end' : 'flex-start' }} accessible accessibilityLabel={t('Nilai {0}', [missingLabel])}>
         <Txt variant={variant} tone="inkMuted">—</Txt>
         <Txt variant="caption" tone="warnInk">{missingLabel}</Txt>
       </View>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { radius, space, cardChrome } from '@/core/design/tokens';
 import { makeStyles } from '@/core/design/theme';
 import { useEnter } from '@/core/design/motion';
+import { useScrollReveal } from '@/components/layout/use-scroll-reveal';
 import { PressableScale } from '@/components/ui/pressable-scale';
 import { Screen } from '@/components/layout/screen';
 import { RootHeader } from '@/components/layout/app-header';
@@ -22,19 +23,22 @@ import { quoteStatus, requestStatus, channelLabel } from '@/core/i18n/status';
 import { formatShortDateTime } from '@/core/format/time';
 import { OrderRow } from '@/features/orders/order-row';
 import { HeaderActions } from '@/features/home/header-actions';
+import { t } from '@/core/i18n';
 
 /** Kartu permintaan: kode + status, pelanggan, rute, kekurangan data, kanal, dan penawaran terakhir. */
 export function RequestRow({ r, index = 0 }: { r: RequestSummary; last?: boolean; index?: number }) {
   const styles = useStyles();
   const router = useRouter();
   const entering = useEnter(index);
+  const revealRef = useRef<View>(null);
+  const reveal = useScrollReveal(revealRef);
   const q = r.latestQuote;
   return (
-    <Animated.View entering={entering}>
+    <Animated.View ref={revealRef} onLayout={reveal.onLayout} entering={entering} style={reveal.style}>
       <PressableScale
         onPress={() => router.push(`/request/${r.id}`)}
         accessibilityRole="button"
-        accessibilityLabel={`Permintaan ${r.alias}, ${requestStatus[r.status].label}, ${r.customerLabel}`}
+        accessibilityLabel={t('Permintaan {0}, {1}, {2}', [r.alias, requestStatus[r.status].label, r.customerLabel])}
         style={styles.card}
       >
         <View style={styles.head}>
@@ -48,7 +52,7 @@ export function RequestRow({ r, index = 0 }: { r: RequestSummary; last?: boolean
         {r.needsReviewReasons.length ? (
           <View style={styles.missing}>
             <Icon name="alert-circle-outline" size={15} tone="warnInk" />
-            <Txt variant="caption" tone="warnInk" style={{ flex: 1 }}>{`Belum lengkap: ${r.needsReviewReasons.join(', ')}`}</Txt>
+            <Txt variant="caption" tone="warnInk" style={{ flex: 1 }}>{t('Belum lengkap: {0}', [r.needsReviewReasons.join(', ')])}</Txt>
           </View>
         ) : null}
         <View style={styles.head}>
@@ -56,7 +60,7 @@ export function RequestRow({ r, index = 0 }: { r: RequestSummary; last?: boolean
           <Txt variant="caption" tone="inkSecondary" style={{ flex: 1 }}>{`${channelLabel[r.channel]} · ${formatShortDateTime(r.createdAt)}`}</Txt>
           {q ? (
             <View style={{ alignItems: 'flex-end' }}>
-              <Txt variant="caption" tone={q.status === 'expired' ? 'dangerInk' : q.status === 'sent' ? 'warnInk' : 'inkSecondary'} bold>{`Penawaran v${q.version} · ${quoteStatus[q.status].label}${q.status === 'expired' && r.status === 'quoted' ? ' · buat ulang' : ''}`}</Txt>
+              <Txt variant="caption" tone={q.status === 'expired' ? 'dangerInk' : q.status === 'sent' ? 'warnInk' : 'inkSecondary'} bold>{t('Penawaran v{0} · {1}{2}', [q.version, quoteStatus[q.status].label, q.status === 'expired' && r.status === 'quoted' ? ' · buat ulang' : ''])}</Txt>
               <Money value={q.amount} size="sm" />
             </View>
           ) : null}
@@ -100,7 +104,7 @@ export function WorkListScreen({ title = 'Pekerjaan', initial = 'active', canCre
           </QueryView>
         ) : (
           <QueryView q={tab === 'active' ? active : history}>
-            {(list) => (list.length ? list.map((o, i) => <OrderRow key={`${tab}-${o.id}`} o={o} index={i} showMoney />) : <Card><EmptyBlock icon="tow-truck" title={tab === 'active' ? 'Tidak ada pekerjaan berjalan' : 'Belum ada riwayat'} /></Card>)}
+            {(list) => (list.length ? list.map((o, i) => <OrderRow key={`${tab}-${o.id}`} o={o} index={i} showMoney />) : <Card><EmptyBlock icon="tow-truck" title={tab === 'active' ? 'Tidak ada pekerjaan yang sedang jalan' : 'Belum ada riwayat'} /></Card>)}
           </QueryView>
         )}
     </Screen>

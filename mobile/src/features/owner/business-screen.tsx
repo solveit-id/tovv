@@ -13,6 +13,7 @@ import { useSession } from '@/data/api/provider';
 import { executionStatus } from '@/core/i18n/status';
 import { formatDate } from '@/core/format/time';
 import { formatRupiah } from '@/core/format/money';
+import { t } from '@/core/i18n';
 
 /**
  * Pelanggan bisnis (BIZ-01–08). Staf melihat kontribusi; pelanggan B2B hanya melihat organisasinya sendiri
@@ -24,7 +25,7 @@ export function BusinessScreen() {
   const staff = session?.view === 'owner' || session?.view === 'admin';
   const q = useTovvQuery(['business-accounts'], (a) => a.listBusinessAccounts());
   return (
-    <Screen header={<DetailHeader title={staff ? 'Pelanggan bisnis' : 'Organisasi saya'} subtitle="Tarif khusus, kewenangan pemesan, PO dan layanan" />}>
+    <Screen header={<DetailHeader title={staff ? 'Pelanggan bisnis' : 'Organisasi saya'} subtitle="Tarif khusus, siapa yang boleh memesan, PO, dan layanan" />}>
       <QueryView q={q}>
         {(list) => (
           <View style={{ gap: space.lg }}>
@@ -33,17 +34,17 @@ export function BusinessScreen() {
                 <SectionTitle title={b.name} />
                 <Card>
                   <Serial>{b.alias}</Serial>
-                  <Txt variant="bodySm" tone="inkSecondary">{`Syarat ${b.termsVersion} · net-${b.netDays} · PO ${b.poRequired ? 'wajib' : 'opsional'}`}</Txt>
+                  <Txt variant="bodySm" tone="inkSecondary">{t('Syarat {0} · net-{1} · PO {2}', [b.termsVersion, b.netDays, b.poRequired ? 'wajib' : 'opsional'])}</Txt>
                   <View style={{ marginTop: space.sm }}>
                     {b.rateCards.map((rc) => (
-                      <LineItem key={rc.id} label={rc.route} hint={`${formatDate(rc.validFrom)} – ${formatDate(rc.validTo)} · ${rc.valid ? 'berlaku' : 'KEDALUWARSA — tarif standar/review'}`} value={<Money value={rc.amount} strike={!rc.valid} />} />
+                      <LineItem key={rc.id} label={rc.route} hint={`${formatDate(rc.validFrom)} – ${formatDate(rc.validTo)} · ${rc.valid ? 'berlaku' : 'KEDALUWARSA — pakai tarif standar/dicek ulang'}`} value={<Money value={rc.amount} strike={!rc.valid} />} />
                     ))}
                   </View>
                   <LineItem label="Anggota" value={<Txt variant="bodySm" align="right">{b.members.map((m) => `${m.name} (${m.roles.join(', ')})`).join('\n')}</Txt>} />
                   <LineItem label="Order dalam periode" value={<Txt variant="figure">{String(b.orders)}</Txt>} />
-                  <LineItem label="Invoice net" value={<Money value={b.invoiceNet} />} />
-                  <LineItem label="Piutang" value={<Money value={b.receivable} />} />
-                  {staff ? <LineItem label="Kontribusi final (internal)" hint={b.provisional ? `${b.provisional} pekerjaan sementara tidak dihitung` : undefined} value={<Money value={b.contribution} missingLabel="belum ada final" />} /> : null}
+                  <LineItem label="Total invoice" value={<Money value={b.invoiceNet} />} />
+                  <LineItem label="Belum dibayar" value={<Money value={b.receivable} />} />
+                  {staff ? <LineItem label="Kontribusi final (internal)" hint={b.provisional ? t('{0} pekerjaan masih sementara, belum dihitung', [b.provisional]) : undefined} value={<Money value={b.contribution} missingLabel="belum ada final" />} /> : null}
                   <Txt variant="label" tone="inkSecondary" style={{ marginTop: space.md }}>Rute favorit</Txt>
                   {b.favoriteRoutes.map((f) => <Txt key={f.id} variant="bodySm">{`• ${f.label}`}</Txt>)}
                   <Txt variant="label" tone="inkSecondary" style={{ marginTop: space.md }}>Order terbaru</Txt>
@@ -51,7 +52,7 @@ export function BusinessScreen() {
                     <Button key={o.id} label={`${o.alias} · ${executionStatus[o.status].label}${o.poRef ? ` · ${o.poRef}` : ''}`} variant="quiet" compact onPress={() => router.push(`/order/${o.id}`)} style={{ alignSelf: 'flex-start' }} />
                   ))}
                 </Card>
-                {!staff ? <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.xs }}>{`Ringkasan organisasi tanpa biaya internal operator. Piutang ${formatRupiah(b.receivable)}.`}</Txt> : null}
+                {!staff ? <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.xs }}>{t('Ringkasan organisasi tanpa biaya internal operator. Belum dibayar {0}.', [formatRupiah(b.receivable)])}</Txt> : null}
               </View>
             ))}
           </View>

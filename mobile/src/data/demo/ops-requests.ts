@@ -10,6 +10,7 @@ import type { CustomerVehicle, Order, Quote, ServiceRequest } from '@/domain/typ
 import { evaluatePrice } from '@/domain/pricing';
 import { toMoneyString, formatRupiah, formatNumber } from '@/core/format/money';
 import { addMinutes, formatAge, formatShortDateTime, secondsBetween } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 const BUFFER_MIN = 30;
 
@@ -24,7 +25,7 @@ function visibleRequests(ctx: Ctx): ServiceRequest[] {
 
 function getVisibleRequest(ctx: Ctx, id: string): ServiceRequest {
   const r = visibleRequests(ctx).find((x) => x.id === id);
-  if (!r) throw new ApiError('NOT_FOUND', 'Permintaan tidak ditemukan.');
+  if (!r) throw new ApiError('NOT_FOUND', t('Permintaan tidak ditemukan.'));
   return r;
 }
 
@@ -42,8 +43,8 @@ export function resolveRate(db: DemoDb, req: ServiceRequest): RequestDetail['rat
     const acc = db.businessAccounts.find((b) => b.id === req.businessAccountId);
     const at = Date.parse(req.createdAt);
     const valid = acc?.rateCards.find((rc) => Date.parse(rc.validFrom) <= at && Date.parse(rc.validTo) > at);
-    if (valid) return { source: 'account', amount: toMoneyString(valid.amount), note: `Tarif akun ${acc?.name} ${valid.route} v${valid.version}` };
-    return { source: 'standard', amount: toMoneyString(STANDARD_RATE[req.tenantId]), note: `Tarif akun ${acc?.name ?? ''} kedaluwarsa/tidak ada; pakai tarif standar atau tinjau manual. Tarif lama tidak dipakai diam-diam.` };
+    if (valid) return { source: 'account', amount: toMoneyString(valid.amount), note: t('Tarif akun {0} {1} v{2}', [acc?.name, valid.route, valid.version]) };
+    return { source: 'standard', amount: toMoneyString(STANDARD_RATE[req.tenantId]), note: t('Tarif akun {0} kedaluwarsa/tidak ada; pakai tarif standar atau cek manual. Tarif lama tidak dipakai diam-diam.', [acc?.name ?? '']) };
   }
   return { source: 'standard', amount: toMoneyString(STANDARD_RATE[req.tenantId]), note: 'Tarif standar operator' };
 }
@@ -93,14 +94,14 @@ export function createRequest(ctx: Ctx, input: NewRequestInput): RequestSummary 
   if (staff) requireScope(ctx.scopes, 'request.manage', 'Akun ini tidak dapat mencatat permintaan.');
   else requireScope(ctx.scopes, 'request.create_own', 'Akun ini tidak dapat membuat permintaan.');
   if (!input.pickup.address.trim() || !input.dropoff.address.trim()) {
-    throw new ApiError('VALIDATION', 'Lokasi jemput dan tujuan wajib diisi.', false, { pickup: 'Wajib', dropoff: 'Wajib' });
+    throw new ApiError('VALIDATION', t('Lokasi jemput dan tujuan wajib diisi.'), false, { pickup: 'Wajib', dropoff: 'Wajib' });
   }
-  if (input.timing.kind !== 'immediate' && !input.timing.start) throw new ApiError('VALIDATION', 'Waktu mulai wajib diisi.', false, { start: 'Wajib' });
+  if (input.timing.kind !== 'immediate' && !input.timing.start) throw new ApiError('VALIDATION', t('Waktu mulai wajib diisi.'), false, { start: 'Wajib' });
   if (input.timing.kind === 'flexible' && (!input.timing.end || Date.parse(input.timing.end) <= Date.parse(input.timing.start ?? ''))) {
-    throw new ApiError('VALIDATION', 'Rentang fleksibel: waktu akhir harus setelah waktu mulai.', false, { end: 'Tidak valid' });
+    throw new ApiError('VALIDATION', t('Rentang fleksibel: jam selesai harus setelah jam mulai.'), false, { end: 'Tidak valid' });
   }
   if (staff && input.channel !== 'mobile' && !input.consentNote?.trim()) {
-    throw new ApiError('VALIDATION', 'Catat persetujuan pihak pemesan untuk permintaan yang dibantu admin.', false, { consent: 'Wajib' });
+    throw new ApiError('VALIDATION', t('Catat persetujuan pemesan untuk permintaan yang dicatat petugas.'), false, { consent: 'Wajib' });
   }
   return ctx.store.transact((db) => {
     // Idempotensi ORD-05: key sama + payload sama → satu request; payload beda → 409.
@@ -108,7 +109,7 @@ export function createRequest(ctx: Ctx, input: NewRequestInput): RequestSummary 
     const dup = db.requests.find((r) => r.idempotencyKey === input.idempotencyKey && r.tenantId === ctx.actor.user.tenantId);
     if (dup) {
       if ((dup as ServiceRequest & { payloadHash?: string }).payloadHash !== payloadHash) {
-        throw new ApiError('VERSION_CONFLICT', 'Kunci idempotensi sudah dipakai dengan isi berbeda.');
+        throw new ApiError('VERSION_CONFLICT', t('Kode pengiriman ini sudah dipakai untuk isi yang berbeda.'));
       }
       return requestSummary(db, dup, ctx.now);
     }
@@ -149,8 +150,8 @@ export function createRequest(ctx: Ctx, input: NewRequestInput): RequestSummary 
 export function submitDraft(ctx: Ctx, id: string): RequestSummary {
   return ctx.store.transact((db) => {
     const r = db.requests.find((x) => x.id === id && x.tenantId === ctx.actor.user.tenantId);
-    if (!r || !customerCanSeeRequest(ctx.actor.user, r)) throw new ApiError('NOT_FOUND', 'Draf tidak ditemukan.');
-    if (r.status !== 'draft') throw new ApiError('VERSION_CONFLICT', 'Permintaan ini sudah dikirim.');
+    if (!r || !customerCanSeeRequest(ctx.actor.user, r)) throw new ApiError('NOT_FOUND', t('Draf tidak ditemukan.'));
+    if (r.status !== 'draft') throw new ApiError('VERSION_CONFLICT', t('Permintaan ini sudah dikirim.'));
     const v = db.vehicles.find((x) => x.id === r.vehicleId)!;
     r.needsReviewReasons = reviewReasons({ vehicle: v, timing: r.timing });
     r.status = r.needsReviewReasons.length ? 'needs_review' : 'ready_to_quote';
@@ -160,10 +161,10 @@ export function submitDraft(ctx: Ctx, id: string): RequestSummary {
 
 export function completeReview(ctx: Ctx, id: string, spec: { weightKg: number; lengthMm: number; widthMm: number; immediateConfirmed: boolean }): RequestSummary {
   requireScope(ctx.scopes, 'request.manage', 'Hanya admin/owner yang dapat meninjau data permintaan.');
-  if (spec.weightKg <= 0 || spec.lengthMm <= 0 || spec.widthMm <= 0) throw new ApiError('VALIDATION', 'Berat dan dimensi harus diisi dari sumber yang dapat dipertanggungjawabkan.');
+  if (spec.weightKg <= 0 || spec.lengthMm <= 0 || spec.widthMm <= 0) throw new ApiError('VALIDATION', t('Berat dan ukuran harus diisi dari sumber yang jelas.'));
   return ctx.store.transact((db) => {
     const r = db.requests.find((x) => x.id === id && x.tenantId === ctx.actor.user.tenantId);
-    if (!r) throw new ApiError('NOT_FOUND', 'Permintaan tidak ditemukan.');
+    if (!r) throw new ApiError('NOT_FOUND', t('Permintaan tidak ditemukan.'));
     const v = db.vehicles.find((x) => x.id === r.vehicleId)!;
     Object.assign(v, { weightKg: spec.weightKg, lengthMm: spec.lengthMm, widthMm: spec.widthMm });
     if (r.timing.kind === 'immediate') r.timing.immediateConfirmed = spec.immediateConfirmed;
@@ -174,11 +175,11 @@ export function completeReview(ctx: Ctx, id: string, spec: { weightKg: number; l
 }
 
 export function cancelRequest(ctx: Ctx, id: string, reason: string): RequestSummary {
-  if (!reason.trim()) throw new ApiError('VALIDATION', 'Alasan pembatalan wajib diisi.');
+  if (!reason.trim()) throw new ApiError('VALIDATION', t('Alasan pembatalan wajib diisi.'));
   return ctx.store.transact((db) => {
     const r = db.requests.find((x) => x.id === id && x.tenantId === ctx.actor.user.tenantId);
-    if (!r || (!isStaffView(ctx.actor) && !customerCanSeeRequest(ctx.actor.user, r))) throw new ApiError('NOT_FOUND', 'Permintaan tidak ditemukan.');
-    if (['converted', 'lost', 'canceled'].includes(r.status)) throw new ApiError('VERSION_CONFLICT', 'Permintaan sudah final.');
+    if (!r || (!isStaffView(ctx.actor) && !customerCanSeeRequest(ctx.actor.user, r))) throw new ApiError('NOT_FOUND', t('Permintaan tidak ditemukan.'));
+    if (['converted', 'lost', 'canceled'].includes(r.status)) throw new ApiError('VERSION_CONFLICT', t('Permintaan ini sudah final.'));
     r.status = 'canceled';
     r.cancelReason = reason;
     db.quotes.filter((q) => q.requestId === r.id && q.status === 'sent').forEach((q) => (q.status = 'superseded'));
@@ -199,7 +200,7 @@ export function unitCandidates(ctx: Ctx, requestId: string, start: string, end: 
   requireScope(ctx.scopes, 'request.view_all', 'Hanya admin/owner yang melihat kandidat unit.');
   const db = ctx.store.db;
   const r = requestOf(db, requestId);
-  if (r.tenantId !== ctx.actor.user.tenantId) throw new ApiError('NOT_FOUND', 'Permintaan tidak ditemukan.');
+  if (r.tenantId !== ctx.actor.user.tenantId) throw new ApiError('NOT_FOUND', t('Permintaan tidak ditemukan.'));
   const v = db.vehicles.find((x) => x.id === r.vehicleId)!;
   const tripKm = r.pickup.lat !== null && r.dropoff.lat !== null ? haversineKm({ lat: r.pickup.lat, lng: r.pickup.lng! }, { lat: r.dropoff.lat, lng: r.dropoff.lng! }) : null;
   const rows = db.units
@@ -244,11 +245,11 @@ export function unitCandidates(ctx: Ctx, requestId: string, start: string, end: 
   const rankable = rows.filter((x) => x.eligible && !x.conflict).sort((a, b) => a._est - b._est || (a.etaMinutes ?? 999) - (b.etaMinutes ?? 999));
   rankable.forEach((x, i) => {
     x.rank = i + 1;
-    x.reason = `${i === 0 ? 'Biaya estimasi terendah yang layak' : 'Alternatif layak'} · ${formatRupiah(x._est)} · ETA ±${x.etaMinutes} mnt${x.positionFreshness === 'stale' ? ' dari lokasi lama' : ''}`;
+    x.reason = t('{0} · {1} · ETA ±{2} mnt{3}', [i === 0 ? 'Biaya estimasi terendah yang layak' : 'Alternatif layak', formatRupiah(x._est), x.etaMinutes, x.positionFreshness === 'stale' ? ' dari lokasi lama' : '']);
   });
   rows.forEach((x) => {
-    if (!x.eligible) x.reason = `Tidak layak: ${x.rejections[0]}`;
-    else if (x.conflict) x.reason = `Bentrok jadwal; kosong setelah ${formatShortDateTime(x.nextFreeAt)}`;
+    if (!x.eligible) x.reason = t('Tidak cocok: {0}', [x.rejections[0]]);
+    else if (x.conflict) x.reason = t('Jadwal bentrok; kosong setelah {0}', [formatShortDateTime(x.nextFreeAt)]);
   });
   return rows
     .sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99) || (a.distanceKm ?? 999) - (b.distanceKm ?? 999))
@@ -260,29 +261,29 @@ export function sendQuote(ctx: Ctx, input: QuoteInput): QuoteDoc {
   requireOnline(ctx.store.db, 'Mengirim penawaran');
   const db = ctx.store.db;
   const r = requestOf(db, input.requestId);
-  if (r.tenantId !== ctx.actor.user.tenantId) throw new ApiError('NOT_FOUND', 'Permintaan tidak ditemukan.');
+  if (r.tenantId !== ctx.actor.user.tenantId) throw new ApiError('NOT_FOUND', t('Permintaan tidak ditemukan.'));
   if (!['ready_to_quote', 'quoted'].includes(r.status)) throw new ApiError('VERSION_CONFLICT', r.status === 'needs_review' ? 'Lengkapi data kendaraan sebelum menawar.' : 'Permintaan tidak dapat ditawar pada status ini.');
   const unit = db.units.find((u) => u.id === input.unitId);
-  if (!unit) throw new ApiError('VALIDATION', 'Pilih unit.');
+  if (!unit) throw new ApiError('VALIDATION', t('Pilih unit.'));
   const cand = unitCandidates(ctx, r.id, input.scheduleStart, input.scheduleEnd).find((c) => c.unitId === unit.id);
-  if (!cand?.eligible) throw new ApiError('VALIDATION', `Unit ${unit.code} tidak layak: ${cand?.rejections[0] ?? 'tidak memenuhi syarat'}. Override harga tidak meloloskan kapasitas.`);
+  if (!cand?.eligible) throw new ApiError('VALIDATION', t('Unit {0} tidak cocok: {1}. Mengubah harga tidak mengubah kapasitas.', [unit.code, cand?.rejections[0] ?? 'tidak memenuhi syarat']));
   const priorityFee = input.priority?.fee ?? 0;
   const tenantFee = r.tenantId === 'tenant-b' ? 10_000 : 0;
   const result = evaluatePrice({ price: input.price + priorityFee, direct: input.direct === null ? null : input.direct, allocation: input.allocation, reserve: input.reserve, feePerService: tenantFee, adminHandling: 0, targetSurplus: input.targetSurplus });
   const isOwner = ctx.scopes.has('quote.override_any');
   if (!ctx.scopes.has('quote.send')) {
-    throw new ApiError('ESCALATION_REQUIRED', 'Mengirim penawaran memerlukan owner atau delegasi quote.send. Draf dapat diteruskan ke owner.');
+    throw new ApiError('ESCALATION_REQUIRED', t('Mengirim penawaran perlu owner atau izin kirim penawaran. Draf bisa diteruskan ke owner.'));
   }
   if (result.certainty === 'incomplete' && !isOwner) {
-    throw new ApiError('ESCALATION_REQUIRED', 'Biaya langsung belum lengkap. Delegasi admin hanya berlaku dengan biaya lengkap; eskalasi ke owner.');
+    throw new ApiError('ESCALATION_REQUIRED', t('Biaya langsung belum lengkap. Delegasi hanya berlaku kalau biaya lengkap; serahkan ke owner.'));
   }
   if (result.gapToTarget !== null && result.gapToTarget < 0) {
-    if (!input.belowTargetReason?.trim()) throw new ApiError('VALIDATION', 'Harga di bawah target memerlukan alasan.', false, { reason: 'Wajib' });
+    if (!input.belowTargetReason?.trim()) throw new ApiError('VALIDATION', t('Harga di bawah target perlu alasan.'), false, { reason: 'Wajib' });
     if (!isOwner) {
       const d = db.delegations.find((x) => x.delegateId === ctx.actor.user.id && !x.revokedAt && Date.parse(x.expiresAt) > Date.parse(ctx.now));
       const limit = d?.limit ?? 0;
       if (!ctx.scopes.has('quote.override_within_limit') || -result.gapToTarget > limit) {
-        throw new ApiError('ESCALATION_REQUIRED', `Diskon ${formatRupiah(-result.gapToTarget)} dari target melebihi batas delegasi ${formatRupiah(limit)}. Eskalasi ke owner.`);
+        throw new ApiError('ESCALATION_REQUIRED', t('Diskon {0} dari target melebihi batas delegasi {1}. Serahkan ke owner.', [formatRupiah(-result.gapToTarget), formatRupiah(limit)]));
       }
     }
   }
@@ -302,7 +303,7 @@ export function sendQuote(ctx: Ctx, input: QuoteInput): QuoteDoc {
       items: [
         { label: 'Jasa derek flatbed', amount: base },
         { label: 'Jarak tempuh dan tol', amount: input.price - base },
-        ...(input.priority ? [{ label: 'Tarif prioritas (komitmen jadwal)', amount: priorityFee }] : []),
+        ...(input.priority ? [{ label: 'Tarif prioritas (jadwal didahulukan)', amount: priorityFee }] : []),
       ],
       priority: input.priority,
       unitId: unit.id,
@@ -320,7 +321,7 @@ export function sendQuote(ctx: Ctx, input: QuoteInput): QuoteDoc {
         feePerService: tenantFee,
         adminHandling: 0,
         targetSurplus: input.targetSurplus,
-        components: [{ label: 'Biaya langsung (approach, muat, BBM, tol, personel)', amount: input.direct, source: `Estimasi unit ${unit.code} ${unit.costTemplateVersion}` }],
+        components: [{ label: 'Biaya langsung (jalan ke lokasi, muat, BBM, tol, kru)', amount: input.direct, source: t('Perkiraan unit {0} {1}', [unit.code, unit.costTemplateVersion]) }],
       },
       belowTargetReason: input.belowTargetReason,
       acceptedBy: null,
@@ -331,7 +332,7 @@ export function sendQuote(ctx: Ctx, input: QuoteInput): QuoteDoc {
     d.quotes.push(q);
     req.status = 'quoted';
     if (req.customerUserId) {
-      d.inbox.push({ id: `IB-${d.inbox.length + 1}`, eventId: `evt-quote-${q.id}`, tenantId: req.tenantId, userId: req.customerUserId, type: 'quote', title: `Penawaran v${version} untuk ${req.alias}`, body: `${formatRupiah(q.amount)} · berlaku sampai ${formatShortDateTime(q.validUntil)}`, link: `/quote/${q.id}`, createdAt: ctx.now, read: false });
+      d.inbox.push({ id: `IB-${d.inbox.length + 1}`, eventId: `evt-quote-${q.id}`, tenantId: req.tenantId, userId: req.customerUserId, type: 'quote', title: t('Penawaran v{0} untuk {1}', [version, req.alias]), body: t('{0} · berlaku sampai {1}', [formatRupiah(q.amount), formatShortDateTime(q.validUntil)]), link: `/quote/${q.id}`, createdAt: ctx.now, read: false });
     }
     return quoteDoc(d, q, ctx.actor, ctx.now);
   });
@@ -340,7 +341,7 @@ export function sendQuote(ctx: Ctx, input: QuoteInput): QuoteDoc {
 export function getQuote(ctx: Ctx, id: string): QuoteDoc {
   const db = ctx.store.db;
   const q = db.quotes.find((x) => x.id === id);
-  if (!q) throw new ApiError('NOT_FOUND', 'Penawaran tidak ditemukan.');
+  if (!q) throw new ApiError('NOT_FOUND', t('Penawaran tidak ditemukan.'));
   getVisibleRequest(ctx, q.requestId);
   return quoteDoc(db, q, ctx.actor, ctx.now);
 }
@@ -355,39 +356,39 @@ export interface AcceptOptions {
 export function acceptQuote(ctx: Ctx, quoteId: string, opts: AcceptOptions): { orderId: string } {
   requireOnline(ctx.store.db, 'Menyetujui penawaran dan reservasi unit');
   const db0 = ctx.store.db;
-  if (db0.faults.planExpired) throw new ApiError('PLAN_BLOCKED', 'Paket SaaS DEMO tenant kedaluwarsa: order baru diblokir sesuai policy demo. Pekerjaan aktif, bukti, invoice dan pembayaran tetap dapat diakses.');
+  if (db0.faults.planExpired) throw new ApiError('PLAN_BLOCKED', t('Paket langganan DEMO usaha ini kedaluwarsa: order baru diblokir sesuai aturan demo. Pekerjaan yang jalan, bukti, invoice, dan pembayaran tetap bisa dibuka.'));
   return ctx.store.transact((db) => {
     const q = db.quotes.find((x) => x.id === quoteId);
-    if (!q || q.tenantId !== ctx.actor.user.tenantId) throw new ApiError('NOT_FOUND', 'Penawaran tidak ditemukan.');
+    if (!q || q.tenantId !== ctx.actor.user.tenantId) throw new ApiError('NOT_FOUND', t('Penawaran tidak ditemukan.'));
     const r = db.requests.find((x) => x.id === q.requestId)!;
-    if (q.status === 'superseded') throw new ApiError('QUOTE_SUPERSEDED', 'Versi ini sudah diganti. Buka versi terbaru.');
-    if (q.status !== 'sent') throw new ApiError('VERSION_CONFLICT', 'Penawaran ini tidak lagi menunggu persetujuan.');
+    if (q.status === 'superseded') throw new ApiError('QUOTE_SUPERSEDED', t('Versi ini sudah diganti. Buka versi terbaru.'));
+    if (q.status !== 'sent') throw new ApiError('VERSION_CONFLICT', t('Penawaran ini sudah tidak menunggu persetujuan.'));
     if (Date.parse(q.validUntil) <= Date.parse(ctx.now)) {
       q.status = 'expired';
-      throw new ApiError('QUOTE_EXPIRED', 'Penawaran kedaluwarsa. Minta versi baru; versi lama tidak dapat diterima.');
+      throw new ApiError('QUOTE_EXPIRED', t('Penawaran sudah kedaluwarsa. Minta versi baru; versi lama tidak bisa diterima.'));
     }
     const acc = r.businessAccountId ? db.businessAccounts.find((b) => b.id === r.businessAccountId)! : null;
     let acceptedBy = ctx.actor.user.id;
     let consent: Quote['assistedConsent'] = null;
     if (ctx.actor.view === 'customer') {
-      if (!customerCanSeeRequest(ctx.actor.user, r)) throw new ApiError('NOT_FOUND', 'Penawaran tidak ditemukan.');
-      if (acc && !ctx.scopes.has('quote.approve_org')) throw new ApiError('FORBIDDEN', 'Requester tidak dapat menyetujui harga. Minta approver organisasi.');
+      if (!customerCanSeeRequest(ctx.actor.user, r)) throw new ApiError('NOT_FOUND', t('Penawaran tidak ditemukan.'));
+      if (acc && !ctx.scopes.has('quote.approve_org')) throw new ApiError('FORBIDDEN', t('Pemesan tidak bisa menyetujui harga. Minta penyetuju organisasi.'));
     } else {
       requireScope(ctx.scopes, 'request.manage', 'Akun ini tidak dapat mencatat persetujuan.');
-      if (!opts.assistedNote?.trim()) throw new ApiError('VALIDATION', 'Persetujuan dibantu admin wajib mencatat kanal dan pernyataan pemesan.', false, { assistedNote: 'Wajib' });
+      if (!opts.assistedNote?.trim()) throw new ApiError('VALIDATION', t('Persetujuan yang dicatat petugas wajib menyebut lewat apa dan pernyataan pemesannya.'), false, { assistedNote: 'Wajib' });
       if (acc) {
         const approver = db.users.find((u) => u.id === opts.approverId && u.businessAccountId === acc.id && (u.b2bRoles ?? []).includes('approver'));
-        if (!approver) throw new ApiError('FORBIDDEN', 'Pemesanan B2B yang dibantu tetap memerlukan approver organisasi; pilih approver yang menyetujui.');
+        if (!approver) throw new ApiError('FORBIDDEN', t('Pesanan bisnis yang dicatat petugas tetap perlu penyetuju organisasi; pilih penyetujunya.'));
         acceptedBy = approver.id;
       } else if (r.customerUserId) acceptedBy = r.customerUserId;
       consent = { actorId: ctx.actor.user.id, channel: r.channel === 'mobile' ? 'phone' : r.channel, at: ctx.now, note: opts.assistedNote };
     }
     const po = opts.poRef?.trim() || r.poRef || null;
-    if (acc?.poRequired && !po) throw new ApiError('VALIDATION', `Nomor PO wajib untuk ${acc.name}.`, false, { poRef: 'Wajib' });
+    if (acc?.poRequired && !po) throw new ApiError('VALIDATION', t('Nomor PO wajib untuk {0}.', [acc.name]), false, { poRef: 'Wajib' });
     const clash = overlaps(db, q.unitId!, q.scheduleStart!, q.scheduleEnd!);
     if (clash) {
       const other = db.orders.find((o) => o.id === clash.orderId);
-      throw new ApiError('CAPACITY_CONFLICT', `Unit sudah dipakai ${other?.alias ?? ''} pada waktu yang dipilih. Penawaran tidak diterima sebagian; pilih jadwal/unit lain.`);
+      throw new ApiError('CAPACITY_CONFLICT', t('Unit sudah dipakai {0} pada waktu itu. Penawaran tidak bisa diterima sebagian; pilih jadwal/unit lain.', [other?.alias ?? '']));
     }
     q.status = 'accepted';
     q.acceptedBy = acceptedBy;
@@ -428,16 +429,16 @@ export function acceptQuote(ctx: Ctx, quoteId: string, opts: AcceptOptions): { o
 }
 
 export function rejectQuote(ctx: Ctx, quoteId: string, reason: string, endRequest: boolean): QuoteDoc {
-  if (!reason.trim()) throw new ApiError('VALIDATION', 'Tuliskan alasan penolakan agar operator dapat menyesuaikan.');
+  if (!reason.trim()) throw new ApiError('VALIDATION', t('Tulis alasan menolak supaya operator bisa menyesuaikan.'));
   return ctx.store.transact((db) => {
     const q = db.quotes.find((x) => x.id === quoteId);
-    if (!q || q.tenantId !== ctx.actor.user.tenantId) throw new ApiError('NOT_FOUND', 'Penawaran tidak ditemukan.');
+    if (!q || q.tenantId !== ctx.actor.user.tenantId) throw new ApiError('NOT_FOUND', t('Penawaran tidak ditemukan.'));
     const r = db.requests.find((x) => x.id === q.requestId)!;
     if (ctx.actor.view === 'customer') {
-      if (!customerCanSeeRequest(ctx.actor.user, r)) throw new ApiError('NOT_FOUND', 'Penawaran tidak ditemukan.');
-      if (r.businessAccountId && !ctx.scopes.has('quote.approve_org')) throw new ApiError('FORBIDDEN', 'Hanya approver organisasi yang dapat menolak harga.');
+      if (!customerCanSeeRequest(ctx.actor.user, r)) throw new ApiError('NOT_FOUND', t('Penawaran tidak ditemukan.'));
+      if (r.businessAccountId && !ctx.scopes.has('quote.approve_org')) throw new ApiError('FORBIDDEN', t('Hanya penyetuju organisasi yang bisa menolak harga.'));
     }
-    if (q.status !== 'sent') throw new ApiError('VERSION_CONFLICT', 'Penawaran ini tidak lagi menunggu keputusan.');
+    if (q.status !== 'sent') throw new ApiError('VERSION_CONFLICT', t('Penawaran ini sudah tidak menunggu keputusan.'));
     q.status = 'rejected';
     q.rejectedReason = reason;
     if (endRequest) {
@@ -452,9 +453,9 @@ export function rejectQuote(ctx: Ctx, quoteId: string, reason: string, endReques
 export function reorder(ctx: Ctx, orderId: string): RequestSummary {
   const db = ctx.store.db;
   const o = db.orders.find((x) => x.id === orderId && x.tenantId === ctx.actor.user.tenantId);
-  if (!o) throw new ApiError('NOT_FOUND', 'Order tidak ditemukan.');
+  if (!o) throw new ApiError('NOT_FOUND', t('Order tidak ditemukan.'));
   const src = requestOf(db, o.requestId);
-  if (ctx.actor.view === 'customer' && !customerCanSeeRequest(ctx.actor.user, src)) throw new ApiError('NOT_FOUND', 'Order tidak ditemukan.');
+  if (ctx.actor.view === 'customer' && !customerCanSeeRequest(ctx.actor.user, src)) throw new ApiError('NOT_FOUND', t('Order tidak ditemukan.'));
   const v = db.vehicles.find((x) => x.id === src.vehicleId)!;
   return createRequest(ctx, {
     channel: ctx.actor.view === 'customer' ? (src.businessAccountId ? 'b2b' : 'mobile') : src.channel,
@@ -476,12 +477,12 @@ export function reorder(ctx: Ctx, orderId: string): RequestSummary {
 export function captureContext(ctx: Ctx, requestId: string) {
   const db = ctx.store.db;
   const r = requestOf(db, requestId);
-  if (r.tenantId !== ctx.actor.user.tenantId) throw new ApiError('NOT_FOUND', 'Permintaan tidak ditemukan.');
+  if (r.tenantId !== ctx.actor.user.tenantId) throw new ApiError('NOT_FOUND', t('Permintaan tidak ditemukan.'));
   const staff = isStaffView(ctx.actor);
   const customer = ctx.actor.view === 'customer' && customerCanSeeRequest(ctx.actor.user, r);
   const order = db.orders.find((o) => o.requestId === r.id);
   const driver = ctx.actor.view === 'driver' && !!order && db.assignments.some((a) => a.orderId === order.id && a.driverId === ctx.actor.user.id && a.status === 'accepted');
-  if (!staff && !customer && !driver) throw new ApiError('NOT_FOUND', 'Permintaan tidak ditemukan.');
+  if (!staff && !customer && !driver) throw new ApiError('NOT_FOUND', t('Permintaan tidak ditemukan.'));
   const v = db.vehicles.find((x) => x.id === r.vehicleId)!;
   return { id: r.id, alias: r.alias, vehicle: { label: v.label, plate: v.plate }, pickup: r.pickup, dropoff: r.dropoff };
 }

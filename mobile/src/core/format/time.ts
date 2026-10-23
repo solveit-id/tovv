@@ -1,3 +1,4 @@
+import { t } from '@/core/i18n';
 /**
  * Waktu bisnis Tovv. Disimpan UTC; ditampilkan menurut zona IANA tenant.
  * Zona Indonesia tidak memakai DST, sehingga offset tetap cukup untuk tahap frontend.
@@ -53,7 +54,7 @@ function parts(iso: string, tz: string) {
   const d = new Date(Date.parse(iso) + z.offsetMin * 60_000);
   return {
     day: d.getUTCDate(),
-    month: MONTHS[d.getUTCMonth()] ?? '',
+    month: t(MONTHS[d.getUTCMonth()] ?? ''),
     year: d.getUTCFullYear(),
     hh: String(d.getUTCHours()).padStart(2, '0'),
     mm: String(d.getUTCMinutes()).padStart(2, '0'),
@@ -70,7 +71,7 @@ export function formatDate(iso: string | null, tz = DEFAULT_TZ): string {
 export function formatLocalDate(date: string | null): string {
   if (!date) return '—';
   const [y, m, d] = date.split('-').map(Number);
-  return `${d} ${MONTHS[(m ?? 1) - 1]} ${y}`;
+  return `${d} ${t(MONTHS[(m ?? 1) - 1] ?? '')} ${y}`;
 }
 
 export function formatTime(iso: string | null, tz = DEFAULT_TZ): string {
@@ -94,12 +95,12 @@ export function formatShortDateTime(iso: string | null, tz = DEFAULT_TZ): string
 /** Umur dalam bahasa sehari-hari: "45 dtk lalu", "12 mnt lalu", "3 jam lalu", "2 hari lalu". */
 export function formatAge(fromIso: string, nowIso: string): string {
   const s = Math.max(0, Math.round((Date.parse(nowIso) - Date.parse(fromIso)) / 1000));
-  if (s < 60) return `${s} dtk lalu`;
+  if (s < 60) return t('{0} dtk lalu', [s]);
   const m = Math.floor(s / 60);
-  if (m < 60) return `${m} mnt lalu`;
+  if (m < 60) return t('{0} mnt lalu', [m]);
   const h = Math.floor(m / 60);
-  if (h < 48) return `${h} jam lalu`;
-  return `${Math.floor(h / 24)} hari lalu`;
+  if (h < 48) return t('{0} jam lalu', [h]);
+  return t('{0} hari lalu', [Math.floor(h / 24)]);
 }
 
 /** Sisa waktu sampai `toIso`: "berakhir 3 jam lagi" / "lewat 2 jam". */
@@ -132,7 +133,7 @@ export function timePresets(nowIso: string): { label: string; start: string }[] 
   const today = localDate(nowIso);
   const plus2 = new Date(Math.ceil((Date.parse(nowIso) + 2 * 3600_000) / 1_800_000) * 1_800_000).toISOString();
   return [
-    { label: `Hari ini ${formatTime(plus2)}`, start: plus2 },
+    { label: t('Hari ini {0}', [formatTime(plus2)]), start: plus2 },
     { label: 'Besok 08.00 WIB', start: localAt(addLocalDays(today, 1), 8) },
     { label: 'Besok 13.00 WIB', start: localAt(addLocalDays(today, 1), 13) },
     { label: 'Lusa 08.00 WIB', start: localAt(addLocalDays(today, 2), 8) },

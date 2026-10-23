@@ -10,6 +10,7 @@ import { Icon } from '@/components/ui/icon';
 import { Wordmark } from '@/components/brand/wordmark';
 import { HeroBackground } from './hero-background';
 import { useScrollState } from './scroll-context';
+import { t } from '@/core/i18n';
 
 export function HeaderIconButton({ icon, label, onPress, badge, tone = 'onHero' }: { icon: string; label: string; onPress: () => void; badge?: number; tone?: ColorToken }) {
   const s = useStyles();
@@ -18,7 +19,7 @@ export function HeaderIconButton({ icon, label, onPress, badge, tone = 'onHero' 
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={badge ? `${label}, ${badge} belum dibaca` : label}
+      accessibilityLabel={badge ? t('{0}, {1} belum dibaca', [label, badge]) : label}
       hitSlop={4}
       style={({ pressed }) => [s.iconBtn, onHero ? s.iconOnHero : s.iconPlain, pressed && (onHero ? s.iconOnHeroPressed : s.iconPlainPressed)]}
     >
@@ -45,7 +46,7 @@ export function RootHeader({ title, subtitle, right, children, overlap }: { titl
   const reduced = useReducedMotion();
 
   const bgStyle = useAnimatedStyle(() => {
-    if (!scroll || reduced) return {};
+    if (!scroll?.hero || reduced) return {};
     const y = scroll.y.value;
     const h = Math.max(1, scroll.heroH.value);
     return {
@@ -54,7 +55,7 @@ export function RootHeader({ title, subtitle, right, children, overlap }: { titl
     };
   });
   const contentStyle = useAnimatedStyle(() => {
-    if (!scroll || reduced) return {};
+    if (!scroll?.hero || reduced) return {};
     const y = scroll.y.value;
     return {
       opacity: interpolate(y, [0, 140], [1, 0], Extrapolation.CLAMP),

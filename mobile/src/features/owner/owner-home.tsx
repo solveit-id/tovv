@@ -19,6 +19,7 @@ import { OrderRow } from '@/features/orders/order-row';
 import { useDemoNow } from '@/core/hooks/use-demo-now';
 import { formatDate, formatDateTime } from '@/core/format/time';
 import { firstName } from '@/core/format/name';
+import { t } from '@/core/i18n';
 
 
 /**
@@ -43,11 +44,11 @@ export function OwnerHome() {
       headerScrolls
       onRefresh={() => qc.invalidateQueries()}
       header={
-        <RootHeader overlap right={<HeaderActions />} title={s ? `Halo, ${firstName(s.userName)}` : undefined} subtitle={s ? `${s.tenantName} · ${formatDate(now)}` : undefined} />
+        <RootHeader overlap right={<HeaderActions />} title={s ? t('Halo, {0}', [firstName(s.userName)]) : undefined} subtitle={s ? `${s.tenantName} · ${formatDate(now)}` : undefined} />
       }
       fab={{ label: 'Catat permintaan', icon: 'phone-plus', onPress: () => router.push('/request/new'), accessibilityHint: 'Catat permintaan dari telepon atau chat pelanggan' }}
     >
-      <HeroCard onPress={() => router.push({ pathname: '/reports', params: { focus: 'receivable' } })} accessibilityLabel="Buka laporan keuangan">
+      <HeroCard onPress={() => router.push({ pathname: '/reports', params: { focus: 'receivable' } })} accessibilityLabel={t('Buka laporan keuangan')}>
         <QueryView q={summary} skeletonRows={1}>
           {(sum) => {
             const receivable = money('receivable');
@@ -59,7 +60,7 @@ export function OwnerHome() {
                     <Icon name="chevron-right" size={18} tone="inkMuted" />
                   </View>
                   {receivable ? <CountUpMoney value={receivable.amount} /> : <SkeletonBar width="60%" height={32} />}
-                  <Txt variant="caption" tone="inkSecondary">{`${sum.periodLabel} · diperbarui ${formatDateTime(sum.asOf)}`}</Txt>
+                  <Txt variant="caption" tone="inkSecondary">{t('{0} · diperbarui {1}', [sum.periodLabel, formatDateTime(sum.asOf)])}</Txt>
                 </View>
                 <HeroStats
                   items={[
@@ -76,24 +77,24 @@ export function OwnerHome() {
       <ShortcutGrid
         items={[
           { key: 'price', label: 'Hitung harga', icon: 'calculator-variant-outline', onPress: () => router.push('/pricing'), tone: 'okInk', wash: 'okWash' },
-          { key: 'work', label: 'Pekerjaan', icon: 'clipboard-list-outline', onPress: () => router.push('/owner/pekerjaan'), tone: 'warnInk', wash: 'warnWash', badge: active.data?.length },
+          { key: 'work', label: 'Pekerjaan', icon: 'clipboard-list-outline', onPress: () => router.push('/owner/jobs'), tone: 'warnInk', wash: 'warnWash', badge: active.data?.length },
           { key: 'fleet', label: 'Armada', icon: 'tow-truck', onPress: () => router.push('/fleet'), tone: 'neutralInk', wash: 'neutralWash' },
           canDrive
-            ? { key: 'drive', label: myDrive ? `Mode driver · ${myDrive.alias}` : 'Mode driver', icon: 'steering', onPress: () => void switchView('driver').then(() => router.replace('/driver')) }
+            ? { key: 'drive', label: myDrive ? t('Mode driver · {0}', [myDrive.alias]) : 'Mode driver', icon: 'steering', onPress: () => void switchView('driver').then(() => router.replace('/driver')) }
             : { key: 'rep', label: 'Laporan', icon: 'chart-box-outline', onPress: () => router.push('/reports') },
         ]}
       />
 
       <DailyActionsBlock limit={3} />
 
-      <SectionTitle title="Pekerjaan berjalan" count={active.data?.length} action={<Button label="Semua" variant="quiet" compact onPress={() => router.push('/owner/pekerjaan')} />} />
+      <SectionTitle title="Pekerjaan yang sedang jalan" count={active.data?.length} action={<Button label="Semua" variant="quiet" compact onPress={() => router.push('/owner/jobs')} />} />
       <QueryView q={active}>
         {(list) =>
           list.length ? (
             list.slice(0, 4).map((o, i) => <OrderRow key={o.id} o={o} index={i} />)
           ) : (
             <Card>
-              <EmptyBlock icon="tow-truck" title="Tidak ada pekerjaan berjalan" body="Pekerjaan muncul di sini setelah penawaran disetujui pelanggan." />
+              <EmptyBlock icon="tow-truck" title="Tidak ada pekerjaan yang sedang jalan" body="Pekerjaan muncul di sini setelah pelanggan menyetujui penawaran." />
             </Card>
           )
         }
@@ -106,7 +107,7 @@ export function OwnerHome() {
             <View style={{ flex: 1, gap: 2 }}>
               <Txt variant="bodyStrong" tone="warnInk">Kontribusi masih sementara</Txt>
               <Txt variant="bodySm" tone="ink">
-                {`Biaya ${summary.data.contribution.provisionalAliases.join(', ')} belum lengkap, jadi belum ikut dihitung (tidak dianggap nol). Kontribusi bukan laba bersih.`}
+                {t('Biaya {0} belum lengkap, jadi belum ikut dihitung (tidak dianggap nol). Kontribusi bukan laba bersih.', [summary.data.contribution.provisionalAliases.join(', ')])}
               </Txt>
             </View>
           </View>

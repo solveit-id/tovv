@@ -15,6 +15,7 @@ import { errorMessage, useTovvQuery } from '@/data/api/hooks';
 import { useToast } from '@/components/feedback/toast';
 import { QuoteStack } from './quote-doc-view';
 import { useDemoNow } from '@/core/hooks/use-demo-now';
+import { t } from '@/core/i18n';
 
 /**
  * Persetujuan penawaran oleh pelanggan (QTE-04/05, BIZ-02/05). Mengacu satu versi; versi lama/kedaluwarsa
@@ -40,7 +41,7 @@ export function QuoteScreen() {
     setErr(null);
     try {
       const r = await api.acceptQuote(id, { poRef: po || null });
-      toast.show('Disetujui. Unit dan jadwal terkunci; operator menugaskan petugas.', 'ok');
+      toast.show(t('Disetujui. Unit dan jadwal sudah dikunci; operator akan menugaskan sopir.'), 'ok');
       router.replace(`/order/${r.orderId}`);
     } catch (e) {
       setErr(errorMessage(e));
@@ -55,7 +56,7 @@ export function QuoteScreen() {
 
   return (
     <Screen
-      header={<DetailHeader title={doc ? `Penawaran v${doc.version}` : 'Penawaran'} subtitle={doc?.operatorName} />}
+      header={<DetailHeader title={doc ? t('Penawaran v{0}', [doc.version]) : 'Penawaran'} subtitle={doc?.operatorName} />}
       footer={
         canDecide ? (
           <>
@@ -75,11 +76,11 @@ export function QuoteScreen() {
             {d.approvalNote ? <Card style={{ marginTop: space.md }}><Txt variant="bodySm" tone="warnInk">{d.approvalNote}</Txt></Card> : null}
             {canDecide && req.data?.businessAccount ? (
               <View style={{ marginTop: space.lg }}>
-                <Field label="Nomor PO / referensi internal" value={po} onChangeText={setPo} helper={needPo ? `Wajib untuk ${req.data.businessAccount.name}.` : req.data.poRef ? `Tercatat: ${req.data.poRef}` : 'Opsional.'} />
+                <Field label="Nomor PO / referensi internal" value={po} onChangeText={setPo} helper={needPo ? t('Wajib untuk {0}.', [req.data.businessAccount.name]) : req.data.poRef ? t('Tercatat: {0}', [req.data.poRef]) : 'Opsional.'} />
               </View>
             ) : null}
             <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.md }}>
-              Menyetujui mengacu versi ini saja. Biaya tambahan kemudian disajikan terpisah dan tidak ditagih sebelum Anda setujui.
+              Persetujuan hanya untuk versi ini. Kalau nanti ada biaya tambahan, akan ditampilkan terpisah dan tidak ditagih sebelum Anda setujui.
             </Txt>
           </>
         )}
@@ -110,7 +111,7 @@ export function QuoteScreen() {
           />
         }
       >
-        <Field label="Alasan" value={reason} onChangeText={setReason} multiline helper="Membantu operator menyesuaikan versi berikutnya." />
+        <Field label="Alasan" value={reason} onChangeText={setReason} multiline helper="Membantu operator menyiapkan versi berikutnya." />
         <Toggle label="Tidak melanjutkan permintaan" value={endReq} onChange={setEndReq} />
         {err ? <Txt variant="bodySm" tone="dangerInk">{err}</Txt> : null}
       </BottomSheet>

@@ -4,6 +4,7 @@ import { scopesFor, type Actor, type Scope } from './policy';
 import type { OutboxItem, User, ViewGroup } from '@/domain/types';
 import { ApiError } from '@/data/api/contract';
 import { DATASET_GENERATION } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 export interface Ctx {
   store: DemoStore;
@@ -14,7 +15,7 @@ export interface Ctx {
 
 export function makeCtx(store: DemoStore, userId: string, view: ViewGroup): Ctx {
   const user = store.db.users.find((u) => u.id === userId);
-  if (!user) throw new ApiError('FORBIDDEN', 'Sesi demo tidak valid. Pilih akun demo lagi.');
+  if (!user) throw new ApiError('FORBIDDEN', t('Sesi demo tidak valid. Pilih akun demo lagi.'));
   const now = store.now();
   const actor = { user, view };
   return { store, actor, scopes: scopesFor(store.db, actor, now), now };
@@ -25,7 +26,7 @@ export const isOffline = (db: DemoDb) => db.faults.offline;
 /** Aksi yang wajib online (ARCHITECTURE §6): accept quote, reservasi, verifikasi, instruksi pembayaran. */
 export function requireOnline(db: DemoDb, what: string): void {
   if (db.faults.offline) {
-    throw new ApiError('OFFLINE', `${what} hanya dapat dilakukan saat online. Tidak ada yang disimpan sebagai final.`, true);
+    throw new ApiError('OFFLINE', t('{0} hanya bisa dilakukan saat online. Belum ada yang disimpan sebagai final.', [t(what)]), true);
   }
 }
 

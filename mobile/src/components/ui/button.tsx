@@ -1,3 +1,4 @@
+import { tr } from '@/core/i18n';
 import React from 'react';
 import { ActivityIndicator, StyleSheet, View, type ViewStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
@@ -44,8 +45,8 @@ export function Button({ label, onPress, variant = 'primary', icon, loading, dis
     <PressableScale
       depth="subtle"
       accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityHint={accessibilityHint}
+      accessibilityLabel={tr(label)}
+      accessibilityHint={accessibilityHint ? tr(accessibilityHint) : undefined}
       accessibilityState={{ disabled: !!inactive, busy: !!loading }}
       disabled={inactive}
       onPress={() => {

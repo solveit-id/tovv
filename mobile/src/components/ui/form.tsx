@@ -5,6 +5,7 @@ import { radius, space, touch, type } from '@/core/design/tokens';
 import { makeStyles, useColors, useTheme } from '@/core/design/theme';
 import { glideSpring, useReducedMotion } from '@/core/design/motion';
 import { formatInputRupiah, parseRupiahInput } from '@/core/format/money';
+import { tr, useLocale } from '@/core/i18n';
 import { Txt } from './txt';
 import { Icon } from './icon';
 
@@ -22,25 +23,41 @@ export interface FieldProps {
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   editable?: boolean;
   testID?: string;
+  /** Kata sandi: teks disamarkan dengan tombol tampil/sembunyi. */
+  secure?: boolean;
+  icon?: string;
+  autoComplete?: React.ComponentProps<typeof TextInput>['autoComplete'];
+  returnKeyType?: React.ComponentProps<typeof TextInput>['returnKeyType'];
+  onSubmitEditing?: () => void;
+  inputRef?: React.Ref<TextInput>;
 }
 
 /** Kolom isian: label di atas, kotak membulat; fokus = garis biru 2 dp yang menyala halus. */
-export function Field({ label, value, onChangeText, placeholder, helper, error, multiline, keyboardType, prefix, suffix, autoCapitalize = 'sentences', editable = true, testID }: FieldProps) {
+export function Field({ label, value, onChangeText, placeholder, helper, error, multiline, keyboardType, prefix, suffix, autoCapitalize = 'sentences', editable = true, testID, secure, icon, autoComplete, returnKeyType, onSubmitEditing, inputRef }: FieldProps) {
   const { c, scheme } = useTheme();
   const s = useStyles();
+  useLocale();
   const [focus, setFocus] = useState(false);
+  const [hidden, setHidden] = useState(true);
   return (
     <View style={s.field}>
       <Txt variant="label" tone="inkSecondary" nativeID={`${testID ?? label}-label`}>{label}</Txt>
       <View style={[s.inputBox, focus && s.focus, !!error && s.errorBox, !editable && s.readonly, multiline && { alignItems: 'flex-start' }]}>
+        {icon ? <Icon name={icon} size={20} tone={focus ? 'accentInk' : 'inkMuted'} /> : null}
         {prefix ? <Txt variant="bodyStrong" tone="inkSecondary">{prefix}</Txt> : null}
         <TextInput
+          ref={inputRef}
           testID={testID}
-          accessibilityLabel={label}
-          accessibilityHint={helper}
+          accessibilityLabel={tr(label)}
+          accessibilityHint={helper ? tr(helper) : undefined}
           value={value}
           onChangeText={onChangeText}
-          placeholder={placeholder}
+          placeholder={placeholder ? tr(placeholder) : undefined}
+          secureTextEntry={secure && hidden}
+          autoComplete={autoComplete}
+          returnKeyType={returnKeyType}
+          onSubmitEditing={onSubmitEditing}
+          autoCorrect={secure || keyboardType === 'email-address' ? false : undefined}
           placeholderTextColor={c.inkMuted}
           multiline={multiline}
           keyboardType={keyboardType}
@@ -54,6 +71,11 @@ export function Field({ label, value, onChangeText, placeholder, helper, error, 
           style={[s.input, multiline && s.multiline, (keyboardType === 'number-pad' || keyboardType === 'numeric') && { fontVariant: ['tabular-nums'] }]}
         />
         {suffix ? <Txt variant="body" tone="inkSecondary">{suffix}</Txt> : null}
+        {secure ? (
+          <Pressable onPress={() => setHidden((h) => !h)} hitSlop={10} accessibilityRole="button" accessibilityLabel={tr(hidden ? 'Tampilkan kata sandi' : 'Sembunyikan kata sandi')}>
+            <Icon name={hidden ? 'eye-outline' : 'eye-off-outline'} size={22} tone="inkSecondary" />
+          </Pressable>
+        ) : null}
       </View>
       {error ? (
         <View style={s.msg} accessibilityLiveRegion="polite">
@@ -76,7 +98,7 @@ export function MoneyField({ value, onChange, ...rest }: Omit<FieldProps, 'value
 export function Choice<T extends string>({ label, options, value, onChange, helper, hideLabel }: { label: string; options: { value: T; label: string; hint?: string }[]; value: T; onChange: (v: T) => void; helper?: string; hideLabel?: boolean }) {
   const s = useStyles();
   return (
-    <View style={s.field} accessibilityRole="radiogroup" accessibilityLabel={label}>
+    <View style={s.field} accessibilityRole="radiogroup" accessibilityLabel={tr(label)}>
       {hideLabel ? null : <Txt variant="label" tone="inkSecondary">{label}</Txt>}
       <View style={s.choices}>
         {options.map((o) => {
@@ -87,7 +109,7 @@ export function Choice<T extends string>({ label, options, value, onChange, help
               onPress={() => onChange(o.value)}
               accessibilityRole="radio"
               accessibilityState={{ checked: on }}
-              accessibilityLabel={o.hint ? `${o.label}. ${o.hint}` : o.label}
+              accessibilityLabel={o.hint ? `${tr(o.label)}. ${tr(o.hint)}` : tr(o.label)}
               style={({ pressed }) => [s.choice, on && s.choiceOn, pressed && !on && s.choicePressed]}
             >
               <View style={[s.radio, on && s.radioOn]}>{on ? <View style={s.radioDot} /> : null}</View>
@@ -108,7 +130,7 @@ export function Toggle({ label, value, onChange, hint }: { label: string; value:
   const c = useColors();
   const s = useStyles();
   return (
-    <Pressable onPress={() => onChange(!value)} accessibilityRole="switch" accessibilityState={{ checked: value }} accessibilityLabel={label} accessibilityHint={hint} style={s.toggle}>
+    <Pressable onPress={() => onChange(!value)} accessibilityRole="switch" accessibilityState={{ checked: value }} accessibilityLabel={tr(label)} accessibilityHint={hint ? tr(hint) : undefined} style={s.toggle}>
       <View style={{ flex: 1 }}>
         <Txt variant="bodyStrong">{label}</Txt>
         {hint ? <Txt variant="caption" tone="inkSecondary">{hint}</Txt> : null}
@@ -162,7 +184,7 @@ export function Segmented<T extends string>({ value, onChange, options }: { valu
 export function ChipRow<T extends string>({ label, value, onChange, options }: { label: string; value: T; onChange: (v: T) => void; options: { value: T; label: string }[] }) {
   const s = useStyles();
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityRole="radiogroup" accessibilityLabel={label} contentContainerStyle={s.chips} style={s.chipScroll}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} accessibilityRole="radiogroup" accessibilityLabel={tr(label)} contentContainerStyle={s.chips} style={s.chipScroll}>
       {options.map((o) => {
         const on = o.value === value;
         return (

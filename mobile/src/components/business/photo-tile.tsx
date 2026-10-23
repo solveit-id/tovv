@@ -8,6 +8,7 @@ import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import type { MediaItem } from '@/data/api/contract';
 import { locationSourceLabel } from '@/core/i18n/status';
+import { t } from '@/core/i18n';
 
 /**
  * Tile bukti foto. Fixture sintetis tidak punya gambar: ditampilkan sebagai pelat bergaris
@@ -19,8 +20,8 @@ export function PhotoTile({ item, label, onPress, size = 104 }: { item: MediaIte
   const uri = item?.overlayUri ?? item?.originalUri ?? null;
   const pending = item && (item.status === 'pending_upload' || item.syncStatus === 'pending');
   const a11y = item
-    ? `${label}. ${item.synthetic ? 'Foto contoh simulasi' : item.captureOrigin === 'camera' ? 'Diambil kamera aplikasi' : 'Diimpor dari galeri'}. Lokasi: ${locationSourceLabel[item.locationSource]}.${pending ? ' Belum terkirim.' : ''}`
-    : `${label}. Belum ada foto.`;
+    ? t('{0}. {1}. Lokasi: {2}.{3}', [label, item.synthetic ? 'Foto contoh simulasi' : item.captureOrigin === 'camera' ? 'Diambil kamera aplikasi' : 'Diimpor dari galeri', locationSourceLabel[item.locationSource], pending ? ' Belum terkirim.' : ''])
+    : t('{0}. Belum ada foto.', [label]);
   return (
     <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : 'image'} accessibilityLabel={a11y} style={({ pressed }) => [{ width: size }, pressed && { opacity: 0.85 }]}>
       <View style={[styles.frame, { width: size, height: size }, !item && styles.empty]}>

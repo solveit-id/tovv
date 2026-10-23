@@ -15,6 +15,7 @@ import { DailyActionsBlock } from '@/features/home/daily-actions-block';
 import { HeaderActions } from '@/features/home/header-actions';
 import { OrderRow } from '@/features/orders/order-row';
 import { firstName } from '@/core/format/name';
+import { t } from '@/core/i18n';
 
 const B2B_ROLE: Record<string, string> = { requester: 'pemesan', approver: 'penyetuju', finance: 'keuangan', receiver: 'penerima' };
 
@@ -32,35 +33,35 @@ export function CustomerHome() {
     <Screen
       headerScrolls
       onRefresh={() => qc.invalidateQueries()}
-      header={<RootHeader overlap right={<HeaderActions />} title={s ? `Halo, ${firstName(s.userName)}` : undefined} subtitle={s ? `${org ? `${org} · ` : ''}Dilayani ${s.tenantName}` : undefined} />}
+      header={<RootHeader overlap right={<HeaderActions />} title={s ? t('Halo, {0}', [firstName(s.userName)]) : undefined} subtitle={s ? t('{0}Dilayani {1}', [org ? `${org} · ` : '', s.tenantName]) : undefined} />}
     >
       <HeroCard>
         <View style={{ gap: 4 }}>
-          <Txt variant="headline">Kendaraan mogok atau perlu dipindah?</Txt>
-          <Txt variant="bodySm" tone="inkSecondary">Kirim lokasi dan kondisi kendaraan. Operator meninjau dulu, lalu mengirim penawaran harga untuk Anda setujui.</Txt>
+          <Txt variant="headline">Mobil mogok atau perlu dipindahkan?</Txt>
+          <Txt variant="bodySm" tone="inkSecondary">Kirim lokasi dan kondisi kendaraan. Operator mengecek dulu, lalu mengirim harga untuk Anda setujui.</Txt>
         </View>
-        <Button label="Minta derek" icon="tow-truck" size="lg" onPress={() => router.push('/request/new')} />
+        <Button label="Pesan derek" icon="tow-truck" size="lg" onPress={() => router.push('/request/new')} />
       </HeroCard>
 
       <ShortcutGrid
         items={[
-          { key: 'orders', label: 'Pesanan', icon: 'clipboard-text-clock-outline', onPress: () => router.push('/customer/pesanan'), badge: active.data?.length },
-          { key: 'bills', label: 'Tagihan', icon: 'file-document-outline', onPress: () => router.push('/customer/tagihan'), tone: 'warnInk', wash: 'warnWash' },
+          { key: 'orders', label: 'Pesanan', icon: 'clipboard-text-clock-outline', onPress: () => router.push('/customer/orders'), badge: active.data?.length },
+          { key: 'bills', label: 'Tagihan', icon: 'file-document-outline', onPress: () => router.push('/customer/invoices'), tone: 'warnInk', wash: 'warnWash' },
           { key: 'inbox', label: 'Kotak masuk', icon: 'bell-outline', onPress: () => router.push('/inbox'), tone: 'okInk', wash: 'okWash' },
-          { key: 'more', label: 'Lainnya', icon: 'dots-horizontal', onPress: () => router.push('/customer/lainnya'), tone: 'neutralInk', wash: 'neutralWash' },
+          { key: 'more', label: 'Lainnya', icon: 'dots-horizontal', onPress: () => router.push('/customer/more'), tone: 'neutralInk', wash: 'neutralWash' },
         ]}
       />
 
-      <DailyActionsBlock title="Menunggu keputusan Anda" hint="Penawaran, biaya tambahan dan tagihan yang perlu Anda tanggapi." />
+      <DailyActionsBlock title="Menunggu keputusan Anda" hint="Penawaran harga, biaya tambahan, dan tagihan yang perlu Anda jawab." />
 
-      <SectionTitle title="Pesanan berjalan" count={active.data?.length} />
+      <SectionTitle title="Pesanan yang sedang jalan" count={active.data?.length} />
       <QueryView q={active}>
         {(list) =>
           list.length ? (
             list.map((o, i) => <OrderRow key={o.id} o={o} index={i} />)
           ) : (
             <Card>
-              <EmptyBlock icon="tow-truck" title="Belum ada pesanan berjalan" body="Permintaan baru ditinjau operator sebelum ada penawaran harga." />
+              <EmptyBlock icon="tow-truck" title="Belum ada pesanan yang sedang jalan" body="Permintaan baru dicek operator dulu sebelum Anda menerima harga." />
             </Card>
           )
         }
@@ -68,8 +69,8 @@ export function CustomerHome() {
 
       {b2bRequesterOnly ? (
         <Card tone="info" style={{ marginTop: space.md }}>
-          <Txt variant="bodyStrong" tone="accentInk">Anda pemesan organisasi</Txt>
-          <Txt variant="bodySm">Persetujuan harga dan tagihan organisasi ditangani penyetuju/keuangan organisasi Anda.</Txt>
+          <Txt variant="bodyStrong" tone="accentInk">Anda pemesan untuk organisasi</Txt>
+          <Txt variant="bodySm">Persetujuan harga dan pembayaran ditangani oleh penyetuju atau bagian keuangan organisasi Anda.</Txt>
         </Card>
       ) : null}
     </Screen>

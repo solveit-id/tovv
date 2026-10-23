@@ -13,6 +13,7 @@ import { DocumentStack } from '@/components/business/document-stack';
 import { useTovvMutation, useTovvQuery } from '@/data/api/hooks';
 import { usageStatus } from '@/core/i18n/status';
 import { formatDate } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 /**
  * Paket SaaS DEMO (SUB-01–06): langganan vs bayar per layanan sukses. Pratinjau tagihan langganan terpisah dari
@@ -23,22 +24,22 @@ export function SaasScreen() {
   const q = useTovvQuery(['saas'], (a) => a.getSaas());
   const change = useTovvMutation((a, kind: 'subscription' | 'success') => a.schedulePlanChange(kind), { success: 'Perubahan paket dijadwalkan untuk periode berikutnya; order aktif tetap memakai snapshot lama.' });
   return (
-    <Screen header={<DetailHeader title="Paket langganan Tovv (DEMO)" subtitle="Harga ilustrasi · tidak dipungut" />}>
+    <Screen header={<DetailHeader title="Paket langganan Tovv (DEMO)" subtitle="Harga contoh · tidak ditagih" />}>
       <QueryView q={q}>
         {(s) => (
           <>
             {s.expiredFixture ? (
               <Card style={{ marginBottom: space.md }}>
                 <Txt variant="bodyStrong" tone="warnInk">Paket demo kedaluwarsa</Txt>
-                <Txt variant="bodySm">Order baru diblokir sesuai policy demo. Order aktif, bukti, invoice, dan pembayaran tetap dapat diakses.</Txt>
+                <Txt variant="bodySm">Order baru diblokir sesuai aturan demo. Order yang jalan, bukti, invoice, dan pembayaran tetap bisa dibuka.</Txt>
               </Card>
             ) : null}
             <Card>
               <Txt variant="label" tone="inkSecondary">Paket aktif</Txt>
               <Txt variant="headline">{s.plan.label}</Txt>
               <Txt variant="bodySm" tone="inkSecondary">{`${s.plan.version} · ${s.plan.kind === 'subscription' ? 'tetap per 30 hari, tanpa biaya per layanan' : 'per layanan sukses (handover + bukti minimum + diterima)'}`}</Txt>
-              <LineItem label={s.plan.kind === 'subscription' ? 'Nominal per periode' : 'Per layanan sukses'} value={<Money value={s.plan.amount} />} />
-              {s.scheduledChange ? <Txt variant="bodySm" tone="accentInk">{`Terjadwal pindah ke ${s.scheduledChange.toKind === 'subscription' ? 'langganan' : 'per layanan'} mulai ${formatDate(s.scheduledChange.effectiveFrom)}`}</Txt> : null}
+              <LineItem label={s.plan.kind === 'subscription' ? 'Nominal per periode' : 'Per layanan yang berhasil'} value={<Money value={s.plan.amount} />} />
+              {s.scheduledChange ? <Txt variant="bodySm" tone="accentInk">{t('Terjadwal pindah ke {0} mulai {1}', [s.scheduledChange.toKind === 'subscription' ? 'langganan' : 'per layanan', formatDate(s.scheduledChange.effectiveFrom)])}</Txt> : null}
               <Button
                 label={s.plan.kind === 'subscription' ? 'Jadwalkan pindah ke per layanan' : 'Jadwalkan pindah ke langganan'}
                 variant="secondary"
@@ -49,7 +50,7 @@ export function SaasScreen() {
               />
             </Card>
 
-            <SectionTitle title="Perbandingan volume hipotetis (simulasi)" />
+            <SectionTitle title="Perbandingan volume contoh (simulasi)" />
             <Card padded={false}>
               {s.comparison.map((c) => (
                 <View key={c.volume} style={{ flexDirection: 'row', padding: space.md, gap: space.md, borderBottomWidth: 1, borderBottomColor: color.line }}>
@@ -59,16 +60,16 @@ export function SaasScreen() {
                 </View>
               ))}
             </Card>
-            <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.xs }}>Angka ilustratif untuk diskusi; bukan harga final atau bukti kemauan membayar.</Txt>
+            <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.xs }}>Angka contoh untuk bahan diskusi; bukan harga final.</Txt>
 
             {s.usage.length ? (
               <>
-                <SectionTitle title="Peristiwa usage" count={s.usage.length} />
+                <SectionTitle title="Catatan pemakaian" count={s.usage.length} />
                 <Card>
                   {s.usage.map((u) => (
                     <LineItem key={u.id} label={u.alias} hint={u.note || undefined} value={<View style={{ alignItems: 'flex-end', gap: 2 }}><StatusTag look={usageStatus[u.status]} size="sm" /><Money value={u.amount} size="sm" /></View>} />
                   ))}
-                  <Txt variant="caption" tone="inkSecondary">Satu layanan = satu success; handover ulang tidak membuat biaya kedua.</Txt>
+                  <Txt variant="caption" tone="inkSecondary">Satu layanan = satu kali tercatat; serah-terima ulang tidak menambah biaya.</Txt>
                 </Card>
               </>
             ) : null}
@@ -77,7 +78,7 @@ export function SaasScreen() {
             <DocumentStack>
               <Serial>{s.invoicePreview.number}</Serial>
               <Txt variant="bodySm" tone="inkSecondary">{s.invoicePreview.issuer}</Txt>
-              <Txt variant="caption" tone="dangerInk" style={{ fontWeight: '700' }}>PREVIEW DEMO · TIDAK DAPAT DIBAYAR · TERPISAH DARI INVOICE JASA</Txt>
+              <Txt variant="caption" tone="dangerInk" style={{ fontWeight: '700' }}>PRATINJAU DEMO · TIDAK BISA DIBAYAR · TERPISAH DARI INVOICE JASA</Txt>
               <Rule />
               {s.invoicePreview.lines.map((l) => <LineItem key={l.label} label={l.label} value={<Money value={l.amount} />} />)}
               <Rule strong />

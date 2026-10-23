@@ -2,6 +2,33 @@
 
 Putaran terbaru di atas. Bukti mentah (screenshot) di `.impeccable/review/` (diabaikan Git).
 
+## Putaran 3 — peran, peta, akun, dua bahasa, 2026-10-23
+
+Pemicu: masukan pengguna setelah mencoba di HP — hanya tiga peran (owner, driver, pelanggan), belum ada peta real-time, belum ada splash/masuk/daftar/lupa kata sandi, belum dua bahasa, teks masih kaku, dan penamaan belum konsisten berbahasa Inggris.
+
+### Yang berubah
+
+- Peran admin tidak lagi dibuka aplikasi; tugasnya dikerjakan owner. Route tab berganti nama ke bahasa Inggris (`jobs`, `finance`, `more`, `orders`, `invoices`, `expenses`, `sync`, `auth/*`).
+- Peta langsung per peran (react-native-maps), diperbarui tiap 3 detik dengan penanda truk yang bergerak halus.
+- Splash beranimasi; masuk/daftar/lupa kata sandi (simulasi lokal, kata sandi demo `demo1234`); keluar.
+- Dua bahasa (Indonesia/Inggris); 374 kalimat ditulis ulang supaya natural; kamus Inggris ±1.180 entri.
+- Efek scroll-trigger pada kartu, kartu akun yang naik dengan kemiringan 3D.
+
+### Pemeriksaan otomatis
+
+| Pemeriksaan | Hasil |
+|---|---|
+| `npm run typecheck` | PASS |
+| `npm run lint` | PASS (0 error, 0 warning) |
+| `npm test` | PASS — 1.292 uji / 7 suite (termasuk login demo, peta per peran, dan placeholder setiap entri terjemahan) |
+| `npx expo-doctor` | PASS — 21/21 |
+
+### Perangkat
+
+**Belum diuji di perangkat pada putaran ini.** Expo Go di emulator menolak memuat proyek ("Failed to download remote update"; kemungkinan karena Expo Go di emulator belum login akun Expo), dan development build di emulator dibuat sebelum react-native-maps ditambahkan (build Android dengan Google Maps juga butuh API key). Atas keputusan pengguna, uji dilakukan sendiri oleh pengguna lewat Expo Go di iPhone dan Android. Review desain independen (finish review) belum dijalankan karena tidak ada tangkapan layar putaran ini.
+
+Hal yang perlu dicek pengguna di HP: peta muncul dan truk A06 bergerak (owner-A → Peta), Lacak pelanggan (akun penyetuju Dealer Demo), ganti bahasa di Lainnya → Bahasa, masuk/daftar/lupa kata sandi, dan tema gelap.
+
 ## Putaran 2 — redesign tampilan, 2026-10-22
 
 Pemicu: uji pengguna lewat Expo Go di iPhone dan Android ("tidak modern, membingungkan"). Arah baru dipilih pengguna: standar super-app/fintech (patokan Gojek/GoPay, Grab/Tokopedia, Jago/Jenius), tema terang + gelap, gerak seimbang.

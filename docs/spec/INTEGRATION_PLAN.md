@@ -7,6 +7,10 @@ Paket **2.1 — 21 Oktober 2026**. Produk **Tovv**; pemilik, pengembang dan pene
 Baseline yang benar-benar dibaca: PRD v2.0 (file sumber PRD(2).md, identik dengan salinan PRD (1).md), ARCHITECTURE, IMPLEMENTATION_PLAN, INTEGRATION_PLAN dan TEST_PLAN masing-masing berlabel v1.0 dengan acuan PRD v2.0. Tidak ditemukan versi lebih baru. VALIDATION_PLAN.md tidak ditemukan setelah pencarian nama; dokumen itu **disusun kembali**, bukan hasil pemeriksaan file lama. Pesan pengguna terbaru mengungguli baseline. Seluruh enam dokumen kini memakai versi paket 2.1.
 
 Urutan baca: [PRD](PRD.md) → [ARCHITECTURE](ARCHITECTURE.md) → [INTEGRATION_PLAN](INTEGRATION_PLAN.md) → [IMPLEMENTATION_PLAN](IMPLEMENTATION_PLAN.md) → [TEST_PLAN](TEST_PLAN.md) → [VALIDATION_PLAN](VALIDATION_PLAN.md). PRD menguasai scope/aturan bisnis; kontrak dan model harus mematuhinya. Perubahan mengharuskan pembaruan requirement, task, test, fixture dan keputusan terkait pada paket yang sama.
+## Catatan implementasi (23 Oktober 2026)
+
+Belum ada integrasi nyata: aplikasi mobile memakai adapter demo lokal. Untuk peta (§6), frontend memakai react-native-maps dengan penyedia bawaan OS (Google Maps di Android, Apple Maps di iOS); di Expo Go tidak perlu API key, tetapi build Android produksi memerlukan API key Google Maps sehingga DEC-08 (biaya dan kebijakan provider) tetap terbuka. Untuk auth (§4), layar masuk/daftar/lupa kata sandi saat ini simulasi lokal berlabel demo, bukan sesi perangkat dari server. Status per task: [IMPLEMENTATION_PLAN §0](IMPLEMENTATION_PLAN.md).
+
 ## 1. Matriks integrasi dan bukti
 
 Semua status awal NOT_RUN atau BLOCKED jika akses memang belum tersedia. `device/provider` menunjukkan sumber runtime, **bukan** hasil test. Transaksi manual_demo berjalan pada backend nyata tetapi tidak membuktikan dana bank diterima.

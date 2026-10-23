@@ -1,3 +1,4 @@
+import { tr } from '@/core/i18n';
 import React, { useEffect } from 'react';
 import { View, type DimensionValue } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, cancelAnimation } from 'react-native-reanimated';
@@ -29,7 +30,7 @@ export function SkeletonBar({ width = '100%', height = 14, round }: { width?: Di
 export function LoadingBlock({ label = 'Memuat…', rows = 3 }: { label?: string; rows?: number }) {
   const s = useStyles();
   return (
-    <View style={s.skel} accessibilityLiveRegion="polite" accessible accessibilityLabel={label}>
+    <View style={s.skel} accessibilityLiveRegion="polite" accessible accessibilityLabel={tr(label)}>
       {Array.from({ length: rows }).map((_, i) => (
         <View key={i} style={s.skelRow}>
           <SkeletonBar width={44} height={44} />
@@ -58,7 +59,7 @@ export function ErrorBlock({ error, onRetry }: { error: unknown; onRetry?: () =>
       ) : null}
       {code === 'NOT_FOUND' ? (
         <>
-          <Txt variant="caption" tone="inkSecondary" align="center">Tautan mungkin sudah lama, atau data demo baru saja dikembalikan ke awal.</Txt>
+          <Txt variant="caption" tone="inkSecondary" align="center">Tautannya mungkin sudah lama, atau data demo baru saja dikembalikan ke awal.</Txt>
           <Button label="Kembali" icon="arrow-left" variant="secondary" compact onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />
         </>
       ) : null}

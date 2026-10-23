@@ -1,6 +1,7 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 import { useColors } from '@/core/design/theme';
+import { t } from '@/core/i18n';
 
 /**
  * Wordmark SEMENTARA "tovv" — dibuat untuk prototype karena logo Tovv resmi belum tersedia.
@@ -16,7 +17,7 @@ export function Wordmark({ height = 28, onDark = true }: { height?: number; onDa
   const c = useColors();
   const ink = onDark ? c.onHero : c.ink;
   return (
-    <Svg width={(height * 98) / 40} height={height} viewBox="0 0 98 40" accessibilityRole="image" accessibilityLabel="Tovv">
+    <Svg width={(height * 98) / 40} height={height} viewBox="0 0 98 40" accessibilityRole="image" accessibilityLabel={t('Tovv')}>
       <Path d={T} fill={ink} />
       <Path d={O} fill={ink} fillRule="evenodd" />
       <Path d={V1} fill={ink} />

@@ -2,6 +2,7 @@ import type { Ctx } from './ctx';
 import { activeDelegation, requireScope, viewsFor } from './policy';
 import { isStaffView, orderSummary, userName } from './mappers';
 import { unitCandidatesForFleet } from './fleet';
+import { appViewsFor } from './auth';
 import type { DemoDb } from './db';
 import {
   ApiError,
@@ -23,6 +24,7 @@ import { invoiceBalance } from '@/domain/ledger';
 import { toMoneyString } from '@/core/format/money';
 import { addMinutes, DATASET_GENERATION, formatDateTime } from '@/core/format/time';
 import { csvCell } from '@/core/format/csv';
+import { t } from '@/core/i18n';
 
 const ROLE_NOTE: Record<string, string> = {
   'owner-a': 'Owner tenant A; juga mengemudi A06 (mode driver terpisah)',
@@ -55,20 +57,23 @@ function roleLabel(u: User): string {
   if (u.staffRoles.includes('driver') && !u.staffRoles.includes('owner')) parts.push('Driver');
   if (u.staffRoles.includes('partner')) parts.push('Mitra');
   if (u.customerKind === 'personal') parts.push('Pelanggan pribadi');
-  if (u.customerKind === 'b2b') parts.push(`Pelanggan bisnis (${(u.b2bRoles ?? []).join(', ')})`);
+  if (u.customerKind === 'b2b') parts.push(t('Pelanggan bisnis ({0})', [(u.b2bRoles ?? []).join(', ')]));
   return parts.join(' · ');
 }
 
 export function listDemoAccounts(db: DemoDb): DemoAccount[] {
-  return db.users.map((u) => ({
-    userId: u.id,
-    tenantId: u.tenantId,
-    tenantName: db.tenants.find((t) => t.id === u.tenantId)!.name,
-    name: u.name,
-    roleLabel: roleLabel(u),
-    views: viewsFor(u),
-    note: ROLE_NOTE[u.id] ?? '',
-  }));
+  return db.users
+    .map((u) => ({
+      userId: u.id,
+      tenantId: u.tenantId,
+      tenantName: db.tenants.find((t) => t.id === u.tenantId)!.name,
+      name: u.name,
+      email: u.email,
+      roleLabel: roleLabel(u),
+      views: appViewsFor(u),
+      note: ROLE_NOTE[u.id] ?? '',
+    }))
+    .filter((a) => a.views.length > 0);
 }
 
 export function sessionContext(ctx: Ctx): SessionContext {
@@ -138,7 +143,7 @@ export function analyticsReport(ctx: Ctx, businessAccountId: string | null): Ana
     completeness: [
       { label: 'Biaya final', numerator: a.completeness.costFinal.numerator, denominator: a.completeness.costFinal.denominator },
       { label: 'Bukti lengkap', numerator: a.completeness.evidenceComplete.numerator, denominator: a.completeness.evidenceComplete.denominator },
-      { label: 'Sudah diinvoice', numerator: a.completeness.invoiced.numerator, denominator: a.completeness.invoiced.denominator },
+      { label: 'Sudah dibuat invoice', numerator: a.completeness.invoiced.numerator, denominator: a.completeness.invoiced.denominator },
     ],
     byAccount: businessAccountId
       ? []
@@ -180,7 +185,7 @@ export function fleet(ctx: Ctx): FleetDTO {
     reservations: db.reservations
       .filter((r) => r.status === 'confirmed' && db.orders.find((o) => o.id === r.orderId)?.tenantId === t)
       .sort((a, b) => Date.parse(a.start) - Date.parse(b.start))
-      .map((r) => ({ id: r.id, orderAlias: db.orders.find((o) => o.id === r.orderId)?.alias ?? '', unitCode: db.units.find((u) => u.id === r.unitId)?.code ?? '', driverName: r.driverId === 'unassigned' ? 'Belum ada petugas' : userName(db, r.driverId), start: r.start, end: r.end, status: r.status })),
+      .map((r) => ({ id: r.id, orderAlias: db.orders.find((o) => o.id === r.orderId)?.alias ?? '', unitCode: db.units.find((u) => u.id === r.unitId)?.code ?? '', driverName: r.driverId === 'unassigned' ? null : userName(db, r.driverId), start: r.start, end: r.end, status: r.status })),
   };
 }
 
@@ -188,7 +193,7 @@ export function businessAccounts(ctx: Ctx): BusinessAccountDTO[] {
   const db = ctx.store.db;
   const staff = isStaffView(ctx.actor);
   const own = ctx.actor.user.businessAccountId;
-  if (!staff && !own) throw new ApiError('FORBIDDEN', 'Hanya untuk pelanggan bisnis dan staf operator.');
+  if (!staff && !own) throw new ApiError('FORBIDDEN', t('Hanya untuk pelanggan bisnis dan staf operator.'));
   return db.businessAccounts
     .filter((b) => b.tenantId === ctx.actor.user.tenantId && (staff || b.id === own))
     .map((b) => {
@@ -237,7 +242,7 @@ export function saas(ctx: Ctx): SaasDTO {
       lines:
         tenant.plan.kind === 'subscription'
           ? [{ label: `${tenant.plan.label} (${tenant.plan.version})`, amount: toMoneyString(tenant.plan.amount) }]
-          : billable.map((u) => ({ label: `Layanan sukses ${db.orders.find((o) => o.id === u.orderId)?.alias}`, amount: toMoneyString(u.amount) })),
+          : billable.map((u) => ({ label: t('Layanan berhasil {0}', [db.orders.find((o) => o.id === u.orderId)?.alias]), amount: toMoneyString(u.amount) })),
       total: toMoneyString(charge),
     },
     expiredFixture: db.faults.planExpired,
@@ -279,12 +284,12 @@ export function listDelegations(ctx: Ctx): DelegationDTO[] {
 
 export function grantDelegation(ctx: Ctx, input: { delegateId: string; scopes: DelegationScope[]; limit: number; hours: number; reason: string }): DelegationDTO[] {
   requireScope(ctx.scopes, 'delegation.manage', 'Hanya owner yang memberi delegasi; delegasi tidak dapat didelegasikan ulang.');
-  if (!input.scopes.length || !input.reason.trim()) throw new ApiError('VALIDATION', 'Pilih izin dan tulis alasan delegasi.');
-  if (input.hours <= 0 || input.hours > DELEGATION_MAX_HOURS) throw new ApiError('VALIDATION', `Masa delegasi demo maksimum ${DELEGATION_MAX_HOURS} jam.`);
-  if (!Number.isSafeInteger(input.limit) || input.limit < 0) throw new ApiError('VALIDATION', 'Batas nominal harus rupiah bulat.');
+  if (!input.scopes.length || !input.reason.trim()) throw new ApiError('VALIDATION', t('Pilih izin dan tulis alasan delegasi.'));
+  if (input.hours <= 0 || input.hours > DELEGATION_MAX_HOURS) throw new ApiError('VALIDATION', t('Masa delegasi demo maksimum {0} jam.', [DELEGATION_MAX_HOURS]));
+  if (!Number.isSafeInteger(input.limit) || input.limit < 0) throw new ApiError('VALIDATION', t('Batas nominal harus rupiah bulat.'));
   ctx.store.transact((db) => {
     const delegate = db.users.find((u) => u.id === input.delegateId && u.tenantId === ctx.actor.user.tenantId && (u.staffRoles.includes('dispatcher') || u.staffRoles.includes('finance')));
-    if (!delegate) throw new ApiError('VALIDATION', 'Penerima delegasi harus admin di tenant yang sama.');
+    if (!delegate) throw new ApiError('VALIDATION', t('Penerima delegasi harus admin di usaha yang sama.'));
     db.delegations.filter((d) => d.delegateId === delegate.id && !d.revokedAt && Date.parse(d.expiresAt) > Date.parse(ctx.now)).forEach((d) => (d.revokedAt = ctx.now));
     db.delegations.push({ id: `DL-${db.delegations.length + 1}`, tenantId: delegate.tenantId, delegatorId: ctx.actor.user.id, delegateId: delegate.id, scopes: input.scopes, limit: input.limit, effectiveAt: ctx.now, expiresAt: addMinutes(ctx.now, input.hours * 60), reason: input.reason, revokedAt: null, version: 1 });
   });
@@ -295,7 +300,7 @@ export function revokeDelegation(ctx: Ctx, id: string): DelegationDTO[] {
   requireScope(ctx.scopes, 'delegation.manage', 'Hanya owner yang mencabut delegasi.');
   ctx.store.transact((db) => {
     const d = db.delegations.find((x) => x.id === id && x.tenantId === ctx.actor.user.tenantId);
-    if (!d) throw new ApiError('NOT_FOUND', 'Delegasi tidak ditemukan.');
+    if (!d) throw new ApiError('NOT_FOUND', t('Delegasi tidak ditemukan.'));
     d.revokedAt = ctx.now;
     d.version += 1;
   });
@@ -314,7 +319,7 @@ export function listSupportGrants(ctx: Ctx): SupportGrantDTO[] {
 
 export function approveSupportGrant(ctx: Ctx, scopes: string[], hours: number, reason: string): SupportGrantDTO[] {
   requireScope(ctx.scopes, 'support.approve', 'Hanya owner yang menyetujui akses dukungan.');
-  if (!scopes.length || !reason.trim() || hours <= 0 || hours > 8) throw new ApiError('VALIDATION', 'Pilih cakupan, alasan, dan masa berlaku ≤ 8 jam.');
+  if (!scopes.length || !reason.trim() || hours <= 0 || hours > 8) throw new ApiError('VALIDATION', t('Pilih cakupan, alasan, dan masa berlaku paling lama 8 jam.'));
   ctx.store.transact((db) => {
     db.supportGrants.push({ id: `SG-${db.supportGrants.length + 1}`, tenantId: ctx.actor.user.tenantId, actorLabel: 'Staf dukungan Solveit (ADMIN STUB)', scopes, reason, createdAt: ctx.now, expiresAt: addMinutes(ctx.now, hours * 60), revokedAt: null });
   });
@@ -325,7 +330,7 @@ export function revokeSupportGrant(ctx: Ctx, id: string): SupportGrantDTO[] {
   requireScope(ctx.scopes, 'support.approve', 'Hanya owner.');
   ctx.store.transact((db) => {
     const g = db.supportGrants.find((x) => x.id === id && x.tenantId === ctx.actor.user.tenantId);
-    if (!g) throw new ApiError('NOT_FOUND', 'Grant tidak ditemukan.');
+    if (!g) throw new ApiError('NOT_FOUND', t('Akses tidak ditemukan.'));
     g.revokedAt = ctx.now;
   });
   return listSupportGrants(ctx);
@@ -352,7 +357,7 @@ export function exportCsv(ctx: Ctx, template: 'REP-05' | 'REP-06' | 'REP-07', bu
   const db = ctx.store.db;
   if (template === 'REP-07') {
     const own = ctx.actor.user.businessAccountId;
-    if (!isStaffView(ctx.actor) && !own) throw new ApiError('FORBIDDEN', 'Rekap layanan B2B untuk organisasi Anda saja.');
+    if (!isStaffView(ctx.actor) && !own) throw new ApiError('FORBIDDEN', t('Rekap layanan bisnis hanya untuk organisasi Anda.'));
     businessAccountId = own ?? businessAccountId;
   } else requireScope(ctx.scopes, 'reports.financial', 'Ekspor keuangan hanya untuk owner/finance.');
   const a = analyticsFor(ctx, businessAccountId);

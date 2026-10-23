@@ -9,6 +9,7 @@ import type { MoneyString } from '@/domain/types';
 import { PressableScale } from './pressable-scale';
 import { Txt, type TxtProps } from './txt';
 import { Icon, IconTile } from './icon';
+import { t, tr } from '@/core/i18n';
 
 const ATextInput = Animated.createAnimatedComponent(TextInput);
 
@@ -42,7 +43,7 @@ export function CountUpMoney({ value, variant = 'figureXl', tone = 'ink', missin
   const animatedProps = useAnimatedProps(() => ({ text: rupiahWorklet(v.value), defaultValue: rupiahWorklet(v.value) }) as never);
   if (target === null) {
     return (
-      <View accessible accessibilityLabel={`Nilai ${missingLabel}`}>
+      <View accessible accessibilityLabel={t('Nilai {0}', [missingLabel])}>
         <Txt variant={variant} tone="inkMuted">—</Txt>
         <Txt variant="caption" tone="warnInk">{missingLabel}</Txt>
       </View>
@@ -139,7 +140,7 @@ export function ListRow({ icon, title, body, onPress, right, tone = 'accentInk',
   );
   if (!onPress) return <View style={[s.listRow, !last && s.listDivider]}>{content}</View>;
   return (
-    <PressableScale depth="subtle" onPress={onPress} accessibilityRole="button" accessibilityLabel={body ? `${title}. ${body}` : title} style={[s.listRow, !last && s.listDivider]}>
+    <PressableScale depth="subtle" onPress={onPress} accessibilityRole="button" accessibilityLabel={body ? `${tr(title)}. ${tr(body)}` : tr(title)} style={[s.listRow, !last && s.listDivider]}>
       {content}
     </PressableScale>
   );

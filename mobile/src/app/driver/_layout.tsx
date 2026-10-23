@@ -9,9 +9,10 @@ export default function DriverLayout() {
       view="driver"
       tabs={[
         { name: 'index', title: 'Tugas', icon: 'clipboard-check-outline' },
-        { name: 'biaya', title: 'Biaya', icon: 'cash-multiple' },
-        { name: 'sinkron', title: 'Sinkron', icon: 'cloud-sync-outline', badge: pending },
-        { name: 'lainnya', title: 'Lainnya', icon: 'dots-horizontal-circle-outline' },
+        { name: 'map', title: 'Peta', icon: 'map-outline' },
+        { name: 'expenses', title: 'Biaya', icon: 'cash-multiple' },
+        { name: 'sync', title: 'Kirim ulang', icon: 'cloud-sync-outline', badge: pending },
+        { name: 'more', title: 'Lainnya', icon: 'dots-horizontal-circle-outline' },
       ]}
     />
   );

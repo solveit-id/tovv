@@ -1,19 +1,22 @@
 # Pengembangan aplikasi mobile Tovv
 
+Diperbarui 23 Oktober 2026.
+
 ## Versi terkunci (T-01, tahap frontend)
 
 | Komponen | Versi | Alasan |
 |---|---|---|
-| Node | 22.23.1 (minimum 22.13) | Persyaratan Expo SDK 57 (docs.expo.dev/versions, dibaca 2026-10-21) |
+| Node | 22.23.1 (minimum 22.13) | Persyaratan Expo SDK 57 |
 | npm | 10.9.8, `package-lock.json` | Satu package manager |
-| Expo SDK | 57.0.30 | SDK 58 baru terbit 15 Okt 2026 dan changelog-nya menyatakan Expo Go SDK 58 baru masuk store "dalam beberapa minggu"; SDK 57 matang dan dapat dibuka Expo Go store di iPhone tanpa Mac |
+| Expo SDK | ~57.0.31 | SDK 57 matang dan bisa dibuka Expo Go dari store di iPhone tanpa Mac |
 | React Native / React | 0.86.3 / 19.2.3 | Kombinasi bawaan SDK 57 |
-| Expo Router | 57.0.28 | Bawaan SDK 57 |
+| Expo Router | ~57.0.29 | Bawaan SDK 57 |
 | Reanimated / Worklets | 4.5.1 / 0.10.1 | `expo install` |
+| react-native-maps | 1.27.2 | `expo install`; termasuk di Expo Go |
 | TanStack Query | 5.104.5 | JS murni |
 | TypeScript | 6.0.x, strict + `noUncheckedIndexedAccess` | Template SDK 57 |
 
-Semua paket native dipasang dengan `npx expo install` sehingga versinya mengikuti `bundledNativeModules.json` SDK 57; tidak ada paket yang dinaikkan sendiri ke versi terbaru. `qrcode` 1.5.4 (JS murni) dipakai untuk QR internal.
+Semua paket native dipasang dengan `npx expo install` sehingga versinya mengikuti SDK 57. `qrcode` 1.5.4 (JS murni) dipakai untuk QR internal.
 
 ## Menjalankan
 
@@ -23,72 +26,83 @@ npm ci
 npm test && npm run typecheck && npm run lint
 ```
 
-### Android — development build (emulator atau perangkat USB)
+### Di HP lewat Expo Go (iPhone dan Android) — cara yang disarankan
 
-Prasyarat Windows: JDK (JBR Android Studio), `ANDROID_HOME` ke Android SDK, platform-tools di PATH, NDK 27.1 (diunduh otomatis oleh Gradle bila belum ada).
+1. Pasang **Expo Go** (mendukung SDK 57) dari App Store/Play Store, lalu masuk dengan akun Expo.
+2. Di komputer: `npx expo login` dengan akun yang sama (sekali saja).
+3. `npm run start:go` — laptop dan HP harus di Wi-Fi yang sama. Bila tidak bisa, `npm run start:go -- --tunnel`.
+4. iPhone: pindai QR dengan Kamera. Android: pindai dari dalam Expo Go.
+
+Semua modul yang dipakai (kamera, lokasi, galeri, file system, SQLite, Reanimated, SVG, view-shot, peta) termasuk dalam Expo Go. `npm start` (tanpa `:go`) hanya untuk development build; QR-nya tidak bisa dibuka Expo Go.
+
+### Android — development build (emulator atau USB)
+
+Prasyarat Windows: JDK (JBR Android Studio), `ANDROID_HOME`, platform-tools di PATH, NDK 27.1.
 
 ```bash
 export JAVA_HOME="/c/Program Files/Android/Android Studio/jbr"
 export ANDROID_HOME="$LOCALAPPDATA/Android/Sdk"
-npm run android          # expo run:android: prebuild, build debug, install, buka Metro
+npm run android
 ```
 
-Perangkat fisik: aktifkan USB debugging, cek `adb devices`, lalu `npm run android -- --device`.
+Catatan peta: di development build/rilis Android, Google Maps butuh API key di `app.json` (`android.config.googleMaps.apiKey`). Tanpa key, tab Peta tidak bisa dipakai di build tersebut; di Expo Go tidak perlu key. Keputusan provider dan biayanya masih DEC-08. Development build yang terpasang di emulator saat ini dibuat sebelum react-native-maps ditambahkan, jadi harus dibangun ulang.
 
-### iPhone tanpa Mac — Expo Go
-
-Development build iOS memerlukan Xcode (macOS) atau layanan build berbayar/akun Apple Developer; keduanya di luar batas tahap ini. Pilihan yang tersedia: Expo Go SDK 57 dari App Store.
-
-```bash
-npm run start:go -- --tunnel   # atau tanpa --tunnel bila iPhone dan komputer satu jaringan
-```
-
-Pindai QR dengan kamera iPhone. Semua modul yang dipakai (kamera, lokasi, galeri, file system, SQLite, Reanimated, SVG, view-shot) termasuk dalam Expo Go. Bukti dari Expo Go dicatat sebagai "Expo Go", bukan development build iOS.
+iOS development build memerlukan macOS/Xcode dan belum dibuat.
 
 ## Mode demo
 
-- Layar **Mulai → Pilih akun demo**: akun fixture F-05 (tenant A "Operator Angkut Demo", tenant B "Operator Mobilitas Demo"). Akun dengan beberapa kemampuan (owner-A juga driver) memilih konteks secara eksplisit.
-- **Lainnya → Mode demo & tentang**: simulasi offline, gagal baca sekali, penyimpanan penuh, jeda replay lokasi (menjadi "posisi lama" setelah 90 detik), paket langganan kedaluwarsa, reset ke F-09.
-- **Lainnya → Tampilan**: ikut sistem, terang, atau gelap (disimpan di perangkat).
-- Jam bisnis demo = C0 `2026-10-21T05:00Z` (12.00 WIB) + waktu nyata sejak reset. Penawaran A13 kedaluwarsa tepat di C0 sesuai PRD §8.1.
-- State demo (transaksi, antrean sinkronisasi, sesi demo) disimpan di SQLite key-value perangkat; foto disalin ke `Paths.document/tovv-media/`.
+- **Masuk** (`/auth/login`): ketuk akun Owner/Driver/Pelanggan untuk mengisi email, lalu Masuk. Kata sandi semua akun fixture: `demo1234`. **Daftar** membuat akun pelanggan yang hanya tersimpan di HP; **Lupa kata sandi** hanya simulasi (tidak ada email). Ini bukan autentikasi produksi (TEN-04).
+- **Pilih akun demo** (`/demo`, juga lewat tombol "Ganti" di pita DEMO): semua akun fixture F-05 untuk tiga peran.
+- **Lainnya**: pindah peran (owner-A juga driver), Bahasa (Indonesia/English), Tampilan (ikut sistem/terang/gelap), Mode demo & tentang (simulasi offline, gagal muat, penyimpanan penuh, jeda posisi, langganan kedaluwarsa, reset data), Keluar.
+- Jam bisnis demo = C0 `2026-10-21T05:00Z` (12.00 WIB) + waktu nyata sejak reset.
+- State demo (transaksi, antrean kirim ulang, sesi, akun yang didaftarkan, preferensi bahasa/tema) disimpan di SQLite key-value HP; foto disalin ke `Paths.document/tovv-media/`.
 
 ## Struktur kode
 
 ```text
 mobile/src/
   app/                 Route Expo Router (tipis; re-export layar fitur)
-  features/<domain>/   Layar per domain: owner, admin, driver, customer, orders, trips, camera,
+    auth/              login, register, forgot-password
+    owner/ driver/ customer/   tab per peran: index, jobs/orders, map, finance/invoices, expenses, sync, more
+  features/<domain>/   Layar per domain: auth, owner, driver, customer, map, orders, trips, camera,
                        requests, quotes, pricing, finance, reports, more, work, home, identity
-  components/          ui (primitif: teks, tombol, kartu, form, ringkasan), business (komponen
-                       khas: tindakan harian, tahap perjalanan, riwayat versi, QR internal),
-                       layout (layar, header parallax, tab), brand, feedback
+  components/          ui (teks, tombol, kartu, form, ringkasan), business (tindakan harian, tahap
+                       perjalanan, riwayat versi, QR internal), layout (layar, header parallax,
+                       tab, scroll-reveal), brand, feedback (toast, splash)
   core/                design (token terang/gelap, tema, motion), format (uang, waktu, CSV),
-                       i18n (label status), hooks
+                       i18n (bahasa, kamus Inggris, label status), hooks
   domain/              Tipe kanonik, rumus harga, ledger, analytics M-01–M-12 (+ uji oracle)
   data/api/            Kontrak DTO, adapter demo, provider, hook query/mutation
-  data/demo/           Store demo, simulasi kebijakan server, proyeksi, operasi per domain
+  data/demo/           Store demo, simulasi kebijakan server, login demo, peta langsung, operasi per domain
   data/fixtures/       F-03/F-04/F-05 (referensi) dan builder F-09
 ```
 
-Mengganti sumber data: implementasikan objek dengan tipe `TovvApi` (`data/api/demo-api.ts`) yang memanggil Tovv API (`/api/v1`, INTEGRATION_PLAN §3), lalu pasang di `data/api/provider.tsx`. Layar tidak perlu diubah karena hanya bergantung pada DTO di `data/api/contract.ts`.
+Mengganti sumber data: buat objek bertipe `TovvApi` (`data/api/demo-api.ts`) yang memanggil Tovv API (`/api/v1`, INTEGRATION_PLAN §3), lalu pasang di `data/api/provider.tsx`. Layar tidak perlu diubah karena hanya bergantung pada DTO di `data/api/contract.ts`.
 
-## Ikon dan splash
+## Dua bahasa
 
-`node scripts/generate-brand-assets.mjs` membuat `assets/icon.png`, ikon adaptif Android, monochrome, favicon, dan splash dari geometri wordmark sementara (deterministik, tanpa dependensi gambar).
+- Teks sumber ditulis dalam bahasa Indonesia langsung di kode. `core/i18n/en.ts` memetakan teks yang sama ke bahasa Inggris; placeholder memakai `{0}`, `{1}`.
+- `Txt` menerjemahkan anak berupa teks secara otomatis. Teks dinamis memakai `t('Halo, {0}', [nama])`; label aksesibilitas memakai `tr()`.
+- Bahasa awal mengikuti HP; pilihan pengguna disimpan. Saat bahasa diganti, layar dibangun ulang dan data dimuat ulang.
+- Uji `core/i18n/i18n.test.ts` memeriksa setiap entri kamus punya placeholder yang sama. Teks baru tanpa entri tetap tampil dalam bahasa Indonesia; tambahkan entrinya di `en.ts`.
+
+## Peta langsung
+
+`features/map/live-map-screen.tsx` dipakai ketiga peran. Data dari `api.getLiveMap()` (`data/demo/live-map.ts`) diperbarui tiap 3 detik; penanda truk meluncur halus (`AnimatedRegion`), gambar penanda hanya digambar ulang saat isinya berubah. Owner melihat semua unit, driver hanya tugasnya, pelanggan hanya truk yang menuju kendaraannya setelah sopir berangkat.
 
 ## Tema dan gerak
 
-- Dua palet (terang/gelap) dengan kunci sama di `core/design/tokens.ts`; `ThemeProvider` memilih sesuai sistem atau preferensi pengguna. Gaya bergantung warna dibuat lewat `makeStyles((c, scheme) => …)` dan di-cache per skema.
-- Semua animasi memakai Reanimated di UI thread: header parallax (`RootHeader` + `Screen headerScrolls`), kartu masuk bertahap (`useEnter`, hanya 8 item pertama), tekan 3D (`PressableScale`), angka menghitung naik sekali (`CountUpMoney`), pil tab dan segmen. "Kurangi gerakan" mematikan semuanya.
+- Dua palet (terang/gelap) dengan kunci sama di `core/design/tokens.ts`; gaya dibuat lewat `makeStyles((c, scheme) => …)` dan di-cache per skema.
+- Semua animasi memakai Reanimated di UI thread: splash, header parallax, bar ringkas, kartu masuk bertahap (8 item pertama), scroll-trigger (`useScrollReveal`), tekan 3D, angka menghitung naik, FAB yang menyusut, pil tab dan segmen, kartu masuk akun dengan kemiringan 3D. "Kurangi gerakan" mematikan semuanya.
 
-## Penyesuaian struktur repository
+## Ikon dan splash
 
-Standar struktur repository Solveit ditulis untuk website (React + Vite, admin, Laravel). Untuk Tovv:
+`node scripts/generate-brand-assets.mjs` membuat ikon dan splash native dari wordmark sementara. Splash beranimasi di dalam aplikasi ada di `components/feedback/splash-overlay.tsx`.
 
-- Aplikasi mobile di `mobile/` (ARCHITECTURE §2), route Expo Router di `mobile/src/app/`, fitur di `mobile/src/features/`.
-- Paket spesifikasi 2.1 di `docs/spec/`; root hanya berisi `README.md`, `AGENTS.md`, `CLAUDE.md`.
-- Aset merek sekali di `mobile/assets/brand/`.
-- `backend/`, `contracts/`, `tools/admin-harness/`, `infra/`, `.github/workflows/` belum dibuat karena belum ada isinya.
-- Commit `(jenis) deskripsi` dalam Bahasa Indonesia, tanpa baris co-author/atribusi AI.
-- Screenshot mentah di `.impeccable/review/` (diabaikan Git), dirangkum di [`qa-report.md`](qa-report.md).
+## Aturan repository
+
+- Aplikasi mobile di `mobile/`; paket spesifikasi 2.1 di `docs/spec/`; root hanya berisi `README.md`, `AGENTS.md`, `CLAUDE.md`.
+- Nama file, folder, route, commit, dan PR dalam bahasa Inggris; isi dokumentasi dalam bahasa Indonesia.
+- Commit `(type) short description` tanpa baris co-author/atribusi AI. Promosi `frontend` → `staging` → `main` lewat PR.
+- `backend/`, `contracts/`, `tools/admin-harness/`, `infra/`, `.github/workflows/` belum dibuat.
+- Screenshot mentah di `.impeccable/review/` (diabaikan Git), dirangkum di [`QA_REPORT.md`](QA_REPORT.md).

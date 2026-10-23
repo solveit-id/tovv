@@ -16,6 +16,7 @@ import { EmptyBlock, QueryView } from '@/components/ui/states';
 import { useTovvQuery } from '@/data/api/hooks';
 import { collectionStatus, proofStatus } from '@/core/i18n/status';
 import { formatLocalDate, formatShortDateTime } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 type Tab = 'proofs' | 'invoices' | 'all';
 
@@ -36,7 +37,7 @@ export function FinanceQueueScreen({ title = 'Keuangan' }: { title?: string }) {
     <Screen headerScrolls
       onRefresh={() => qc.invalidateQueries()}
       header={
-        <RootHeader title={title} subtitle="Bukti bayar diperiksa manual · simulasi">
+        <RootHeader title={title} subtitle="Bukti bayar dicek manual · simulasi">
           <View style={{ flexDirection: 'row', gap: space.sm }}>
             <Button variant="onHero" icon="cash-check" label="Biaya & uang jalan" compact onPress={() => router.push('/finance/expenses')} style={{ flex: 1 }} />
             <Button variant="onHero" icon="chart-box-outline" label="Laporan" compact onPress={() => router.push('/reports')} style={{ flex: 1 }} />
@@ -60,7 +61,7 @@ export function FinanceQueueScreen({ title = 'Keuangan' }: { title?: string }) {
                   <Money value={p.amountClaimed} size="sm" />
                   <Icon name="chevron-right" tone="inkSecondary" />
                 </Pressable>
-              )) : <EmptyBlock icon="file-check-outline" title="Tidak ada bukti menunggu" body="Bukti baru dari pelanggan atau pencatatan dibantu muncul di sini." />
+              )) : <EmptyBlock icon="file-check-outline" title="Tidak ada bukti yang menunggu" body="Bukti bayar baru dari pelanggan atau yang dicatat petugas akan muncul di sini." />
             }
           </QueryView>
         ) : (
@@ -71,7 +72,7 @@ export function FinanceQueueScreen({ title = 'Keuangan' }: { title?: string }) {
                   <View style={{ flex: 1, gap: 4 }}>
                     <Serial>{inv.number}</Serial>
                     <StatusTag look={collectionStatus[inv.collection]} size="sm" />
-                    <Txt variant="caption" tone={inv.overdueDays ? 'dangerInk' : 'inkSecondary'}>{`${inv.alias} · ${inv.payerLabel} · jatuh tempo ${formatLocalDate(inv.dueDate)}${inv.overdueDays ? ` · lewat ${inv.overdueDays} hari` : ''}`}</Txt>
+                    <Txt variant="caption" tone={inv.overdueDays ? 'dangerInk' : 'inkSecondary'}>{t('{0} · {1} · jatuh tempo {2}{3}', [inv.alias, inv.payerLabel, formatLocalDate(inv.dueDate), inv.overdueDays ? ` · lewat ${inv.overdueDays} hari` : ''])}</Txt>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
                     <Txt variant="caption" tone="inkSecondary">Sisa</Txt>

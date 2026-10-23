@@ -7,6 +7,7 @@ import { makeStyles } from '@/core/design/theme';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import { useTovvQuery } from '@/data/api/hooks';
+import { t } from '@/core/i18n';
 
 const VIEW_LABEL = { owner: 'Owner', admin: 'Admin', driver: 'Driver', customer: 'Pelanggan' } as const;
 
@@ -28,7 +29,7 @@ export function DemoStrip() {
       <Pressable
         onPress={() => router.push('/demo')}
         accessibilityRole="button"
-        accessibilityLabel={`Mode demo, simulasi frontend. ${d ? `${d.tenantName}, ${VIEW_LABEL[d.view]}, ${d.userName}` : ''}. Ketuk untuk ganti akun demo.`}
+        accessibilityLabel={t('Mode demo, simulasi frontend. {0}. Ketuk untuk ganti akun demo.', [d ? `${d.tenantName}, ${VIEW_LABEL[d.view]}, ${d.userName}` : ''])}
         style={({ pressed }) => [s.row, pressed && { opacity: 0.7 }]}
         hitSlop={{ top: 4, bottom: 4 }}
       >
@@ -47,7 +48,7 @@ export function DemoStrip() {
           </>
         ) : null}
         {offline ? (
-          <View style={s.offline} accessibilityLabel="Simulasi offline aktif">
+          <View style={s.offline} accessibilityLabel={t('Simulasi offline aktif')}>
             <Icon name="wifi-off" size={13} tone="onInverse" />
             <Txt variant="caption" tone="onInverse" maxFontSizeMultiplier={1.3} bold>Offline</Txt>
           </View>

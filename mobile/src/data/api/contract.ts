@@ -85,6 +85,7 @@ export interface DemoAccount {
   tenantId: TenantId;
   tenantName: string;
   name: string;
+  email: string;
   roleLabel: string;
   views: ViewGroup[];
   note: string;
@@ -204,6 +205,47 @@ export interface TrackingSnapshot {
   eta: { minutes: number; source: string; fetchedAt: string; warning: string } | null;
   pickup: Place;
   dropoff: Place;
+}
+
+export interface LiveUnit {
+  unitId: string;
+  code: string;
+  label: string;
+  lat: number;
+  lng: number;
+  accuracyM: number | null;
+  capturedAt: string;
+  ageSeconds: number;
+  freshness: 'live' | 'stale';
+  source: 'device' | 'simulated';
+  state: 'on_job' | 'available' | 'out_of_service';
+  orderId: string | null;
+  orderAlias: string | null;
+  driverName: string | null;
+}
+
+export interface LiveJob {
+  orderId: string;
+  alias: string;
+  status: ExecutionStatus;
+  customerLabel: string | null;
+  unitCode: string;
+  driverName: string | null;
+  pickup: Place;
+  dropoff: Place;
+  trackingVisible: boolean;
+  hiddenReason: string | null;
+  progress: number | null;
+  etaMinutes: number | null;
+}
+
+/** Peta langsung per peran (owner: armada; driver: tugas sendiri; pelanggan: pesanan sendiri). */
+export interface LiveMapDTO {
+  generatedAt: string;
+  view: ViewGroup;
+  base: { label: string; lat: number; lng: number } | null;
+  units: LiveUnit[];
+  jobs: LiveJob[];
 }
 
 export interface MediaItem {
@@ -539,7 +581,7 @@ export interface AdvanceDTO {
 export interface FleetDTO {
   units: (UnitCandidate & { status: 'active' | 'out_of_service'; equipment: string[]; costTemplate: string; specSource: string })[];
   drivers: { id: string; name: string; roles: string[]; activeAssignment: string | null }[];
-  reservations: { id: string; orderAlias: string; unitCode: string; driverName: string; start: string; end: string; status: string }[];
+  reservations: { id: string; orderAlias: string; unitCode: string; driverName: string | null; start: string; end: string; status: string }[];
 }
 
 export interface BusinessAccountDTO {
