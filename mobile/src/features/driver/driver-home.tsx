@@ -18,6 +18,7 @@ import { OrderRow } from '@/features/orders/order-row';
 import { HeaderActions } from '@/features/home/header-actions';
 import { executionStatus } from '@/core/i18n/status';
 import { formatShortDateTime } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 /**
  * Tugas driver: tugas terdekat menguasai kartu atas dengan satu aksi utama (buka tugas),
@@ -42,7 +43,7 @@ export function DriverHome() {
       header={
         <RootHeader overlap title="Tugas saya" subtitle={s ? `${s.userName} · ${s.tenantName}` : undefined} right={<HeaderActions />}>
           {s?.views.includes('owner') ? (
-            <Button variant="onHero" compact icon="briefcase-outline" label="Kembali ke mode owner" style={{ alignSelf: 'flex-start' }} accessibilityHint="Perpindahan konteks eksplisit; izin owner aktif lagi setelah ini." onPress={() => void switchView('owner').then(() => router.replace('/owner'))} />
+            <Button variant="onHero" compact icon="briefcase-outline" label="Kembali ke mode owner" style={{ alignSelf: 'flex-start' }} accessibilityHint={t('Anda pindah konteks dengan sengaja; menu owner aktif lagi setelah ini.')} onPress={() => void switchView('owner').then(() => router.replace('/owner'))} />
           ) : null}
         </RootHeader>
       }
@@ -57,7 +58,7 @@ export function DriverHome() {
             <View style={{ gap: 2 }}>
               <Txt variant="title">{`${lead.alias} · ${lead.vehicleLabel}`}</Txt>
               <Txt variant="bodySm" tone="inkSecondary" numberOfLines={2}>{`${lead.pickup.label} → ${lead.dropoff.label}`}</Txt>
-              <Txt variant="caption" tone="inkSecondary">{`Jadwal ${formatShortDateTime(lead.scheduleStart)} · unit ${lead.unitCode}`}</Txt>
+              <Txt variant="caption" tone="inkSecondary">{t('Jadwal {0} · unit {1}', [formatShortDateTime(lead.scheduleStart), lead.unitCode])}</Txt>
             </View>
             <Button label={lead.nextStep} icon="arrow-right-circle" size="lg" onPress={() => router.push(`/order/${lead.id}`)} />
           </>
@@ -74,7 +75,7 @@ export function DriverHome() {
       </Card>
 
       {pending ? (
-        <Button label={`${pending} catatan belum terkirim — kirim sekarang`} icon="cloud-upload-outline" variant="secondary" onPress={() => router.push('/driver/sinkron')} style={{ marginTop: space.md }} />
+        <Button label={t('{0} catatan belum terkirim — kirim sekarang', [pending])} icon="cloud-upload-outline" variant="secondary" onPress={() => router.push('/driver/sync')} style={{ marginTop: space.md }} />
       ) : null}
 
       {active.data && active.data.length > 1 ? (

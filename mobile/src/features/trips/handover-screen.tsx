@@ -61,7 +61,7 @@ export function HandoverScreen() {
           return (
             <>
               <Txt variant="bodySm" tone="inkSecondary">
-                Isi saat kendaraan sudah berhenti. Serah-terima tidak melunasi tagihan; penerima bukan otomatis pembayar.
+                Isi saat kendaraan sudah berhenti. Serah-terima tidak sama dengan lunas; penerima belum tentu yang membayar.
               </Txt>
               <SectionTitle title="Foto kondisi akhir" />
               <Card>
@@ -73,7 +73,7 @@ export function HandoverScreen() {
                 />
                 {!m ? (
                   <View style={{ marginTop: space.md }}>
-                    <Field label="Alasan tanpa foto (bila terpaksa)" value={exception} onChangeText={setException} helper="Pengecualian tercatat dan bukti dianggap belum lengkap." />
+                    <Field label="Alasan tanpa foto (kalau terpaksa)" value={exception} onChangeText={setException} helper="Alasan dicatat dan bukti dianggap belum lengkap." />
                   </View>
                 ) : null}
               </Card>
@@ -89,7 +89,7 @@ export function HandoverScreen() {
                 ]}
               />
               {acceptance === 'objection' ? <Field label="Isi keberatan" value={objection} onChangeText={setObjection} multiline /> : null}
-              <Txt variant="caption" tone="inkSecondary">Petugas mencatat pernyataan penerima; ini bukan tanda tangan digital tersertifikasi.</Txt>
+              <Txt variant="caption" tone="inkSecondary">Petugas mencatat pernyataan penerima; ini bukan tanda tangan digital resmi.</Txt>
             </>
           );
         }}

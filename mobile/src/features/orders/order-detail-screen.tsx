@@ -31,6 +31,7 @@ import {
   TripDocument,
 } from './order-sections';
 import { OrderSheets, type SheetKind, type SheetSubmit } from './order-sheets';
+import { t } from '@/core/i18n';
 
 type TripAction = 'start_pickup' | 'arrive_pickup' | 'start_loading' | 'start_transit' | 'arrive_delivery';
 
@@ -65,15 +66,15 @@ export function OrderDetailScreen() {
   };
 
   const submit: SheetSubmit = {
-    reject: (r) => api.respondAssignment(id, false, r).then(() => toast.show('Penolakan terkirim. Admin akan mencari pengganti.', 'ok')),
-    incident: (t, n) => api.reportIncident(id, t, n).then(() => toast.show('Kendala tercatat dan diteruskan ke admin.', 'ok')),
-    exception: (r) => api.advanceTrip(id, 'start_loading', r).then(() => toast.show('Mulai memuat. Pengecualian foto tercatat.', 'ok')),
-    cancel: (r) => api.cancelOrder(id, r).then(() => toast.show('Order dibatalkan; reservasi unit dilepas.', 'ok')),
-    abort: (info) => api.abortOrder(id, info).then(() => toast.show('Penghentian tercatat dengan penguasaan kendaraan dan PIC.', 'ok')),
-    change: (amt, r) => api.proposeChange(id, amt, r).then(() => toast.show('Biaya tambahan diajukan; belum ditagih.', 'ok')),
+    reject: (r) => api.respondAssignment(id, false, r).then(() => toast.show(t('Penolakan terkirim. Owner akan mencari pengganti.'), 'ok')),
+    incident: (type, n) => api.reportIncident(id, type, n).then(() => toast.show(t('Kendala dicatat dan diteruskan ke owner.'), 'ok')),
+    exception: (r) => api.advanceTrip(id, 'start_loading', r).then(() => toast.show(t('Mulai memuat. Alasan tanpa foto sudah dicatat.'), 'ok')),
+    cancel: (r) => api.cancelOrder(id, r).then(() => toast.show(t('Order dibatalkan; jadwal unit dilepas.'), 'ok')),
+    abort: (info) => api.abortOrder(id, info).then(() => toast.show(t('Penghentian dicatat beserta posisi kendaraan dan penanggung jawabnya.'), 'ok')),
+    change: (amt, r) => api.proposeChange(id, amt, r).then(() => toast.show(t('Biaya tambahan diajukan; belum masuk tagihan.'), 'ok')),
     decide: (cid, ap, note) => api.decideChange(cid, ap, note).then(() => toast.show(ap ? 'Biaya tambahan disetujui.' : 'Biaya tambahan ditolak; tagihan tidak berubah.', 'ok')),
-    resolve: (iid, f) => api.resolveIncident(iid, f).then(() => toast.show('Kendala ditutup. Tahap perjalanan tidak berubah otomatis.', 'ok')),
-    expense: (c, amt, n) => api.addExpense(id, c, amt, n).then(() => toast.show('Biaya tercatat; menunggu persetujuan finance.', 'ok')),
+    resolve: (iid, f) => api.resolveIncident(iid, f).then(() => toast.show(t('Kendala ditutup. Tahap perjalanan tidak berubah dengan sendirinya.'), 'ok')),
+    expense: (c, amt, n) => api.addExpense(id, c, amt, n).then(() => toast.show(t('Biaya dicatat; menunggu disetujui.'), 'ok')),
   };
 
   const tripLabel = (a: TripAction) => d?.nextAction?.label ?? a;
@@ -82,7 +83,7 @@ export function OrderDetailScreen() {
       setSheet({ kind: 'exception' });
       return;
     }
-    void act(a, () => api.advanceTrip(id, a, null), `${tripLabel(a)} — tercatat.`);
+    void act(a, () => api.advanceTrip(id, a, null), t('{0} — tercatat.', [tripLabel(a)]));
   };
 
   let footer: React.ReactNode = null;
@@ -93,7 +94,7 @@ export function OrderDetailScreen() {
       onRefresh={() => qc.invalidateQueries()}
       header={
         <DetailHeader
-          serial={d ? `Pekerjaan ${d.summary.alias}` : undefined}
+          serial={d ? t('Pekerjaan {0}', [d.summary.alias]) : undefined}
           title={d ? d.summary.customerLabel : 'Detail pekerjaan'}
           subtitle={d ? `${d.summary.vehicleLabel} · ${d.summary.plate}` : undefined}
         />
@@ -146,7 +147,7 @@ export function OrderDetailScreen() {
           {isDriver && d.allowedActions.includes('abort') ? (
             <View style={{ marginTop: space.xxl, gap: space.xs }}>
               <Button label="Hentikan perjalanan…" icon="alert-octagon-outline" variant="danger" onPress={() => setSheet({ kind: 'abort' })} />
-              <Txt variant="caption" tone="inkSecondary">Hanya bila perjalanan tidak dapat dilanjutkan setelah kendaraan dimuat. Wajib mencatat lokasi, penguasaan kendaraan, PIC, dan rencana.</Txt>
+              <Txt variant="caption" tone="inkSecondary">Hanya kalau perjalanan tidak bisa dilanjutkan setelah kendaraan dimuat. Wajib mencatat lokasi, siapa yang memegang kendaraan, penanggung jawab, dan rencana berikutnya.</Txt>
             </View>
           ) : null}
         </>

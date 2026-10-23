@@ -15,12 +15,13 @@ import { Button } from '@/components/ui/button';
 import { useApiState } from '@/data/api/provider';
 import type { DemoAccount } from '@/data/api/contract';
 import type { ViewGroup } from '@/domain/types';
+import { t } from '@/core/i18n';
 
 const VIEW = {
-  owner: { label: 'Owner', icon: 'briefcase-outline', hint: 'Harga, delegasi, laporan, paket langganan' },
+  owner: { label: 'Owner', icon: 'briefcase-outline', hint: 'Harga, armada, laporan, langganan' },
   admin: { label: 'Admin', icon: 'clipboard-text-outline', hint: 'Permintaan, jadwal, penugasan, invoice' },
-  driver: { label: 'Driver', icon: 'steering', hint: 'Hanya tugas sendiri; tanpa margin' },
-  customer: { label: 'Pelanggan', icon: 'account-outline', hint: 'Permintaan, penawaran, tagihan sendiri' },
+  driver: { label: 'Driver', icon: 'steering', hint: 'Hanya tugas sendiri; tanpa harga dan margin' },
+  customer: { label: 'Pelanggan', icon: 'account-outline', hint: 'Permintaan, penawaran, dan tagihan sendiri' },
 } as const;
 
 /**
@@ -66,11 +67,10 @@ export function DemoAccountScreen() {
   }, [q.data, as, wantView]);
 
   return (
-    <Screen header={<DetailHeader title="Pilih akun demo" subtitle="Hanya mode demo lokal · bukan login produksi" />}>
+    <Screen header={<DetailHeader title="Pilih akun demo" subtitle="Khusus mode demo · bukan login sungguhan" />}>
       <Card style={{ backgroundColor: color.demoWash, borderColor: color.demoRule }}>
         <Txt variant="bodySm" tone="demoInk">
-          Akun di bawah adalah fixture sintetis F-05. Tidak ada kata sandi karena ini simulasi; aplikasi nyata memakai sesi
-          perangkat dari server, dan peran tidak bisa diubah dari ponsel.
+          Akun di bawah ini contoh (sintetis). Aplikasi sungguhan memakai login dari server, dan peran tidak bisa diubah dari HP.
         </Txt>
       </Card>
       <QueryView q={q} loadingLabel="Memuat akun demo…">
@@ -109,9 +109,9 @@ export function DemoAccountScreen() {
           })
         }
       </QueryView>
-      <BottomSheet visible={!!pick} title={pick ? `Masuk sebagai ${pick.name}` : ''} onClose={() => setPick(null)}>
+      <BottomSheet visible={!!pick} title={pick ? t('Masuk sebagai {0}', [pick.name]) : ''} onClose={() => setPick(null)}>
         <Txt variant="bodySm" tone="inkSecondary" style={{ marginBottom: space.md }}>
-          Akun ini memiliki lebih dari satu kemampuan. Pilih konteks secara eksplisit; mode driver tidak membawa izin owner.
+          Akun ini punya lebih dari satu peran. Pilih salah satu; mode driver tidak membawa akses owner.
         </Txt>
         <View style={{ gap: space.sm }}>
           {pick?.views.map((v) => (

@@ -5,6 +5,7 @@ import { radius, space } from '@/core/design/tokens';
 import { makeStyles, useColors } from '@/core/design/theme';
 import { Txt } from '@/components/ui/txt';
 import type { Place } from '@/domain/types';
+import { t } from '@/core/i18n';
 
 interface Pt {
   lat: number;
@@ -65,7 +66,7 @@ export function RouteSchematic({
       onLayout={onLayout}
       accessible
       accessibilityRole="image"
-      accessibilityLabel={`Skema rute simulasi dari ${pickup.label} ke ${dropoff.label}${position ? (stale ? ', posisi terakhir sudah lama' : ', posisi terakhir diterima') : ', posisi belum tersedia'}`}
+      accessibilityLabel={t('Skema rute simulasi dari {0} ke {1}{2}', [pickup.label, dropoff.label, position ? (stale ? ', posisi terakhir sudah lama' : ', posisi terakhir diterima') : ', posisi belum tersedia'])}
     >
       {canDraw && A && B ? (
         <Svg width={w} height={height}>
@@ -93,7 +94,7 @@ export function RouteSchematic({
       ) : null}
       <View style={styles.legend} pointerEvents="none">
         <Txt variant="caption" tone="inkSecondary" style={{ fontWeight: '700' }} maxFontSizeMultiplier={1.3}>
-          SKEMA SIMULASI · bukan peta jalan
+          SKEMA SIMULASI · bukan peta sungguhan
         </Txt>
       </View>
     </View>

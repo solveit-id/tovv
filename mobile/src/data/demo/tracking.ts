@@ -9,7 +9,7 @@ export const FUTURE_QUARANTINE_S = 120;
 
 const TRACKABLE = new Set(['en_route_pickup', 'arrived_pickup', 'loading', 'in_transit', 'arrived_delivery']);
 
-const REPLAY_PLAN = {
+export const REPLAY_PLAN = {
   'O-A06': { start: { lat: -7.2862, lng: 112.7389 }, end: { lat: -7.4478, lng: 112.7183 }, plannedSteps: 360 },
 } as const;
 
@@ -41,6 +41,28 @@ export function replayPoints(db: DemoDb, orderId: string, now: string): TrackPoi
   return [...points, ...device].sort((a, b) => Date.parse(a.capturedAt) - Date.parse(b.capturedAt));
 }
 
+/**
+ * Posisi replay pada detik ini (bukan dibulatkan ke langkah 15 detik) agar penanda di peta bergerak halus.
+ * Tetap mengikuti rencana replay F-06 yang sama dan berhenti saat replay dijeda.
+ */
+export function continuousPoint(db: DemoDb, orderId: string, now: string): TrackPoint | null {
+  const seeded = db.tracks[orderId] ?? [];
+  const plan = REPLAY_PLAN[orderId as keyof typeof REPLAY_PLAN];
+  if (!plan || !seeded.length) return null;
+  const first = seeded[0]!;
+  const cutoff = db.faults.replayPausedAt && Date.parse(db.faults.replayPausedAt) < Date.parse(now) ? db.faults.replayPausedAt : now;
+  const elapsed = Math.max(0, secondsBetween(first.capturedAt, cutoff));
+  const f = Math.min(1, elapsed / (plan.plannedSteps * 15));
+  return {
+    eventId: `loc-${orderId}-live`,
+    capturedAt: cutoff,
+    lat: Number((plan.start.lat + (plan.end.lat - plan.start.lat) * f).toFixed(6)),
+    lng: Number((plan.start.lng + (plan.end.lng - plan.start.lng) * f).toFixed(6)),
+    accuracyM: 12,
+    source: 'simulated',
+  };
+}
+
 /** Titik terbaru yang valid: abaikan timestamp masa depan > 120 detik (karantina). */
 export function latestValid(points: TrackPoint[], now: string): TrackPoint | null {
   const valid = points.filter((p) => secondsBetween(now, p.capturedAt) <= FUTURE_QUARANTINE_S);
@@ -63,7 +85,7 @@ export function trackingSnapshot(db: DemoDb, order: Order, now: string, viewer: 
   const points = replayPoints(db, order.id, now);
   const p = latestValid(points, now);
   if (!p) {
-    return { ...base, ...empty, visible: viewer === 'staff', hiddenReason: 'Belum ada lokasi diterima.', freshness: 'unknown' };
+    return { ...base, ...empty, visible: viewer === 'staff', hiddenReason: 'Belum ada lokasi yang diterima.', freshness: 'unknown' };
   }
   const age = Math.max(0, Math.round(secondsBetween(p.capturedAt, now)));
   const plan = REPLAY_PLAN[order.id as keyof typeof REPLAY_PLAN];
@@ -90,9 +112,9 @@ export function trackingSnapshot(db: DemoDb, order: Order, now: string, viewer: 
         ? null
         : {
             minutes: remainingMin,
-            source: 'Simulasi garis lurus F-06',
+            source: 'Simulasi garis lurus (contoh)',
             fetchedAt: p.capturedAt,
-            warning: 'Perkiraan ilustratif; tidak memperhitungkan akses jalan truk atau lalu lintas.',
+            warning: 'Perkiraan kasar; belum menghitung akses jalan untuk truk atau lalu lintas.',
           },
   };
 }

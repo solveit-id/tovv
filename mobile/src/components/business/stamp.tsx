@@ -6,6 +6,7 @@ import { makeStyles, useColors } from '@/core/design/theme';
 import { useReducedMotion } from '@/core/design/motion';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
+import { t } from '@/core/i18n';
 
 const TONE: Record<'ok' | 'danger' | 'neutral' | 'carbon', { ink: ColorToken; wash: ColorToken; icon: string }> = {
   ok: { ink: 'okInk', wash: 'okWash', icon: 'check-decagram' },
@@ -22,16 +23,16 @@ export function Stamp({ label, tone = 'ok', detail }: { label: string; tone?: ke
   const s = useStyles();
   const c = useColors();
   const reduced = useReducedMotion();
-  const t = TONE[tone];
+  const look = TONE[tone];
   return (
-    <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(14)} style={[s.wrap, { backgroundColor: c[t.wash] }]} accessible accessibilityLabel={`Status ${label}${detail ? `, ${detail}` : ''}`}>
-      <Icon name={t.icon} size={22} tone={t.ink} />
+    <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(14)} style={[s.wrap, { backgroundColor: c[look.wash] }]} accessible accessibilityLabel={t('Status {0}{1}', [label, detail ? `, ${detail}` : ''])}>
+      <Icon name={look.icon} size={22} tone={look.ink} />
       <View style={{ flexShrink: 1 }}>
-        <Txt variant="label" tone={t.ink} style={{ letterSpacing: 1, fontWeight: '800' }} maxFontSizeMultiplier={1.3}>
+        <Txt variant="label" tone={look.ink} style={{ letterSpacing: 1, fontWeight: '800' }} maxFontSizeMultiplier={1.3}>
           {label}
         </Txt>
         {detail ? (
-          <Txt variant="caption" tone={t.ink} maxFontSizeMultiplier={1.3}>
+          <Txt variant="caption" tone={look.ink} maxFontSizeMultiplier={1.3}>
             {detail}
           </Txt>
         ) : null}

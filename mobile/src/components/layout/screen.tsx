@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import { tr } from '@/core/i18n';
+import React, { useMemo, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, RefreshControl, StyleSheet, View, type ViewStyle } from 'react-native';
 import Animated, { Extrapolation, ZoomIn, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -53,7 +54,8 @@ export function Screen({
   const [refreshing, setRefreshing] = useState(false);
   const y = useSharedValue(0);
   const heroH = useSharedValue(0);
-  const scrollState = useMemo(() => ({ y, heroH }), [y, heroH]);
+  const contentRef = useRef<View>(null);
+  const scrollState = useMemo(() => ({ y, heroH, hero: headerScrolls && scroll, contentRef }), [y, heroH, headerScrolls, scroll]);
   const reduced = useReducedMotion();
   const fabOpen = useSharedValue(1);
   const fabP = useSharedValue(1);
@@ -113,14 +115,14 @@ export function Screen({
       }
     >
       {hero ? header : null}
-      <View style={[s.content, contentStyle]}>{children}</View>
+      <View ref={contentRef} collapsable={false} style={[s.content, contentStyle]}>{children}</View>
     </Animated.ScrollView>
   ) : (
     <View style={[s.flex, contentStyle]}>{children}</View>
   );
 
   return (
-    <ScrollContext.Provider value={hero ? scrollState : null}>
+    <ScrollContext.Provider value={scroll ? scrollState : null}>
       <KeyboardAvoidingView style={s.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {hero ? null : header}
         {body}
@@ -132,7 +134,7 @@ export function Screen({
         ) : null}
         {fab ? (
           <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(16)} style={[s.fabWrap, { bottom: footer ? 96 : space.lg }]}>
-            <PressableScale depth="subtle" onPress={fab.onPress} accessibilityRole="button" accessibilityLabel={fab.label} accessibilityHint={fab.accessibilityHint} style={s.fab}>
+            <PressableScale depth="subtle" onPress={fab.onPress} accessibilityRole="button" accessibilityLabel={tr(fab.label)} accessibilityHint={fab.accessibilityHint ? tr(fab.accessibilityHint) : undefined} style={s.fab}>
               <Animated.View style={[s.fabRow, fabBox]}>
                 <Icon name={fab.icon} size={24} tone="onAccent" />
                 <Animated.View style={[{ overflow: 'hidden' }, fabLabel]}>

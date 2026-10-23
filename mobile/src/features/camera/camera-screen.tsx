@@ -23,6 +23,7 @@ import { stageLabel, locationSourceLabel } from '@/core/i18n/status';
 import { formatAge, formatDateTime } from '@/core/format/time';
 import { readCaptureLocation, type CaptureLocation } from './location-adapter';
 import { persistDerivative, persistOriginal, StorageFullError } from './durable-media';
+import { t } from '@/core/i18n';
 
 type Phase = 'capture' | 'preview' | 'saving';
 
@@ -75,7 +76,7 @@ export function CameraScreen() {
   const effectiveLoc = (): CaptureLocation => {
     if (manual !== 'none' && req.data) {
       const place = manual === 'pickup' ? req.data.pickup : req.data.dropoff;
-      return { latitude: place.lat, longitude: place.lng, accuracyM: null, capturedAt: null, source: 'manual', note: `Titik manual: ${place.label}` };
+      return { latitude: place.lat, longitude: place.lng, accuracyM: null, capturedAt: null, source: 'manual', note: t('Titik manual: {0}', [place.label]) };
     }
     return loc ?? { latitude: null, longitude: null, accuracyM: null, capturedAt: null, source: 'unknown', note: 'Lokasi masih dicari' };
   };
@@ -88,7 +89,7 @@ export function CameraScreen() {
       setShot({ uri: pic.uri, origin: 'camera', deviceCapturedAt: new Date().toISOString(), width: pic.width, height: pic.height });
       setPhase('preview');
     } catch (e) {
-      setError(`Kamera gagal mengambil foto: ${errorMessage(e)}`);
+      setError(t('Kamera gagal mengambil foto: {0}', [errorMessage(e)]));
     }
   };
 
@@ -142,11 +143,11 @@ export function CameraScreen() {
       goBack();
     } catch (e) {
       setPhase('preview');
-      setError(e instanceof StorageFullError ? `${e.message} Kosongkan ruang lalu coba lagi; foto lain yang menunggu tidak dihapus.` : errorMessage(e));
+      setError(e instanceof StorageFullError ? t('{0} Kosongkan sedikit ruang, lalu coba lagi. Foto lain yang menunggu tidak dihapus.', [e.message]) : errorMessage(e));
     }
   };
 
-  const header = <DetailHeader title={`Foto · ${stageLabel[p.stage] ?? 'bukti'}`} subtitle={req.data ? `${req.data.alias} · ${req.data.vehicle.label} ${req.data.vehicle.plate} · slot ${p.slot}` : undefined} />;
+  const header = <DetailHeader title={t('Foto · {0}', [stageLabel[p.stage] ?? 'bukti'])} subtitle={req.data ? t('{0} · {1} {2} · slot {3}', [req.data.alias, req.data.vehicle.label, req.data.vehicle.plate, p.slot]) : undefined} />;
 
   if (!perm) return <Screen header={header}><Txt variant="body">Memeriksa izin kamera…</Txt></Screen>;
 
@@ -157,10 +158,10 @@ export function CameraScreen() {
           <Icon name="camera-off-outline" size={36} tone="warnInk" />
           <Txt variant="headline" align="center">Kamera belum diizinkan</Txt>
           <Txt variant="body" tone="inkSecondary" align="center">
-            Tovv memakai kamera untuk foto kondisi kendaraan. Tanpa izin, Anda tetap dapat mengimpor dari galeri (diberi label impor) atau melanjutkan dengan catatan.
+            Tovv butuh kamera untuk memotret kondisi kendaraan. Kalau tidak diizinkan, Anda masih bisa mengambil foto dari galeri (ditandai sebagai impor) atau lanjut dengan catatan saja.
           </Txt>
           {perm.canAskAgain ? <Button label="Izinkan kamera" icon="camera-outline" onPress={() => void requestPerm()} /> : <Button label="Buka pengaturan" icon="cog-outline" onPress={() => void Linking.openSettings()} />}
-          <Button label="Impor dari galeri" icon="image-multiple-outline" variant="secondary" onPress={() => void importGallery()} />
+          <Button label="Ambil dari galeri" icon="image-multiple-outline" variant="secondary" onPress={() => void importGallery()} />
           <Button label="Kembali tanpa foto" variant="quiet" onPress={() => goBack()} />
         </View>
       </Screen>
@@ -187,10 +188,10 @@ export function CameraScreen() {
       >
         <View ref={overlayRef} collapsable={false} style={[styles.preview, { aspectRatio: aspect }]}>
           <Image source={{ uri: shot.uri }} style={StyleSheet.absoluteFill} contentFit="cover" />
-          <View style={styles.overlay} accessible accessibilityLabel={`Overlay: DEMO, ${shot.origin === 'gallery' ? 'impor galeri' : 'kamera aplikasi'}, ${locText}, sumber ${locationSourceLabel[l.source]}`}>
-            <Txt variant="caption" tone="onHero" style={styles.ovBold} maxFontSizeMultiplier={1}>{`DEMO · TOVV · ${shot.origin === 'gallery' ? 'IMPOR GALERI' : 'KAMERA APLIKASI'}`}</Txt>
+          <View style={styles.overlay} accessible accessibilityLabel={t('Overlay: DEMO, {0}, {1}, sumber {2}', [shot.origin === 'gallery' ? 'impor galeri' : 'kamera aplikasi', locText, locationSourceLabel[l.source]])}>
+            <Txt variant="caption" tone="onHero" style={styles.ovBold} maxFontSizeMultiplier={1}>{t('DEMO · TOVV · {0}', [shot.origin === 'gallery' ? 'IMPOR GALERI' : 'KAMERA APLIKASI'])}</Txt>
             <Txt variant="caption" tone="onHero" maxFontSizeMultiplier={1}>
-              {shot.deviceCapturedAt ? `${formatDateTime(shot.deviceCapturedAt)} · jam perangkat · Asia/Jakarta` : 'Waktu ambil tidak diketahui (galeri)'}
+              {shot.deviceCapturedAt ? t('{0} · jam perangkat · Asia/Jakarta', [formatDateTime(shot.deviceCapturedAt)]) : 'Waktu foto tidak diketahui (dari galeri)'}
             </Txt>
             <Txt variant="caption" tone="onHero" maxFontSizeMultiplier={1}>
               {`${locText} · ${locationSourceLabel[l.source]}${l.accuracyM !== null ? ` ±${l.accuracyM} m` : ''}${l.source === 'stale' && l.capturedAt ? ` · ${formatAge(l.capturedAt, now)}` : ''}`}
@@ -199,20 +200,20 @@ export function CameraScreen() {
           </View>
         </View>
         <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.sm }}>
-          Original disimpan tanpa overlay dan tanpa kompresi; overlay di atas adalah salinan terpisah. Hash memeriksa file sama, bukan kebenaran kejadian.
+          Foto asli disimpan apa adanya, tanpa tulisan dan tanpa kompresi; tulisan di atas ada di salinan terpisah. Hash hanya memastikan file tidak berubah, bukan membuktikan kejadiannya.
         </Txt>
         <View style={{ marginTop: space.lg }}>
-          <Field label="Catatan kondisi" value={note} onChangeText={setNote} multiline placeholder="mis. baret di bumper kiri belakang" />
+          <Field label="Catatan kondisi" value={note} onChangeText={setNote} multiline placeholder={t('mis. baret di bumper kiri belakang')} />
           {(l.source === 'unknown' || manual !== 'none') && req.data ? (
             <Choice
               label="Lokasi"
               value={manual}
               onChange={setManual}
-              helper="Titik manual diberi label manual dan tanpa akurasi GPS."
+              helper="Titik yang dipilih manual ditandai “manual” dan tidak punya akurasi GPS."
               options={[
                 { value: 'none', label: 'Biarkan tidak tersedia' },
-                { value: 'pickup', label: `Manual: ${req.data.pickup.label}` },
-                { value: 'dropoff', label: `Manual: ${req.data.dropoff.label}` },
+                { value: 'pickup', label: t('Manual: {0}', [req.data.pickup.label]) },
+                { value: 'dropoff', label: t('Manual: {0}', [req.data.dropoff.label]) },
               ]}
             />
           ) : null}
@@ -225,7 +226,7 @@ export function CameraScreen() {
     <View style={styles.camRoot}>
       {header}
       <View style={{ flex: 1 }}>
-        <CameraView ref={camRef} style={StyleSheet.absoluteFill} facing="back" onCameraReady={() => setReady(true)} onMountError={(e) => setError(`Kamera tidak dapat dibuka: ${e.message}`)} />
+        <CameraView ref={camRef} style={StyleSheet.absoluteFill} facing="back" onCameraReady={() => setReady(true)} onMountError={(e) => setError(t('Kamera tidak dapat dibuka: {0}', [e.message]))} />
         <View style={styles.locChip} accessibilityLiveRegion="polite">
           <Icon name={l.source === 'device' ? 'crosshairs-gps' : l.source === 'stale' ? 'map-marker-alert-outline' : 'map-marker-off-outline'} size={16} tone="onHero" />
           <Txt variant="caption" tone="onHero" maxFontSizeMultiplier={1.3}>
@@ -239,7 +240,7 @@ export function CameraScreen() {
           <Button label="Galeri" icon="image-multiple-outline" variant="onHero" compact onPress={() => void importGallery()} />
           <Button label="Ambil foto" icon="camera" size="lg" disabled={!ready} onPress={() => void take()} style={{ flex: 1 }} />
         </View>
-        <Txt variant="caption" tone="onHeroSecondary" align="center">{`Kamera DEMO · ${req.data?.vehicle.plate ?? ''}`}</Txt>
+        <Txt variant="caption" tone="onHeroSecondary" align="center">{t('Kamera DEMO · {0}', [req.data?.vehicle.plate ?? ''])}</Txt>
       </View>
     </View>
   );

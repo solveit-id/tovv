@@ -5,10 +5,9 @@ export default function OwnerMore() {
     <MenuScreen
       groups={[
         {
-          title: 'Operasi',
+          title: 'Operasional',
           items: [
-            { icon: 'tow-truck', label: 'Armada & jadwal', hint: 'Unit, kapasitas, mitra, reservasi', href: '/fleet' },
-            { icon: 'account-key-outline', label: 'Delegasi', hint: 'Beri admin wewenang harga saat Anda mengemudi', href: '/delegations' },
+            { icon: 'tow-truck', label: 'Armada & jadwal', hint: 'Unit, kapasitas, mitra, jadwal', href: '/fleet' },
             { icon: 'calculator-variant-outline', label: 'Hitung harga', hint: 'Cek untung-rugi sebelum memberi harga', href: '/pricing' },
             { icon: 'cash-check', label: 'Biaya & uang jalan', hint: 'Persetujuan biaya aktual', href: '/finance/expenses' },
           ],
@@ -17,8 +16,8 @@ export default function OwnerMore() {
           title: 'Pelanggan & bisnis',
           items: [
             { icon: 'domain', label: 'Pelanggan bisnis', hint: 'Tarif khusus, PO dan kontribusi per pelanggan', href: '/business' },
-            { icon: 'file-check-outline', label: 'Antrean finance', hint: 'Bukti bayar, invoice terbuka', href: '/finance/queue' },
-            { icon: 'package-variant-closed', label: 'Paket langganan Tovv (DEMO)', hint: 'Langganan vs per layanan', href: '/saas' },
+            { icon: 'file-check-outline', label: 'Antrean keuangan', hint: 'Bukti bayar dan tagihan yang belum lunas', href: '/finance/queue' },
+            { icon: 'package-variant-closed', label: 'Paket langganan Tovv (DEMO)', hint: 'Langganan atau bayar per layanan', href: '/saas' },
             { icon: 'shield-account-outline', label: 'Akses dukungan Solveit', hint: 'Izin sementara untuk tim Solveit, dapat dicabut', href: '/support-access' },
           ],
         },

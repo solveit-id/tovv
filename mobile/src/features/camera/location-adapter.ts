@@ -45,7 +45,7 @@ export async function readCaptureLocation(timeoutMs = 8000): Promise<CaptureLoca
         accuracyM: last.coords.accuracy !== null ? Math.round(last.coords.accuracy) : null,
         capturedAt: new Date(last.timestamp).toISOString(),
         source: 'stale',
-        note: 'GPS timeout; memakai lokasi terakhir perangkat dengan umurnya.',
+        note: 'GPS terlalu lama; dipakai lokasi terakhir HP beserta umurnya.',
       };
     }
     return UNKNOWN('GPS tidak memberi lokasi dalam batas waktu.');

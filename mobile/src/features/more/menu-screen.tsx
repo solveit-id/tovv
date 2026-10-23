@@ -1,4 +1,5 @@
 import React from 'react';
+import { space } from '@/core/design/tokens';
 import { View } from 'react-native';
 import { useRouter, type Href } from 'expo-router';
 import { useTheme, type ThemePreference } from '@/core/design/theme';
@@ -9,7 +10,9 @@ import { ListRow } from '@/components/ui/summary';
 import { Card, SectionTitle } from '@/components/ui/surface';
 import { useTovvQuery } from '@/data/api/hooks';
 import { useApiState } from '@/data/api/provider';
-import type { ViewGroup } from '@/domain/types';
+import { APP_VIEWS, type ViewGroup } from '@/domain/types';
+import { setLocale, t, useLocale, type Locale } from '@/core/i18n';
+import { Button } from '@/components/ui/button';
 
 export interface MenuItem {
   icon: string;
@@ -40,20 +43,40 @@ function AppearancePicker() {
   );
 }
 
+/** Bahasa aplikasi. Teks layar langsung berganti; data dimuat ulang dalam bahasa baru. */
+function LanguagePicker() {
+  const locale = useLocale();
+  return (
+    <Segmented<Locale>
+      value={locale}
+      onChange={setLocale}
+      options={[
+        { value: 'id', label: 'Bahasa Indonesia' },
+        { value: 'en', label: 'English' },
+      ]}
+    />
+  );
+}
+
 const VIEW_LABEL: Record<ViewGroup, string> = { owner: 'Owner', admin: 'Admin', driver: 'Driver', customer: 'Pelanggan' };
 
 /** Menu "Lainnya": fitur sekunder per peran, perpindahan konteks eksplisit, dan pengaturan demo. */
 export function MenuScreen({ groups }: { groups: { title: string; items: MenuItem[] }[] }) {
   const router = useRouter();
-  const { switchView } = useApiState();
+  const { switchView, setSession } = useApiState();
   const session = useTovvQuery(['session'], (a) => a.getSession());
   const s = session.data;
-  const others = s?.views.filter((v) => v !== s.view) ?? [];
+  const others = s?.views.filter((v) => v !== s.view && APP_VIEWS.includes(v)) ?? [];
+  const logout = async () => {
+    await setSession(null);
+    if (router.canDismiss()) router.dismissAll();
+    router.replace('/auth/login');
+  };
   return (
     <Screen headerScrolls header={<RootHeader title="Lainnya" subtitle={s ? `${s.userName} · ${s.tenantName}` : undefined} />}>
       {others.length ? (
         <>
-          <SectionTitle title="Konteks" />
+          <SectionTitle title="Peran" />
           <Card style={{ paddingVertical: 0 }}>
             {others.map((v, i) => (
               <Row
@@ -61,8 +84,8 @@ export function MenuScreen({ groups }: { groups: { title: string; items: MenuIte
                 last={i === others.length - 1}
                 item={{
                   icon: v === 'driver' ? 'steering' : 'briefcase-outline',
-                  label: `Pindah ke mode ${VIEW_LABEL[v]}`,
-                  hint: v === 'driver' ? 'Hanya tugas Anda; izin owner tidak ikut' : 'Mengaktifkan izin owner kembali',
+                  label: t('Pindah ke mode {0}', [t(VIEW_LABEL[v])]),
+                  hint: v === 'driver' ? 'Hanya tugas Anda yang tampil; akses owner tidak ikut.' : 'Kembali ke semua menu owner.',
                   onPress: () => void switchView(v).then(() => router.replace(`/${v}`)),
                 }}
               />
@@ -78,15 +101,18 @@ export function MenuScreen({ groups }: { groups: { title: string; items: MenuIte
           </Card>
         </View>
       ))}
+      <SectionTitle title="Bahasa" />
+      <LanguagePicker />
       <SectionTitle title="Tampilan" hint="Tema gelap nyaman di malam hari; tema terang lebih jelas di bawah matahari." />
       <AppearancePicker />
       <SectionTitle title="Aplikasi" />
       <Card style={{ paddingVertical: 0 }}>
-        <Row item={{ icon: 'bell-outline', label: 'Kotak masuk', hint: 'Notifikasi simulasi; push belum diaktifkan', href: '/inbox' }} last={false} />
-        <Row item={{ icon: 'cloud-sync-outline', label: 'Antrean sinkronisasi', hint: 'Catatan yang tersimpan di ponsel', href: '/sync' }} last={false} />
-        <Row item={{ icon: 'flask-outline', label: 'Mode demo & tentang', hint: 'Simulasi offline/gagal, reset data, Solveit Indonesia', href: '/about' }} last={false} />
-        <Row item={{ icon: 'account-switch-outline', label: 'Ganti akun demo', hint: 'Bukan login produksi', href: '/demo' }} last />
+        <Row item={{ icon: 'bell-outline', label: 'Kotak masuk', hint: 'Pemberitahuan di dalam aplikasi. Notifikasi ke HP belum aktif.', href: '/inbox' }} last={false} />
+        <Row item={{ icon: 'cloud-sync-outline', label: 'Antrean kirim ulang', hint: 'Catatan yang belum terkirim karena sinyal putus.', href: '/sync' }} last={false} />
+        <Row item={{ icon: 'flask-outline', label: 'Mode demo & tentang', hint: 'Coba kondisi offline, kembalikan data awal, info Solveit.', href: '/about' }} last={false} />
+        <Row item={{ icon: 'account-switch-outline', label: 'Ganti akun demo', hint: 'Pindah ke akun contoh lain tanpa keluar.', href: '/demo' }} last />
       </Card>
+      <Button label="Keluar" icon="logout" variant="danger" onPress={() => void logout()} style={{ marginTop: space.xl }} />
     </Screen>
   );
 }

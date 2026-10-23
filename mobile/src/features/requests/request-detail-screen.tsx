@@ -21,6 +21,7 @@ import { formatDateTime, formatShortDateTime } from '@/core/format/time';
 import { formatNumber, formatRupiah } from '@/core/format/money';
 import { QuoteStack } from '@/features/quotes/quote-doc-view';
 import { useDemoNow } from '@/core/hooks/use-demo-now';
+import { t } from '@/core/i18n';
 
 /** Detail permintaan: kelengkapan data, tarif yang berlaku, foto kondisi, dan tumpukan versi penawaran. */
 export function RequestDetailScreen() {
@@ -63,14 +64,14 @@ export function RequestDetailScreen() {
     if (d.orderId) footer = <Button label="Buka order" icon="tow-truck" size="lg" onPress={() => router.push(`/order/${d.orderId}`)} />;
     else if (d.allowedActions.includes('submit_draft')) footer = <Button label="Kirim permintaan" icon="send-outline" size="lg" loading={busy} onPress={() => void run(() => api.submitDraft(id), 'Permintaan dikirim ke operator.')} />;
     else if (d.allowedActions.includes('mark_ready')) footer = <Button label="Lengkapi data kendaraan" icon="clipboard-edit-outline" size="lg" onPress={() => setSheet('review')} />;
-    else if (d.allowedActions.includes('quote')) footer = <Button label={latest ? `Buat penawaran v${latest.version + 1}` : 'Susun penawaran'} variant={latest?.status === 'sent' ? 'secondary' : 'primary'} icon="file-document-edit-outline" size="lg" onPress={() => router.push(`/request/${id}/quote`)} />;
+    else if (d.allowedActions.includes('quote')) footer = <Button label={latest ? t('Buat penawaran v{0}', [latest.version + 1]) : 'Susun penawaran'} variant={latest?.status === 'sent' ? 'secondary' : 'primary'} icon="file-document-edit-outline" size="lg" onPress={() => router.push(`/request/${id}/quote`)} />;
     else if (!staff && latest?.allowedActions.includes('accept')) footer = <Button label="Tinjau penawaran" icon="file-check-outline" size="lg" onPress={() => router.push(`/quote/${latest.id}`)} />;
   }
 
   return (
     <Screen
       onRefresh={() => qc.invalidateQueries()}
-      header={<DetailHeader serial={d ? `Permintaan ${d.alias}` : undefined} title={d?.customerLabel ?? 'Permintaan'} />}
+      header={<DetailHeader serial={d ? t('Permintaan {0}', [d.alias]) : undefined} title={d?.customerLabel ?? 'Permintaan'} />}
       footer={footer}
     >
       <QueryView q={q}>
@@ -78,7 +79,7 @@ export function RequestDetailScreen() {
           <>
             <Card>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: space.sm }}>
-                <Txt variant="label" tone="inkSecondary">{`Permintaan ${r.alias}`}</Txt>
+                <Txt variant="label" tone="inkSecondary">{t('Permintaan {0}', [r.alias])}</Txt>
                 <Txt variant="caption" tone="inkSecondary">{channelLabel[r.channel]}</Txt>
               </View>
               <View style={{ marginTop: space.sm }}><StatusTag look={requestStatus[r.status]} /></View>
@@ -95,8 +96,8 @@ export function RequestDetailScreen() {
                 <LineItem label="Jemput" hint={r.pickup.address} value={<Txt variant="bodySm">{r.pickup.label}</Txt>} />
                 <LineItem label="Tujuan" hint={r.dropoff.address} value={<Txt variant="bodySm">{r.dropoff.label}</Txt>} />
                 <LineItem label="Waktu" value={<Txt variant="bodySm">{`${timingLabel[r.timing.kind]} · ${r.timing.start ? formatShortDateTime(r.timing.start) : 'segera'}${r.timing.end ? `–${formatShortDateTime(r.timing.end)}` : ''}`}</Txt>} />
-                <LineItem label="Pihak" hint={`Diserahkan oleh ${r.parties.sender} · diterima oleh ${r.parties.receiver}`} value={<Txt variant="bodySm">{`Bayar: ${r.parties.payer}`}</Txt>} />
-                {r.businessAccount ? <LineItem label="Akun bisnis" hint={`Syarat ${r.businessAccount.termsVersion}${r.businessAccount.poRequired ? ' · PO wajib' : ''}`} value={<Txt variant="bodySm">{r.poRef ?? 'PO belum ada'}</Txt>} /> : null}
+                <LineItem label="Pihak terkait" hint={t('Diserahkan oleh {0} · diterima oleh {1}', [r.parties.sender, r.parties.receiver])} value={<Txt variant="bodySm">{t('Bayar: {0}', [r.parties.payer])}</Txt>} />
+                {r.businessAccount ? <LineItem label="Akun bisnis" hint={t('Syarat {0}{1}', [r.businessAccount.termsVersion, r.businessAccount.poRequired ? ' · PO wajib' : ''])} value={<Txt variant="bodySm">{r.poRef ?? 'PO belum ada'}</Txt>} /> : null}
                 <LineItem label="Dicatat" value={<Txt variant="bodySm">{`${r.createdByName} · ${formatDateTime(r.createdAt)}`}</Txt>} />
               </View>
             </Card>
@@ -112,7 +113,7 @@ export function RequestDetailScreen() {
             <SectionTitle title="Foto kondisi" />
             <Card>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.md }}>
-                {r.media.map((m) => <PhotoTile key={m.id} item={m} label={`Kondisi · ${m.slot}`} />)}
+                {r.media.map((m) => <PhotoTile key={m.id} item={m} label={t('Kondisi · {0}', [m.slot])} />)}
                 {r.allowedActions.includes('capture') ? (
                   <PhotoTile item={null} label="Tambah foto kondisi" onPress={() => router.push({ pathname: '/camera', params: { requestId: r.id, stage: 'request_condition', slot: `RC${r.media.length + 1}` } })} />
                 ) : null}
@@ -127,7 +128,7 @@ export function RequestDetailScreen() {
                 {latest?.approvalNote ? <Txt variant="bodySm" tone="warnInk" style={{ marginTop: space.sm }}>{latest.approvalNote}</Txt> : null}
               </>
             ) : (
-              <Card><EmptyBlock icon="file-outline" title="Belum ada penawaran" body={staff ? 'Lengkapi data lalu susun penawaran. Penawaran tidak menahan slot unit.' : 'Operator akan meninjau data dan mengirim penawaran.'} /></Card>
+              <Card><EmptyBlock icon="file-outline" title="Belum ada penawaran" body={staff ? 'Lengkapi datanya lalu susun penawaran. Penawaran belum memesan unit.' : 'Operator akan mengecek data lalu mengirim penawaran harga.'} /></Card>
             )}
 
             {r.allowedActions.includes('cancel') ? <Button label="Batalkan permintaan" variant="danger" icon="cancel" onPress={() => setSheet('cancel')} style={{ marginTop: space.xxl }} /> : null}
@@ -139,13 +140,13 @@ export function RequestDetailScreen() {
         visible={sheet === 'review'}
         title="Lengkapi data kendaraan"
         onClose={() => setSheet(null)}
-        footer={<>{err ? <Txt variant="bodySm" tone="dangerInk">{err}</Txt> : null}<Button label="Simpan & siap ditawar" loading={busy} onPress={() => void run(() => api.completeReview(id, { weightKg: Number(w) || 0, lengthMm: Number(l) || 0, widthMm: Number(wd) || 0, immediateConfirmed: imm }), 'Data lengkap; permintaan siap ditawar.')} /></>}
+        footer={<>{err ? <Txt variant="bodySm" tone="dangerInk">{err}</Txt> : null}<Button label="Simpan & siap diberi harga" loading={busy} onPress={() => void run(() => api.completeReview(id, { weightKg: Number(w) || 0, lengthMm: Number(l) || 0, widthMm: Number(wd) || 0, immediateConfirmed: imm }), 'Data lengkap; permintaan siap ditawar.')} /></>}
       >
-        <Txt variant="bodySm" tone="inkSecondary" style={{ marginBottom: space.md }}>Isi dari sumber yang dapat dipertanggungjawabkan (STNK, konfirmasi pemilik). Jangan menebak.</Txt>
+        <Txt variant="bodySm" tone="inkSecondary" style={{ marginBottom: space.md }}>Isi dari sumber yang jelas (STNK, konfirmasi pemilik). Jangan menebak.</Txt>
         <Field label="Berat (kg)" value={w} onChangeText={setW} keyboardType="number-pad" />
         <Field label="Panjang (mm)" value={l} onChangeText={setL} keyboardType="number-pad" />
         <Field label="Lebar (mm)" value={wd} onChangeText={setWd} keyboardType="number-pad" />
-        {d?.timing.kind === 'immediate' ? <Toggle label="Unit sanggup melayani segera" value={imm} onChange={setImm} /> : null}
+        {d?.timing.kind === 'immediate' ? <Toggle label="Unit sanggup datang segera" value={imm} onChange={setImm} /> : null}
       </BottomSheet>
       <BottomSheet
         visible={sheet === 'cancel'}

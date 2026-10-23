@@ -15,6 +15,7 @@ import { useToast } from '@/components/feedback/toast';
 import { ApiError } from '@/data/api/contract';
 import type { Channel, Place, TimingKind } from '@/domain/types';
 import { addMinutes, timePresets } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 /** Kunci idempotensi per layar formulir: kirim ulang (mis. setelah jaringan putus) tidak membuat request ganda. */
 function newIdempotencyKey() {
@@ -74,11 +75,11 @@ export function NewRequestScreen() {
     setErr(null);
     setFieldErr({});
     if (staff && !customerId) {
-      setErr('Pilih pelanggan yang menghubungi.');
+      setErr(t('Pilih pelanggan yang menghubungi Anda.'));
       return;
     }
     if (!vehicleLabel.trim() || !plate.trim()) {
-      setErr('Isi jenis kendaraan dan nomor polisi.');
+      setErr(t('Isi jenis kendaraan dan nomor polisi.'));
       return;
     }
     const pickup = placeList[Number(pickupIdx)] as Place;
@@ -105,7 +106,7 @@ export function NewRequestScreen() {
         asDraft,
         idempotencyKey: idem,
       });
-      toast.show(r.status === 'needs_review' ? `${r.alias} tercatat; perlu ditinjau: ${r.needsReviewReasons.join(', ')}.` : asDraft ? `Draf ${r.alias} tersimpan.` : `${r.alias} tercatat dan siap ditawar.`, 'ok');
+      toast.show(r.status === 'needs_review' ? t('{0} tercatat; perlu dicek: {1}.', [r.alias, r.needsReviewReasons.join(', ')]) : asDraft ? t('Draf {0} tersimpan.', [r.alias]) : t('{0} tercatat dan siap diberi harga.', [r.alias]), 'ok');
       router.replace(`/request/${r.id}`);
     } catch (e) {
       setErr(errorMessage(e));
@@ -117,7 +118,7 @@ export function NewRequestScreen() {
 
   return (
     <Screen
-      header={<DetailHeader title={staff ? 'Catat permintaan' : 'Minta derek'} subtitle={staff ? 'Pelanggan tidak perlu memasang aplikasi' : 'Operator meninjau sebelum memberi harga'} />}
+      header={<DetailHeader title={staff ? 'Catat permintaan' : 'Pesan derek'} subtitle={staff ? 'Pelanggan tidak perlu memasang aplikasi' : 'Operator mengecek dulu sebelum memberi harga'} />}
       footer={
         <>
           {err ? <Txt variant="bodySm" tone="dangerInk" accessibilityLiveRegion="polite">{err}</Txt> : null}
@@ -130,7 +131,7 @@ export function NewRequestScreen() {
     >
       {staff ? (
         <>
-          <Choice label="Kanal" value={channel} onChange={setChannel} options={[{ value: 'phone', label: 'Telepon' }, { value: 'chat', label: 'Chat' }, { value: 'manual', label: 'Datang langsung / manual' }]} />
+          <Choice label="Lewat" value={channel} onChange={setChannel} options={[{ value: 'phone', label: 'Telepon' }, { value: 'chat', label: 'Chat' }, { value: 'manual', label: 'Datang langsung / manual' }]} />
           <Choice
             label="Pelanggan"
             value={customerId}
@@ -141,17 +142,17 @@ export function NewRequestScreen() {
       ) : null}
 
       <SectionTitle title="Kendaraan" />
-      <Field label="Jenis kendaraan" value={vehicleLabel} onChangeText={setVehicleLabel} placeholder="mis. SUV, sedan, pikap" />
+      <Field label="Jenis kendaraan" value={vehicleLabel} onChangeText={setVehicleLabel} placeholder={t('mis. SUV, sedan, pikap')} />
       <Field label="Nomor polisi" value={plate} onChangeText={setPlate} autoCapitalize="characters" />
       <View style={{ flexDirection: 'row', gap: space.sm }}>
         <View style={{ flex: 1 }}><Field label="Berat (kg)" value={weight} onChangeText={setWeight} keyboardType="number-pad" helper="Kosongkan bila tidak tahu" /></View>
         <View style={{ flex: 1 }}><Field label="Panjang (mm)" value={length} onChangeText={setLength} keyboardType="number-pad" /></View>
         <View style={{ flex: 1 }}><Field label="Lebar (mm)" value={width} onChangeText={setWidth} keyboardType="number-pad" /></View>
       </View>
-      <Field label="Kondisi" value={condition} onChangeText={setCondition} multiline placeholder="mis. mogok, roda depan terkunci" />
+      <Field label="Kondisi" value={condition} onChangeText={setCondition} multiline placeholder={t('mis. mogok, roda depan terkunci')} />
 
       <SectionTitle title="Lokasi" />
-      <Txt variant="caption" tone="inkSecondary" style={{ marginBottom: space.sm }}>Daftar titik sintetis untuk demo; peta dan pencarian alamat belum diaktifkan.</Txt>
+      <Txt variant="caption" tone="inkSecondary" style={{ marginBottom: space.sm }}>Pilihan lokasi contoh untuk demo; pencarian alamat belum aktif.</Txt>
       <Choice label="Jemput" value={pickupIdx} onChange={setPickupIdx} options={placeOpts} />
       <Choice label="Tujuan" value={dropoffIdx} onChange={setDropoffIdx} options={placeOpts} />
       {fieldErr.pickup ? <Txt variant="caption" tone="dangerInk">{fieldErr.pickup}</Txt> : null}
@@ -164,21 +165,21 @@ export function NewRequestScreen() {
         options={[
           { value: 'scheduled', label: 'Terjadwal' },
           { value: 'flexible', label: 'Fleksibel', hint: 'Rentang 4 jam sejak waktu mulai' },
-          { value: 'immediate', label: 'Segera', hint: 'Perlu konfirmasi kemampuan unit oleh admin' },
+          { value: 'immediate', label: 'Segera', hint: 'Perlu dicek owner apakah ada unit yang sanggup' },
         ]}
       />
       {timing !== 'immediate' ? <Choice label="Mulai" value={startIdx} onChange={setStartIdx} options={presets.map((p, i) => ({ value: String(i), label: p.label }))} /> : null}
-      {timing === 'immediate' && staff ? <Toggle label="Unit dan petugas dikonfirmasi sanggup segera" value={immediateOk} onChange={setImmediateOk} /> : null}
+      {timing === 'immediate' && staff ? <Toggle label="Unit dan sopir sudah dipastikan bisa segera" value={immediateOk} onChange={setImmediateOk} /> : null}
 
-      <SectionTitle title="Pihak" />
+      <SectionTitle title="Pihak terkait" />
       <Card style={{ marginBottom: space.lg }}>
-        <Txt variant="bodySm" tone="inkSecondary">{`Pemesan: ${ordererName || '—'}${bizName ? ` · ${bizName}` : ''}. Penerima bukan otomatis pembayar; isi bila berbeda.`}</Txt>
+        <Txt variant="bodySm" tone="inkSecondary">{t('Pemesan: {0}{1}. Penerima belum tentu yang membayar; isi kalau berbeda.', [ordererName || '—', bizName ? ` · ${bizName}` : ''])}</Txt>
       </Card>
       <Field label="Yang menyerahkan kendaraan saat dijemput" value={sender} onChangeText={setSender} placeholder={ordererName} />
       <Field label="Penerima di tujuan" value={receiver} onChangeText={setReceiver} placeholder={ordererName} />
       <Field label="Pembayar" value={payer} onChangeText={setPayer} placeholder={bizName || ordererName} />
-      {bizName ? <Field label="Nomor PO / referensi internal" value={po} onChangeText={setPo} helper={cust?.poRequired ? 'Wajib untuk akun ini sebelum konfirmasi.' : 'Opsional untuk akun ini.'} /> : null}
-      {staff ? <Field label="Catatan persetujuan pemesan" value={consent} onChangeText={setConsent} multiline error={fieldErr.consent ? 'Wajib untuk permintaan yang dibantu admin.' : null} helper="Mis. pelanggan menelepon 12.05, setuju data dicatat." /> : null}
+      {bizName ? <Field label="Nomor PO / referensi internal" value={po} onChangeText={setPo} helper={cust?.poRequired ? 'Wajib diisi untuk akun ini sebelum konfirmasi.' : 'Opsional untuk akun ini.'} /> : null}
+      {staff ? <Field label="Catatan persetujuan pemesan" value={consent} onChangeText={setConsent} multiline error={fieldErr.consent ? 'Wajib untuk permintaan yang dicatat petugas.' : null} helper="Misal: pelanggan menelepon pukul 12.05 dan setuju datanya dicatat." /> : null}
     </Screen>
   );
 }

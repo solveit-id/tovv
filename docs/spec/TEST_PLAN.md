@@ -7,6 +7,10 @@ Paket **2.1 — 21 Oktober 2026**. Produk **Tovv**; pemilik, pengembang dan pene
 Baseline yang benar-benar dibaca: PRD v2.0 (file sumber PRD(2).md, identik dengan salinan PRD (1).md), ARCHITECTURE, IMPLEMENTATION_PLAN, INTEGRATION_PLAN dan TEST_PLAN masing-masing berlabel v1.0 dengan acuan PRD v2.0. Tidak ditemukan versi lebih baru. VALIDATION_PLAN.md tidak ditemukan setelah pencarian nama; dokumen itu **disusun kembali**, bukan hasil pemeriksaan file lama. Pesan pengguna terbaru mengungguli baseline. Seluruh enam dokumen kini memakai versi paket 2.1.
 
 Urutan baca: [PRD](PRD.md) → [ARCHITECTURE](ARCHITECTURE.md) → [INTEGRATION_PLAN](INTEGRATION_PLAN.md) → [IMPLEMENTATION_PLAN](IMPLEMENTATION_PLAN.md) → [TEST_PLAN](TEST_PLAN.md) → [VALIDATION_PLAN](VALIDATION_PLAN.md). PRD menguasai scope/aturan bisnis; kontrak dan model harus mematuhinya. Perubahan mengharuskan pembaruan requirement, task, test, fixture dan keputusan terkait pada paket yang sama.
+## Catatan implementasi (23 Oktober 2026)
+
+Register skenario TC di bawah tetap **NOT_RUN** untuk backend, database, dan perangkat. Yang sudah berjalan adalah uji Jest di `mobile/` (1.292 uji): oracle F-09, rumus harga, ledger, analytics, alur adapter demo per peran, login demo, cakupan peta per peran, kontras warna dua tema, dan kelengkapan kamus terjemahan. Uji ini memeriksa logika frontend/adapter, bukan klaim lulus TC. Bukti layar ada di `docs/QA_REPORT.md`.
+
 ## 1. Status, risiko dan bukti
 
 Seluruh test aplikasi **NOT_RUN**. PASS hanya jika actual result cocok expected dengan bukti, FAIL jika menyimpang, BLOCKED jika dependency spesifik belum tersedia. NEXT adalah DEFERRED, bukan PASS/N/A untuk platform wajib. Mode bukti PRD §2 terpisah dari outcome. Kode tersedia ≠ verified-local ≠ verified-device ≠ verified-admin. Pemeriksaan konsistensi dokumen tidak meluluskan test aplikasi.

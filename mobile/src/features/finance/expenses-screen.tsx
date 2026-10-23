@@ -15,6 +15,7 @@ import { useTovvMutation, useTovvQuery } from '@/data/api/hooks';
 import { useSession } from '@/data/api/provider';
 import { expenseStatus } from '@/core/i18n/status';
 import { formatShortDateTime } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 /**
  * Biaya aktual & uang jalan (FIN-01). Uang muka bukan biaya: advance 500.000, biaya 420.000, kembali 80.000
@@ -30,9 +31,9 @@ export function ExpensesScreen({ asTab = false }: { asTab?: boolean }) {
   const adv = useTovvQuery(['advances'], (a) => a.listAdvances());
   const sess = useTovvQuery(['session'], (a) => a.getSession());
   const canApprove = sess.data?.scopes.includes('expense.approve');
-  const decide = useTovvMutation((a, v: { id: string; ok: boolean }) => a.decideExpense(v.id, v.ok), { success: (r) => `Keputusan tercatat (${r.length} biaya).` });
+  const decide = useTovvMutation((a, v: { id: string; ok: boolean }) => a.decideExpense(v.id, v.ok), { success: (r) => t('Keputusan disimpan ({0} biaya).', [r.length]) });
   return (
-    <Screen headerScrolls={asTab} onRefresh={() => qc.invalidateQueries()} header={asTab ? <RootHeader title="Biaya & uang jalan" subtitle="Catat saat berhenti; bukti nota menyusul" /> : <DetailHeader title="Biaya & uang jalan" />}>
+    <Screen headerScrolls={asTab} onRefresh={() => qc.invalidateQueries()} header={asTab ? <RootHeader title="Biaya & uang jalan" subtitle="Catat waktu berhenti; foto nota bisa menyusul." /> : <DetailHeader title="Biaya & uang jalan" />}>
       <SectionTitle title="Uang jalan" />
       <QueryView q={adv}>
         {(list) =>
@@ -42,9 +43,9 @@ export function ExpensesScreen({ asTab = false }: { asTab?: boolean }) {
                 <Card key={a.id}>
                   <Txt variant="bodyStrong">{`${a.alias} · ${a.driverName}`}</Txt>
                   <LineItem label="Uang muka" value={<Money value={a.amount} />} />
-                  <LineItem label="Dipakai untuk biaya disetujui" value={<Money value={a.spent} />} />
+                  <LineItem label="Dipakai untuk biaya yang disetujui" value={<Money value={a.spent} />} />
                   <LineItem label="Dikembalikan" value={<Money value={a.returned} />} />
-                  <LineItem label="Sisa dipertanggungjawabkan" emphasis value={<Money value={a.outstanding} tone={a.outstanding === '0' ? 'okInk' : 'warnInk'} />} />
+                  <LineItem label="Sisa yang harus dipertanggungjawabkan" emphasis value={<Money value={a.outstanding} tone={a.outstanding === '0' ? 'okInk' : 'warnInk'} />} />
                   <Txt variant="caption" tone="inkSecondary">{a.settled ? 'Selesai: uang muka tidak dihitung sebagai biaya.' : 'Belum diselesaikan.'}</Txt>
                 </Card>
               ))}
@@ -60,7 +61,7 @@ export function ExpensesScreen({ asTab = false }: { asTab?: boolean }) {
               <View key={e.id} style={[styles.row, i < list.length - 1 && styles.divider]}>
                 <View style={{ flex: 1, gap: 4 }}>
                   <Txt variant="bodyStrong">{`${e.alias} · ${e.category}`}</Txt>
-                  <StatusTag look={e.source === 'local_pending' ? { label: 'Tersimpan di ponsel, belum terkirim', tone: 'warn', line: 'dashed', icon: 'cloud-upload-outline' } : expenseStatus[e.status]} size="sm" />
+                  <StatusTag look={e.source === 'local_pending' ? { label: 'Tersimpan di HP, belum terkirim', tone: 'warn', line: 'dashed', icon: 'cloud-upload-outline' } : expenseStatus[e.status]} size="sm" />
                   <Txt variant="caption" tone="inkSecondary">{`${e.submittedByName} · ${formatShortDateTime(e.submittedAt)}${e.note ? ` · ${e.note}` : ''}`}</Txt>
                   {approver && canApprove && e.status === 'submitted' && e.source === 'server' ? (
                     <View style={{ flexDirection: 'row', gap: space.sm, marginTop: 4 }}>
@@ -75,7 +76,7 @@ export function ExpensesScreen({ asTab = false }: { asTab?: boolean }) {
           }
         </QueryView>
       </Card>
-      {!approver ? <Button label="Catat biaya dari tugas aktif" variant="secondary" icon="plus" onPress={() => router.push('/driver')} style={{ marginTop: space.md }} /> : null}
+      {!approver ? <Button label="Catat biaya dari tugas yang sedang jalan" variant="secondary" icon="plus" onPress={() => router.push('/driver')} style={{ marginTop: space.md }} /> : null}
     </Screen>
   );
 }

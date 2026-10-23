@@ -12,6 +12,7 @@ import { EmptyBlock, QueryView } from '@/components/ui/states';
 import { useTovvMutation, useTovvQuery } from '@/data/api/hooks';
 import { outboxStatus } from '@/core/i18n/status';
 import { formatShortDateTime } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 /**
  * Antrean sinkronisasi (OPS-03, MOB-03). Item tersimpan di ponsel (SQLite lokal) dan bertahan setelah aplikasi
@@ -21,16 +22,16 @@ export function SyncScreen({ asTab = false }: { asTab?: boolean }) {
   const styles = useStyles();
   const q = useTovvQuery(['outbox'], (a) => a.listOutbox());
   const faults = useTovvQuery(['faults'], (a) => a.getFaults());
-  const sync = useTovvMutation((a) => a.syncOutbox(), { success: (r) => `Antrean diproses: ${r.filter((x) => x.status === 'synced').length} diterima, ${r.filter((x) => x.status === 'needs_review').length} perlu ditinjau.` });
+  const sync = useTovvMutation((a) => a.syncOutbox(), { success: (r) => t('Antrean selesai diproses: {0} diterima, {1} perlu dicek.', [r.filter((x) => x.status === 'synced').length, r.filter((x) => x.status === 'needs_review').length]) });
   const pending = q.data?.filter((x) => x.status === 'pending').length ?? 0;
   return (
     <Screen headerScrolls={asTab}
-      header={asTab ? <RootHeader title="Sinkronisasi" subtitle="Catatan yang tersimpan di ponsel" /> : <DetailHeader title="Antrean sinkronisasi" />}
-      footer={<Button label={faults.data?.offline ? 'Masih offline — coba kirim' : pending ? `Kirim ${pending} item tertunda` : 'Tidak ada item tertunda'} icon="cloud-upload-outline" size="lg" disabled={!pending} loading={sync.isPending} onPress={() => sync.mutate(undefined)} />}
+      header={asTab ? <RootHeader title="Kirim ulang" subtitle="Catatan yang tersimpan di HP" /> : <DetailHeader title="Antrean kirim ulang" />}
+      footer={<Button label={faults.data?.offline ? 'Masih offline — coba kirim' : pending ? t('Kirim {0} item tertunda', [pending]) : 'Tidak ada yang tertunda'} icon="cloud-upload-outline" size="lg" disabled={!pending} loading={sync.isPending} onPress={() => sync.mutate(undefined)} />}
     >
       {faults.data?.offline ? (
         <View style={styles.offline}>
-          <Txt variant="bodySm" tone="dangerInk" style={{ fontWeight: '600' }}>Simulasi offline aktif. Item tetap aman di ponsel; matikan di Mode demo untuk mengirim.</Txt>
+          <Txt variant="bodySm" tone="dangerInk" style={{ fontWeight: '600' }}>Simulasi offline sedang aktif. Catatan tetap aman di HP; matikan di Mode demo untuk mengirim.</Txt>
         </View>
       ) : null}
       <Card padded={false}>
@@ -41,16 +42,16 @@ export function SyncScreen({ asTab = false }: { asTab?: boolean }) {
                 <View style={{ flex: 1, gap: 4 }}>
                   <Txt variant="bodyStrong">{x.label}</Txt>
                   <StatusTag look={outboxStatus[x.status]} size="sm" />
-                  <Txt variant="caption" tone="inkSecondary">{`Kejadian ${formatShortDateTime(x.eventAt)} · percobaan ${x.attempts} · ${x.localId}`}</Txt>
+                  <Txt variant="caption" tone="inkSecondary">{t('Kejadian {0} · percobaan {1} · {2}', [formatShortDateTime(x.eventAt), x.attempts, x.localId])}</Txt>
                   {x.lastError ? <Txt variant="caption" tone="dangerInk">{x.lastError}</Txt> : null}
                 </View>
               </View>
-            )) : <EmptyBlock icon="cloud-check-outline" title="Tidak ada antrean" body="Status, foto, dan biaya yang dicatat saat offline akan muncul di sini." />
+            )) : <EmptyBlock icon="cloud-check-outline" title="Tidak ada antrean" body="Status, foto, dan biaya yang dicatat saat offline muncul di sini." />
           }
         </QueryView>
       </Card>
       <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.md }}>
-        Pengiriman ulang memakai ID unik yang sama sehingga tidak menggandakan status, foto, atau biaya. Persetujuan harga, reservasi, dan verifikasi pembayaran tidak pernah final saat offline.
+        Kirim ulang memakai ID yang sama, jadi status, foto, atau biaya tidak tercatat dua kali. Persetujuan harga, reservasi, dan verifikasi pembayaran tidak pernah final saat offline.
       </Txt>
     </Screen>
   );

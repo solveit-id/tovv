@@ -25,6 +25,7 @@ import {
 } from '@/core/i18n/status';
 import { formatDateTime, formatShortDateTime, formatTime } from '@/core/format/time';
 import { formatNumber, formatRupiah } from '@/core/format/money';
+import { t } from '@/core/i18n';
 
 function Place({ kind, label, address, time }: { kind: 'Jemput' | 'Tujuan'; label: string; address: string; time?: string }) {
   const styles = useStyles();
@@ -48,12 +49,12 @@ export function TripDocument({ d }: { d: OrderDetail }) {
   return (
     <Card>
       <View style={styles.docHead}>
-        <Txt variant="label" tone="inkSecondary">{`Pekerjaan ${s.alias}`}</Txt>
+        <Txt variant="label" tone="inkSecondary">{t('Pekerjaan {0}', [s.alias])}</Txt>
         <Txt variant="caption" tone="inkSecondary">{channelLabel[d.channel]}</Txt>
       </View>
       <View style={styles.tags}>
         <StatusTag look={executionStatus[s.status]} />
-        {asg ? <StatusTag look={assignmentStatus[asg.status]} size="sm" label={`Tugas ${asg.driverName} · ${assignmentStatus[asg.status].label.toLowerCase()}`} /> : null}
+        {asg ? <StatusTag look={assignmentStatus[asg.status]} size="sm" label={t('Tugas {0} · {1}', [asg.driverName, assignmentStatus[asg.status].label.toLowerCase()])} /> : null}
       </View>
       <Txt variant="headline" style={{ marginTop: space.md }}>{`${d.vehicle.label} · ${d.vehicle.plate}`}</Txt>
       <Txt variant="bodySm" tone="inkSecondary">
@@ -62,12 +63,12 @@ export function TripDocument({ d }: { d: OrderDetail }) {
       <Rule />
       <View style={{ gap: space.md, marginTop: space.md }}>
         <Place kind="Jemput" label={s.pickup.label} address={s.pickup.address} time={formatTime(s.scheduleStart)} />
-        <Place kind="Tujuan" label={s.dropoff.label} address={s.dropoff.address} time={`selesai ±${formatTime(s.scheduleEnd)}`} />
+        <Place kind="Tujuan" label={s.dropoff.label} address={s.dropoff.address} time={t('selesai ±{0}', [formatTime(s.scheduleEnd)])} />
       </View>
       <View style={styles.metaGrid}>
         <Meta label="Jadwal" value={`${timingLabel[d.timing.kind]} · ${formatShortDateTime(s.scheduleStart)}`} />
         <Meta label="Unit" value={s.unitCode} />
-        <Meta label="Petugas" value={s.driverName ?? 'Belum ditugaskan'} />
+        <Meta label="Sopir" value={s.driverName ?? 'Belum ditugaskan'} />
         <Meta label="Pemesan" value={d.parties.orderer} />
         {d.businessAccountName ? <Meta label="Akun bisnis" value={`${d.businessAccountName}${d.poRef ? ` · ${d.poRef}` : ''}`} /> : null}
         {d.parties.payer !== '—' ? <Meta label="Pembayar" value={d.parties.payer} /> : null}
@@ -112,10 +113,10 @@ export function OrderAlerts({ d, onResolve, onDecideChange }: { d: OrderDetail; 
   return (
     <View style={{ gap: space.sm, marginTop: space.md }}>
       {d.abortInfo ? (
-        <Banner tone="danger" icon="alert-octagon-outline" title="Dihentikan setelah dimuat" body={`${d.abortInfo.location}. Penguasaan kendaraan: ${d.abortInfo.custody}. PIC: ${d.abortInfo.pic}. Rencana: ${d.abortInfo.plan}`} />
+        <Banner tone="danger" icon="alert-octagon-outline" title="Dihentikan setelah dimuat" body={t('{0}. Kendaraan dipegang: {1}. Penanggung jawab: {2}. Rencana: {3}', [d.abortInfo.location, d.abortInfo.custody, d.abortInfo.pic, d.abortInfo.plan])} />
       ) : null}
       {open.map((i) => (
-        <Banner key={i.id} tone="danger" icon="alert-octagon-outline" title={`Kendala: ${i.typeLabel}`} body={`${i.note}\nPIC ${i.picName} · dibuka ${formatShortDateTime(i.openedAt)} · ${i.followUp}`}>
+        <Banner key={i.id} tone="danger" icon="alert-octagon-outline" title={t('Kendala: {0}', [i.typeLabel])} body={t('{0}\nPenanggung jawab {1} · dibuka {2} · {3}', [i.note, i.picName, formatShortDateTime(i.openedAt), i.followUp])}>
           {onResolve ? <Button label="Catat tindak lanjut & tutup" variant="secondary" compact onPress={() => onResolve(i.id)} style={{ marginTop: space.sm, alignSelf: 'flex-start' }} /> : null}
         </Banner>
       ))}
@@ -123,7 +124,7 @@ export function OrderAlerts({ d, onResolve, onDecideChange }: { d: OrderDetail; 
         <Banner tone="warn" icon="account-clock-outline" title="Penerima belum siap" body={d.readiness.note ?? undefined} />
       ) : null}
       {pendingChanges.map((c) => (
-        <Banner key={c.id} tone="warn" icon="cash-plus" title={`Biaya tambahan belum disetujui`} body={`${c.reason}. Tidak masuk tagihan sebelum disetujui pelanggan.`}>
+        <Banner key={c.id} tone="warn" icon="cash-plus" title={`Biaya tambahan belum disetujui`} body={t('{0}. Belum masuk tagihan sebelum disetujui pelanggan.', [c.reason])}>
           <View style={styles.inline}>
             <Money value={c.amount} align="left" tone="warnInk" />
             {onDecideChange ? <Button label="Putuskan" compact onPress={() => onDecideChange(c.id)} /> : null}
@@ -165,7 +166,7 @@ export function EvidenceSection({ d, canCapture }: { d: OrderDetail; canCapture:
           ))}
         </View>
         <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.sm }}>
-          Fixture bertanda SIMULASI bukan hasil kamera perangkat. Foto baru dari kamera aplikasi tersimpan di ponsel lebih dulu, lalu dikirim.
+          Foto berlabel SIMULASI adalah contoh, bukan hasil kamera HP. Foto baru dari kamera aplikasi disimpan di HP dulu, lalu dikirim.
         </Txt>
         <Button label="Lihat & bandingkan bukti" variant="quiet" icon="compare" onPress={() => router.push({ pathname: '/order/[id]/evidence', params: { id: d.summary.id } })} style={{ alignSelf: 'flex-start', marginTop: space.xs }} />
       </Card>
@@ -194,7 +195,7 @@ export function ContactsSection({ d }: { d: OrderDetail }) {
                 {r.ready === false ? 'Belum siap' : r.ready ? 'Siap' : 'Kesiapan belum dicatat'}
               </Txt>
             </View>
-            <Button label="Hubungi" icon="phone-outline" variant="secondary" compact onPress={() => toast.show('Panggilan disimulasikan: nomor DEMO tidak ditelepon. Pada aplikasi nyata, tombol membuka aplikasi telepon.', 'info')} />
+            <Button label="Hubungi" icon="phone-outline" variant="secondary" compact onPress={() => toast.show(t('Panggilan ini simulasi: nomor DEMO tidak ditelepon. Di aplikasi sungguhan, tombol ini membuka aplikasi telepon.'), 'info')} />
           </View>
         ))}
       </Card>
@@ -228,14 +229,14 @@ export function InternalCostSection({ d, onFinalize }: { d: OrderDetail; onFinal
     <View>
       <SectionTitle title="Biaya & kontribusi (internal)" action={d.summary.costCompleteness ? <StatusTag look={costLook[d.summary.costCompleteness]} size="sm" /> : null} />
       <Card>
-        <LineItem label="Biaya langsung estimasi (snapshot)" value={<Money value={i.estimateDirect} />} />
+        <LineItem label="Perkiraan biaya langsung (saat penawaran)" value={<Money value={i.estimateDirect} />} />
         <LineItem label="Biaya langsung aktual disetujui" value={<Money value={i.actualDirect} missingLabel="belum final" />} />
         <Rule />
         <LineItem label="Kontribusi pekerjaan" hint="Pendapatan pekerjaan dikurangi biaya langsung dan biaya layanan Tovv. Bukan laba bersih." value={<Money value={i.contribution} missingLabel={i.reason ?? 'sementara'} />} emphasis />
         {i.advance ? (
           <>
             <Rule />
-            <LineItem label="Uang jalan" hint={`Kembali ${formatRupiah(i.advance.returned)} · sisa ${formatRupiah(i.advance.outstanding)} dipertanggungjawabkan`} value={<Money value={i.advance.amount} />} />
+            <LineItem label="Uang jalan" hint={t('Dikembalikan {0} · sisa {1} masih harus dipertanggungjawabkan', [formatRupiah(i.advance.returned), formatRupiah(i.advance.outstanding)])} value={<Money value={i.advance.amount} />} />
           </>
         ) : null}
         {d.expenses.length ? (
@@ -274,7 +275,7 @@ export function InvoicesSection({ d }: { d: OrderDetail }) {
             <View style={{ flex: 1, gap: 4 }}>
               <Serial>{inv.number}</Serial>
               <StatusTag look={collectionStatus[inv.collection]} size="sm" />
-              <Txt variant="caption" tone="inkSecondary">{`Net ${formatRupiah(inv.net)} · sisa`}</Txt>
+              <Txt variant="caption" tone="inkSecondary">{t('Net {0} · sisa', [formatRupiah(inv.net)])}</Txt>
               <Money value={inv.outstanding} align="left" />
             </View>
             <Button label="Buka" variant="secondary" compact onPress={() => router.push(`/invoice/${inv.id}`)} />
@@ -297,7 +298,7 @@ export function AssignmentHistory({ d }: { d: OrderDetail }) {
             <View style={{ flex: 1, gap: 2 }}>
               <Txt variant="bodyStrong">{`${a.driverName} · ${a.unitCode}`}</Txt>
               <StatusTag look={assignmentStatus[a.status]} size="sm" />
-              <Txt variant="caption" tone="inkSecondary">{`Ditawarkan ${formatShortDateTime(a.offeredAt)}${a.reason ? ` · ${a.reason}` : ''}`}</Txt>
+              <Txt variant="caption" tone="inkSecondary">{t('Ditawarkan {0}{1}', [formatShortDateTime(a.offeredAt), a.reason ? ` · ${a.reason}` : ''])}</Txt>
             </View>
           </View>
         ))}
@@ -333,7 +334,7 @@ export function HandoverSummary({ d }: { d: OrderDetail }) {
         <LineItem label="Pernyataan" value={<Txt variant="bodySm" tone={h.acceptance === 'objection' ? 'dangerInk' : 'okInk'}>{h.acceptance === 'objection' ? 'Berkeberatan' : 'Diterima'}</Txt>} />
         {h.objectionNote ? <Txt variant="bodySm" tone="dangerInk">{h.objectionNote}</Txt> : null}
         <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.sm }}>
-          Serah-terima tidak melunasi tagihan. Pernyataan penerima dicatat petugas, bukan tanda tangan digital tersertifikasi.
+          Serah-terima tidak sama dengan lunas. Pernyataan penerima dicatat petugas, bukan tanda tangan digital resmi.
         </Txt>
       </Card>
     </View>

@@ -7,9 +7,60 @@ Paket **2.1 — 21 Oktober 2026**. Produk **Tovv**; pemilik, pengembang dan pene
 Baseline yang benar-benar dibaca: PRD v2.0 (file sumber PRD(2).md, identik dengan salinan PRD (1).md), ARCHITECTURE, IMPLEMENTATION_PLAN, INTEGRATION_PLAN dan TEST_PLAN masing-masing berlabel v1.0 dengan acuan PRD v2.0. Tidak ditemukan versi lebih baru. VALIDATION_PLAN.md tidak ditemukan setelah pencarian nama; dokumen itu **disusun kembali**, bukan hasil pemeriksaan file lama. Pesan pengguna terbaru mengungguli baseline. Seluruh enam dokumen kini memakai versi paket 2.1.
 
 Urutan baca: [PRD](PRD.md) → [ARCHITECTURE](ARCHITECTURE.md) → [INTEGRATION_PLAN](INTEGRATION_PLAN.md) → [IMPLEMENTATION_PLAN](IMPLEMENTATION_PLAN.md) → [TEST_PLAN](TEST_PLAN.md) → [VALIDATION_PLAN](VALIDATION_PLAN.md). PRD menguasai scope/aturan bisnis; kontrak dan model harus mematuhinya. Perubahan mengharuskan pembaruan requirement, task, test, fixture dan keputusan terkait pada paket yang sama.
+## 0. Status aktual (23 Oktober 2026)
+
+Bagian ini mencatat kondisi repository, bukan mengubah requirement. Yang sudah ada hanya **aplikasi mobile tahap frontend** (`mobile/`) dengan adapter demo bertipe; **backend, database, otorisasi server, realtime, dan integrasi belum dibuat**. Status `VERIFIED_LOCAL` di bawah berarti diuji Jest terhadap adapter demo/domain, bukan bukti backend atau perangkat. Tidak ada gate G0–G7 yang dinyatakan lulus.
+
+Pemeriksaan terakhir di `mobile/`: typecheck dan lint bersih, 1.292 uji Jest lulus (termasuk oracle F-09, alur adapter, login demo, cakupan peta per peran, kontras dua palet, dan kelengkapan kamus terjemahan), expo-doctor 21/21. Bukti layar ada di `docs/QA_REPORT.md`.
+
+| Task | Status | Catatan |
+|---|---|---|
+| T-01 | IMPLEMENTED_UNVERIFIED | mobile: Expo SDK 57 dipin, lockfile, expo-doctor 21/21; backend belum dibuat |
+| T-02 | VERIFIED_LOCAL | mobile shell tiga peran, fixture F-09 di adapter demo, oracle diuji Jest; seeder database belum |
+| T-03 | NOT_STARTED | backend; layar masuk/daftar/lupa kata sandi hanya simulasi lokal |
+| T-04 | IMPLEMENTED_UNVERIFIED | frontend: registry armada baca saja; CRUD dan backend belum |
+| T-05 | IMPLEMENTED_UNVERIFIED | frontend: permintaan lintas kanal di adapter demo |
+| T-06 | IMPLEMENTED_UNVERIFIED | frontend: outbox lokal + idempotency di adapter; kontrak server belum |
+| T-07 | VERIFIED_LOCAL | rumus harga F-01/F-02 diuji Jest; tanpa backend |
+| T-08 | IMPLEMENTED_UNVERIFIED | frontend: versi penawaran dan biaya tambahan |
+| T-09 | NOT_STARTED | reservasi atomik adalah tugas backend; frontend hanya mensimulasikan bentrok |
+| T-10 | IMPLEMENTED_UNVERIFIED | frontend: kelayakan unit sebelum peringkat |
+| T-11 | IMPLEMENTED_UNVERIFIED | frontend: akun bisnis, PO, penyetuju |
+| T-12 | IMPLEMENTED_UNVERIFIED | frontend: tawaran, terima/tolak, alihkan |
+| T-13 | IMPLEMENTED_UNVERIFIED | frontend: peta langsung per peran dengan replay F-06; tracking HP latar belakang dan realtime belum |
+| T-14 | IMPLEMENTED_UNVERIFIED | frontend: antrean kirim ulang persisten di HP |
+| T-15 | IMPLEMENTED_UNVERIFIED | frontend: tahap perjalanan, kendala, serah-terima |
+| T-16 | IMPLEMENTED_UNVERIFIED | frontend: biaya aktual dan kontribusi sementara/final |
+| T-17 | VERIFIED_LOCAL | ledger domain diuji Jest; tanpa database |
+| T-19 | IMPLEMENTED_UNVERIFIED | frontend: pratinjau langganan dan rekap B2B |
+| T-20 | NOT_STARTED | hanya layar contoh akses dukungan; Solveit Admin aktual BLOCKED |
+| T-21 | IMPLEMENTED_UNVERIFIED | frontend: kotak masuk simulasi dan deep link; push belum |
+| T-22 | IN_PROGRESS | emulator Android API 36 + Expo Go di HP pengguna; bukti perangkat fisik lengkap belum |
+| T-23 | NOT_STARTED | — |
+| T-24 | NOT_STARTED | — |
+| T-25 | IN_PROGRESS | prototype demo frontend siap dicoba; rehearsal backend belum |
+| T-26 | IMPLEMENTED_UNVERIFIED | frontend: kamera, salinan tahan lama, overlay; upload server belum |
+| T-27 | IMPLEMENTED_UNVERIFIED | frontend: permintaan bayar, bukti, pemeriksaan, koreksi |
+| T-28 | IMPLEMENTED_UNVERIFIED | frontend: daftar tindakan harian; delegasi tersedia di adapter, tidak ditautkan karena peran admin tidak dibuka |
+| T-29 | VERIFIED_LOCAL | analytics M-01–M-12 diuji terhadap oracle F-09 |
+| T-30 | IMPLEMENTED_UNVERIFIED | CSV demo tersedia; PDF server belum |
+| T-31 | NOT_STARTED | — |
+| T-18 | NEXT | Tidak dikerjakan pada prototype |
+
+### Keputusan pengguna setelah paket 2.1
+
+| Tanggal | Keputusan | Dampak |
+|---|---|---|
+| 22 Okt 2026 | Gaya visual standar super-app/fintech Indonesia, tema terang + gelap | `docs/DESIGN.md`; arah "Nota Rangkap" diganti |
+| 23 Okt 2026 | Aplikasi hanya membuka tiga peran: owner, driver, pelanggan | Tugas dispatcher/finance dikerjakan owner; peran `admin` tetap di model data dan uji kebijakan. Requirement admin di PRD tidak dihapus |
+| 23 Okt 2026 | Peta langsung memakai peta bawaan HP (react-native-maps) | Expo Go berjalan tanpa API key; build Android produksi butuh API key Google Maps (DEC-08 tetap terbuka untuk biaya/kebijakan) |
+| 23 Okt 2026 | Masuk/daftar/lupa kata sandi sebagai simulasi lokal | Tidak menggantikan TEN-04; tetap tugas T-03 |
+| 23 Okt 2026 | Antarmuka dua bahasa (Indonesia, Inggris) | Teks sumber bahasa Indonesia; kamus Inggris di `mobile/src/core/i18n/en.ts` |
+| 23 Okt 2026 | Nama file, folder, commit, dan PR berbahasa Inggris; isi dokumen tetap bahasa Indonesia | `AGENTS.md` bagian Git |
+
 ## 1. Kontrak kerja agent dan status
 
-Semua task **NOT_STARTED**; dokumen ini tidak menyatakan kode tersedia. Baca keenam dokumen dan instruksi repo aktual, audit branch/working tree/lockfile/CI. Jangan overwrite perubahan user, jangan membangun NEXT tanpa keputusan, jangan membuat login bypass atau dashboard angka hardcoded. Pilih satu vertical slice dengan requirement, test, file sasaran dan acceptance jelas. Keputusan baru material dicatat ADR dan diperbarui pada semua kontrak terkait.
+Status task terbaru ada di §0; kolom Status pada tiap task di §3 mengikutinya. Backend belum dimulai. Baca keenam dokumen dan instruksi repo aktual, audit branch/working tree/lockfile/CI. Jangan overwrite perubahan user, jangan membangun NEXT tanpa keputusan, jangan membuat login bypass atau dashboard angka hardcoded. Pilih satu vertical slice dengan requirement, test, file sasaran dan acceptance jelas. Keputusan baru material dicatat ADR dan diperbarui pada semua kontrak terkait.
 
 Status task: NOT_STARTED, IN_PROGRESS, IMPLEMENTED_UNVERIFIED, VERIFIED_LOCAL, BLOCKED, DONE_SCOPED. DONE_SCOPED harus menyebut capability/platform; tidak berarti semua evidence. Uji NOT_RUN/PASS/FAIL/BLOCKED terpisah dari mode simulated/device/integration. Checkpoint per task: scope/requirement IDs, SHA/path, migration, commands yang benar dijalankan, hasil, evidence, blocker/PIC dan next action. Nama script di dokumen adalah kontrak target, bukan file yang diklaim telah ada.
 
@@ -38,7 +89,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-01 — Baseline, exact versions dan spike native awal
 
-- Milestone: M0. Owner peran: BE + mobile. Status: NOT_STARTED.
+- Milestone: M0. Owner peran: BE + mobile. Status: IMPLEMENTED_UNVERIFIED — mobile: Expo SDK 57 dipin, lockfile, expo-doctor 21/21; backend belum dibuat.
 - Dependensi: —.
 - Requirement utama: PRO-01, INT-01.
 - Pekerjaan: Baca instruksi repo; verifikasi PHP minimum dan MySQL; pin Expo/RN/Node; buat Composer/npm lockfiles, ADR dan environment matrix. Spike location pada development build dengan login uji sederhana; catat akses perangkat/provider yang belum ada.
@@ -48,7 +99,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-02 — Seed deterministik dan mobile shell
 
-- Milestone: M0. Owner peran: Full-stack. Status: NOT_STARTED.
+- Milestone: M0. Owner peran: Full-stack. Status: VERIFIED_LOCAL — mobile shell tiga peran, fixture F-09 di adapter demo, oracle diuji Jest; seeder database belum.
 - Dependensi: T-01.
 - Requirement utama: TEN-06, MOB-01, MOB-04, NFR-11, PRO-02.
 - Pekerjaan: Buat dua tenant, account B2B dan skenario fixture F-09 (24 request,14 order) dan oracle PRD; navigation per role, login screen, design tokens, loading/error/offline. Seeder memakai referensi clock; reset CLI guarded.
@@ -58,7 +109,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-03 — Auth, membership, policy dan audit
 
-- Milestone: M1. Owner peran: BE. Status: NOT_STARTED.
+- Milestone: M1. Owner peran: BE. Status: NOT_STARTED — backend; layar masuk/daftar/lupa kata sandi hanya simulasi lokal.
 - Dependensi: T-02.
 - Requirement utama: TEN-01, TEN-02, TEN-03, TEN-04, NFR-01.
 - Pekerjaan: Implementasikan Sanctum device sessions, expiry/revoke, tenant resolver, business membership, role policy, DTO per role, audit dan cache scope.
@@ -68,7 +119,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-04 — Registry armada, driver dan biaya
 
-- Milestone: M1. Owner peran: BE + mobile. Status: NOT_STARTED.
+- Milestone: M1. Owner peran: BE + mobile. Status: IMPLEMENTED_UNVERIFIED — frontend: registry armada baca saja; CRUD dan backend belum.
 - Dependensi: T-03.
 - Requirement utama: FLT-01.
 - Pekerjaan: CRUD unit/driver/partner/customer vehicle; ukuran/capacity/source; status out_of_service; cost template dan resource lock row.
@@ -78,7 +129,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-05 — Permintaan dan pihak layanan
 
-- Milestone: M2. Owner peran: Full-stack. Status: NOT_STARTED.
+- Milestone: M2. Owner peran: Full-stack. Status: IMPLEMENTED_UNVERIFIED — frontend: permintaan lintas kanal di adapter demo.
 - Dependensi: T-04,T-06.
 - Requirement utama: ORD-01, ORD-02, ORD-03, ORD-04.
 - Pekerjaan: Implementasikan request mobile/assisted, immediately/scheduled/flexible, condition review, parties dan source; form validation dan draft persistence awal.
@@ -88,7 +139,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-06 — Kontrak, idempotency dan outbox
 
-- Milestone: M1. Owner peran: BE. Status: NOT_STARTED.
+- Milestone: M1. Owner peran: BE. Status: IMPLEMENTED_UNVERIFIED — frontend: outbox lokal + idempotency di adapter; kontrak server belum.
 - Dependensi: T-03.
 - Requirement utama: ORD-05.
 - Pekerjaan: Finalize OpenAPI envelope, middleware idempotency, optimistic version, transaction outbox dan consumer dedupe; generated TS client bila toolchain siap.
@@ -98,7 +149,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-07 — Pricing dan simulasi negosiasi
 
-- Milestone: M2. Owner peran: BE + mobile. Status: NOT_STARTED.
+- Milestone: M2. Owner peran: BE + mobile. Status: VERIFIED_LOCAL — rumus harga F-01/F-02 diuji Jest; tanpa backend.
 - Dependensi: T-04,T-06.
 - Requirement utama: QTE-01, QTE-02, QTE-03.
 - Pekerjaan: Bangun cost calculation service tanpa floating point, target nominal/persen, confidence, label surplus, partner cost dan owner override komersial.
@@ -108,7 +159,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-08 — Quote version dan change order
 
-- Milestone: M2. Owner peran: Full-stack. Status: NOT_STARTED.
+- Milestone: M2. Owner peran: Full-stack. Status: IMPLEMENTED_UNVERIFIED — frontend: versi penawaran dan biaya tambahan.
 - Dependensi: T-05,T-07.
 - Requirement utama: QTE-04, QTE-05, QTE-06.
 - Pekerjaan: Buat send/accept intent, supersede/expiry, approval/assisted consent dan change order; acceptance capacity difinalisasi T-09.
@@ -118,7 +169,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-09 — Reservasi atomik dan pembatalan
 
-- Milestone: M2. Owner peran: BE. Status: NOT_STARTED.
+- Milestone: M2. Owner peran: BE. Status: NOT_STARTED — reservasi atomik adalah tugas backend; frontend hanya mensimulasikan bentrok.
 - Dependensi: T-08,T-04,T-06.
 - Requirement utama: ORD-06, FLT-04, FLT-06, NFR-05.
 - Pekerjaan: Resource lock unit+driver, overlap/buffer/timezone, atomic quote confirmation; cancel/abort guard; priority price/commitment consent.
@@ -128,7 +179,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-10 — Rekomendasi unit dan alternatif
 
-- Milestone: M2. Owner peran: BE + mobile. Status: NOT_STARTED.
+- Milestone: M2. Owner peran: BE + mobile. Status: IMPLEMENTED_UNVERIFIED — frontend: kelayakan unit sebelum peringkat.
 - Dependensi: T-07,T-09.
 - Requirement utama: FLT-09, QTE-07, FLT-02, FLT-03.
 - Pekerjaan: Filter keras lalu ranking biaya/ETA; alasan rekomendasi; pilih alternatif membuat quote baru dan recheck availability.
@@ -138,7 +189,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-11 — Program pelanggan bisnis
 
-- Milestone: M2. Owner peran: Full-stack. Status: NOT_STARTED.
+- Milestone: M2. Owner peran: Full-stack. Status: IMPLEMENTED_UNVERIFIED — frontend: akun bisnis, PO, penyetuju.
 - Dependensi: T-05,T-08,T-09.
 - Requirement utama: ORD-07, BIZ-01, BIZ-02, BIZ-03, BIZ-04, BIZ-05, BIZ-06.
 - Pekerjaan: Business accounts/members, requester/approver, versioned rate card, terms/reference, favorites, reorder dan scoped history.
@@ -148,7 +199,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-12 — Assignment sendiri dan mitra
 
-- Milestone: M3. Owner peran: Full-stack. Status: NOT_STARTED.
+- Milestone: M3. Owner peran: Full-stack. Status: IMPLEMENTED_UNVERIFIED — frontend: tawaran, terima/tolak, alihkan.
 - Dependensi: T-09.
 - Requirement utama: FLT-05.
 - Pekerjaan: Offer/accept/reject/revoke; partner acceptance assisted; reassign lock old/new resource; old driver access dicabut.
@@ -158,7 +209,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-13 — Tracking device, simulator dan realtime
 
-- Milestone: M3. Owner peran: Mobile + BE. Status: NOT_STARTED.
+- Milestone: M3. Owner peran: Mobile + BE. Status: IMPLEMENTED_UNVERIFIED — frontend: peta langsung per peran dengan replay F-06; tracking HP latar belakang dan realtime belum.
 - Dependensi: T-12,T-03.
 - Requirement utama: OPS-02, OPS-06, NFR-04.
 - Pekerjaan: Location ingestion batch, latest projection, freshness UI, private epoch channels, maps adapter, source labels dan start/stop lifecycle.
@@ -168,7 +219,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-14 — Offline outbox dan recovery
 
-- Milestone: M3. Owner peran: Mobile + BE. Status: NOT_STARTED.
+- Milestone: M3. Owner peran: Mobile + BE. Status: IMPLEMENTED_UNVERIFIED — frontend: antrean kirim ulang persisten di HP.
 - Dependensi: T-06,T-12.
 - Requirement utama: OPS-03, MOB-03, NFR-06.
 - Pekerjaan: SQLite outbox+files, per-aggregate drain, dependencies, retry/backoff, auth/version conflict handling, restart recovery dan cache clearing.
@@ -178,7 +229,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-15 — Execution, incident dan bukti
 
-- Milestone: M3. Owner peran: Full-stack. Status: NOT_STARTED.
+- Milestone: M3. Owner peran: Full-stack. Status: IMPLEMENTED_UNVERIFIED — frontend: tahap perjalanan, kendala, serah-terima.
 - Dependensi: T-12,T-13,T-14,T-26.
 - Requirement utama: OPS-01, OPS-04, OPS-05.
 - Pekerjaan: State machine, readiness, photo upload/private read, incident PIC, handover accepted/disputed, closure with outstanding.
@@ -188,7 +239,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-16 — Biaya aktual dan contribution
 
-- Milestone: M4. Owner peran: BE + mobile. Status: NOT_STARTED.
+- Milestone: M4. Owner peran: BE + mobile. Status: IMPLEMENTED_UNVERIFIED — frontend: biaya aktual dan kontribusi sementara/final.
 - Dependensi: T-15,T-07.
 - Requirement utama: QTE-08, FIN-01, FIN-02.
 - Pekerjaan: Expense approval, advance+return settlement, estimate-vs-actual, provisional flags dan contribution report.
@@ -198,7 +249,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-17 — Fondasi invoice dan ledger manual
 
-- Milestone: M4. Owner peran: Full-stack. Status: NOT_STARTED.
+- Milestone: M4. Owner peran: Full-stack. Status: VERIFIED_LOCAL — ledger domain diuji Jest; tanpa database.
 - Dependensi: T-15,T-08,T-06.
 - Requirement utama: PAY-01, PAY-02, PAY-05, PAY-06.
 - Pekerjaan: Schema dan domain services invoice/ledger: issue bernomor immutable, allocation/credit/reversal/refund invariants, saldo derived. T-27 memakai service ini untuk UI/API request-proof-review; tidak membuat ledger kedua.
@@ -212,7 +263,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-19 — SaaS preview dan laporan B2B
 
-- Milestone: M4. Owner peran: BE + mobile. Status: NOT_STARTED.
+- Milestone: M4. Owner peran: BE + mobile. Status: IMPLEMENTED_UNVERIFIED — frontend: pratinjau langganan dan rekap B2B.
 - Dependensi: T-15,T-16,T-17,T-11,T-27.
 - Requirement utama: BIZ-08, SUB-01, SUB-02, SUB-03, SUB-04, SUB-05, SUB-06.
 - Pekerjaan: Plan snapshot, usage eligibility, subscription-vs-success, credit entries, expiry grace, preview SaaS invoice dan owner/B2B summary DTO.
@@ -222,7 +273,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-20 — Solveit Admin connector
 
-- Milestone: M5. Owner peran: BE + web. Status: NOT_STARTED.
+- Milestone: M5. Owner peran: BE + web. Status: NOT_STARTED — hanya layar contoh akses dukungan; Solveit Admin aktual BLOCKED.
 - Dependensi: T-13,T-19,T-03.
 - Requirement utama: TEN-05, ADM-01, ADM-02, ADM-03, ADM-04.
 - Pekerjaan: Platform API, signed actor assertion, grants, tickets, monitoring summary; harness lalu actual website adapter+UI sesuai repo policy.
@@ -232,7 +283,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-21 — Push, inbox dan deep link
 
-- Milestone: M5. Owner peran: Mobile + BE. Status: NOT_STARTED.
+- Milestone: M5. Owner peran: Mobile + BE. Status: IMPLEMENTED_UNVERIFIED — frontend: kotak masuk simulasi dan deep link; push belum.
 - Dependensi: T-12,T-15,T-17.
 - Requirement utama: MOB-02, MOB-05.
 - Pekerjaan: Expo notification token binding, provider receipts, preference, dedupe inbox dan deep link auth; mode simulated terpisah.
@@ -242,7 +293,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-22 — Uji perangkat terkontrol
 
-- Milestone: M6. Owner peran: QA + mobile. Status: NOT_STARTED.
+- Milestone: M6. Owner peran: QA + mobile. Status: IN_PROGRESS — emulator Android API 36 + Expo Go di HP pengguna; bukti perangkat fisik lengkap belum.
 - Dependensi: T-13,T-14,T-21,T-26.
 - Requirement utama: NFR-03, PRO-03.
 - Pekerjaan: Jalankan matrix Android+iOS release build, locked screen, background, force-stop, battery saver, permission change dan reconnect.
@@ -272,7 +323,7 @@ Fixture F-09 ditetapkan lengkap pada M0 sebagai spesifikasi; seeder tabel materi
 
 ### T-25 — Demo, feedback dan handoff
 
-- Milestone: M7. Owner peran: Product + QA + full-stack. Status: NOT_STARTED.
+- Milestone: M7. Owner peran: Product + QA + full-stack. Status: IN_PROGRESS — prototype demo frontend siap dicoba; rehearsal backend belum.
 - Dependensi: T-16,T-19,T-20,T-21,T-22,T-24,T-28,T-29,T-30 (deliverable lokal dan laporan gap untuk eksternal).
 - Requirement utama: NFR-08, PRO-04, PRO-05.
 - Pekerjaan: Jalankan D-01–D-08, smoke sebelum presentasi, capture evidence yang disamarkan, feedback owner, limitations, checkpoint dan proposal capability matrix.

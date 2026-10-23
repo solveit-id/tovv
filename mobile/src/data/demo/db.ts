@@ -71,6 +71,8 @@ export interface DemoDb {
   tracks: Record<string, TrackPoint[]>;
   planChanges: { tenantId: TenantId; toKind: 'subscription' | 'success'; effectiveFrom: string; requestedAt: string }[];
   sequences: { invoice: Record<TenantId, number>; idCounter: number };
+  /** Hash kata sandi akun yang didaftarkan di HP ini (login demo). Akun fixture memakai kata sandi demo. */
+  credentials?: Record<string, string>;
   /** Kendala demo yang dapat dinyalakan di layar Tentang untuk memperlihatkan state gagal. */
   faults: { offline: boolean; failNextRead: boolean; lowStorage: boolean; replayPausedAt: string | null; planExpired: boolean };
 }

@@ -7,6 +7,7 @@ import { Choice, Field, MoneyField } from '@/components/ui/form';
 import { Txt } from '@/components/ui/txt';
 import { errorMessage } from '@/data/api/hooks';
 import type { Incident } from '@/domain/types';
+import { t } from '@/core/i18n';
 
 export type SheetKind =
   | { kind: 'reject' }
@@ -32,7 +33,7 @@ export interface SheetSubmit {
 }
 
 const INCIDENT_TYPES: { value: Incident['type']; label: string; hint: string }[] = [
-  { value: 'receiver_not_ready', label: 'Penerima belum siap', hint: 'Gudang/penerima belum dapat menerima' },
+  { value: 'receiver_not_ready', label: 'Penerima belum siap', hint: 'Gudang/penerima belum bisa menerima' },
   { value: 'access_blocked', label: 'Akses terhalang', hint: 'Jalan sempit, portal, banjir' },
   { value: 'vehicle_issue', label: 'Masalah kendaraan', hint: 'Kondisi berbeda dari laporan' },
   { value: 'other', label: 'Lainnya', hint: '' },
@@ -91,11 +92,11 @@ function SheetBody({ sheet, onClose, submit, isStaff }: { sheet: SheetKind; onCl
   if (k === 'reject' || k === 'exception' || k === 'cancel') {
     body = (
       <Field
-        label={k === 'exception' ? 'Alasan pengecualian foto' : 'Alasan'}
+        label={k === 'exception' ? 'Alasan tidak memotret' : 'Alasan'}
         value={text}
         onChangeText={setText}
         multiline
-        helper={k === 'reject' ? 'Admin memakai alasan ini untuk mencari pengganti.' : k === 'cancel' ? 'Pembatalan hanya sebelum loading; reservasi unit dilepas.' : 'Contoh: hujan deras, foto menyusul di tempat teduh. Tercatat pada riwayat.'}
+        helper={k === 'reject' ? 'Owner memakai alasan ini untuk mencari pengganti.' : k === 'cancel' ? 'Pembatalan hanya bisa sebelum dimuat; jadwal unit dilepas.' : 'Contoh: hujan deras, foto menyusul di tempat teduh. Dicatat di riwayat.'}
       />
     );
     footer = <Button label={k === 'cancel' ? 'Batalkan order' : k === 'reject' ? 'Kirim penolakan' : 'Lanjut memuat'} variant={k === 'exception' ? 'primary' : 'danger'} loading={busy} onPress={() => void run(() => (k === 'reject' ? submit.reject(text) : k === 'cancel' ? submit.cancel(text) : submit.exception(text)))} />;
@@ -104,17 +105,17 @@ function SheetBody({ sheet, onClose, submit, isStaff }: { sheet: SheetKind; onCl
     body = (
       <>
         <Choice label="Jenis kendala" options={INCIDENT_TYPES} value={itype} onChange={setIType} />
-        <Field label="Keterangan singkat" value={text} onChangeText={setText} multiline helper="Isi saat kendaraan berhenti. Status perjalanan tidak berubah otomatis." />
+        <Field label="Keterangan singkat" value={text} onChangeText={setText} multiline helper="Isi saat kendaraan berhenti. Status perjalanan tidak berubah dengan sendirinya." />
       </>
     );
-    footer = <Button label="Kirim ke admin" loading={busy} onPress={() => void run(() => submit.incident(itype, text))} />;
+    footer = <Button label="Kirim ke owner" loading={busy} onPress={() => void run(() => submit.incident(itype, text))} />;
   }
   if (k === 'abort') {
     body = (
       <>
         <Field label="Lokasi saat ini" value={text} onChangeText={setText} />
-        <Field label="Penguasaan kendaraan" value={text2} onChangeText={setText2} helper="Di mana kendaraan pelanggan sekarang dan siapa yang memegangnya." />
-        <Field label="PIC" value={text3} onChangeText={setText3} />
+        <Field label="Siapa yang memegang kendaraan" value={text2} onChangeText={setText2} helper="Di mana kendaraan pelanggan sekarang, dan siapa yang memegangnya." />
+        <Field label="Penanggung jawab" value={text3} onChangeText={setText3} />
         <Field label="Rencana penyelesaian" value={text4} onChangeText={setText4} multiline />
       </>
     );
@@ -124,7 +125,7 @@ function SheetBody({ sheet, onClose, submit, isStaff }: { sheet: SheetKind; onCl
     body = (
       <>
         <MoneyField label="Nominal" value={amount} onChange={setAmount} />
-        <Field label="Alasan" value={text} onChangeText={setText} multiline helper="Ditagih hanya setelah pelanggan/approver menyetujui." />
+        <Field label="Alasan" value={text} onChangeText={setText} multiline helper="Baru ditagih setelah pelanggan/penyetuju setuju." />
       </>
     );
     footer = <Button label="Ajukan ke pelanggan" loading={busy} onPress={() => void run(() => submit.change(amount ?? 0, text))} />;
@@ -133,9 +134,9 @@ function SheetBody({ sheet, onClose, submit, isStaff }: { sheet: SheetKind; onCl
     body = (
       <>
         <Txt variant="bodySm" tone="inkSecondary" style={{ marginBottom: space.md }}>
-          Biaya tambahan baru masuk tagihan setelah disetujui. Menolak tidak mengubah invoice secara diam-diam.
+          Biaya tambahan baru masuk tagihan setelah disetujui. Menolak tidak mengubah invoice diam-diam.
         </Txt>
-        {isStaff ? <Field label="Pernyataan pelanggan (kanal, waktu)" value={text} onChangeText={setText} multiline /> : null}
+        {isStaff ? <Field label="Pernyataan pelanggan (lewat apa, kapan)" value={text} onChangeText={setText} multiline /> : null}
       </>
     );
     footer = (
@@ -152,7 +153,7 @@ function SheetBody({ sheet, onClose, submit, isStaff }: { sheet: SheetKind; onCl
   if (k === 'expense') {
     body = (
       <>
-        <Field label="Kategori" value={text} onChangeText={setText} placeholder="mis. Tol, BBM, parkir" />
+        <Field label="Kategori" value={text} onChangeText={setText} placeholder={t('mis. Tol, BBM, parkir')} />
         <MoneyField label="Nominal" value={amount} onChange={setAmount} />
         <Field label="Catatan / nomor nota" value={text2} onChangeText={setText2} />
       </>

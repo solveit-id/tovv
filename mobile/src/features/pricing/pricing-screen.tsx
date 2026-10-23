@@ -48,21 +48,21 @@ export function PricingScreen() {
         <Button label="Contoh 2: persentase" variant="secondary" compact style={{ flex: 1 }} onPress={() => load('F02')} />
       </View>
       <MoneyField label="Harga ke pelanggan (P)" value={price} onChange={setPrice} />
-      <MoneyField label="Biaya langsung (D)" value={direct} onChange={setDirect} helper="Approach, muat, reposisi, BBM, tol, personel atau quote mitra. Kosongkan bila belum diketahui." />
+      <MoneyField label="Biaya langsung (D)" value={direct} onChange={setDirect} helper="Jalan ke lokasi, muat, pindah posisi, BBM, tol, kru, atau harga mitra. Kosongkan kalau belum tahu." />
       <View style={{ flexDirection: 'row', gap: space.sm }}>
         <View style={{ flex: 1 }}><MoneyField label="Alokasi tetap (A)" value={alloc} onChange={setAlloc} /></View>
         <View style={{ flex: 1 }}><MoneyField label="Cadangan (R)" value={reserve} onChange={setReserve} /></View>
       </View>
       <View style={{ flex: 1, flexDirection: 'row', gap: space.sm }}>
         <View style={{ flex: 1 }}><MoneyField label="Biaya layanan Tovv per pekerjaan" value={fee} onChange={setFee} /></View>
-        <View style={{ flex: 1 }}><MoneyField label="Penanganan internal" value={admin} onChange={setAdmin} helper="Ilustratif, bukan fee gateway" /></View>
+        <View style={{ flex: 1 }}><MoneyField label="Penanganan internal" value={admin} onChange={setAdmin} helper="Contoh saja, bukan biaya gateway" /></View>
       </View>
       <View style={{ flexDirection: 'row', gap: space.sm }}>
         <View style={{ flex: 1 }}><MoneyField label="Target surplus (T)" value={target} onChange={setTarget} /></View>
         <View style={{ flex: 1 }}><Field label="Biaya komersial % dari P" value={pct} onChangeText={setPct} keyboardType="decimal-pad" suffix="%" error={validPct ? null : 'Harus 0 sampai di bawah 100%'} /></View>
       </View>
       <SectionTitle title="Hasil" />
-      <Card>{r ? <PricingResultView r={r} price={price ?? 0} /> : <Txt variant="bodySm" tone="dangerInk">Persentase tidak valid.</Txt>}</Card>
+      <Card>{r ? <PricingResultView r={r} price={price ?? 0} /> : <Txt variant="bodySm" tone="dangerInk">Persentasenya tidak valid.</Txt>}</Card>
       <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.md }}>
         Kontribusi = P − D − F; surplus = kontribusi − A − R. Harga target dengan persen = ceil((D+A+R+f+T)/(1−r)), lalu dihitung ulang. Override harga tidak meloloskan unit yang tidak layak.
       </Txt>

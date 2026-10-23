@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { radius, space, cardChrome } from '@/core/design/tokens';
 import { makeStyles } from '@/core/design/theme';
 import { useEnter } from '@/core/design/motion';
+import { useScrollReveal } from '@/components/layout/use-scroll-reveal';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import { PressableScale } from '@/components/ui/pressable-scale';
@@ -13,6 +14,7 @@ import { StageTicks } from '@/components/business/stage-line';
 import type { OrderSummary, TimelineEntry } from '@/data/api/contract';
 import { executionStatus, EXECUTION_FLOW } from '@/core/i18n/status';
 import { formatShortDateTime, formatTime } from '@/core/format/time';
+import { t } from '@/core/i18n';
 
 /** Langkah berikutnya yang hanya keterangan (tidak ada yang perlu dilakukan pengguna ini). */
 const PASSIVE = /^(Menunggu|Tagihan tercatat|Tugas selesai|Selesai|Dibatalkan|Dihentikan)/;
@@ -35,6 +37,8 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
   const router = useRouter();
   const s = useStyles();
   const entering = useEnter(index);
+  const revealRef = useRef<View>(null);
+  const reveal = useScrollReveal(revealRef);
   const look = executionStatus[o.status];
   const terminal = ['canceled', 'aborted'].includes(o.status);
   const owes = showMoney && o.outstanding && o.outstanding !== '0';
@@ -42,11 +46,11 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
   const ticks = ticksFor(o.status);
   const stageNo = ticks.findIndex((t) => t.state === 'current') + 1;
   return (
-    <Animated.View entering={entering}>
+    <Animated.View ref={revealRef} onLayout={reveal.onLayout} entering={entering} style={reveal.style}>
       <PressableScale
         onPress={() => router.push(`/order/${o.id}`)}
         accessibilityRole="button"
-        accessibilityLabel={`Pekerjaan ${o.alias}, ${look.label}. ${o.customerLabel}. Dari ${o.pickup.label} ke ${o.dropoff.label}. Berikutnya: ${o.nextStep}.`}
+        accessibilityLabel={t('Pekerjaan {0}, {1}. {2}. Dari {3} ke {4}. Berikutnya: {5}.', [o.alias, look.label, o.customerLabel, o.pickup.label, o.dropoff.label, o.nextStep])}
         style={s.card}
       >
         <View style={s.head}>
@@ -75,7 +79,7 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
         {!terminal ? (
           <View style={{ gap: 4 }}>
             <StageTicks entries={ticks} />
-            {stageNo > 0 ? <Txt variant="caption" tone="inkSecondary">{`Tahap ${stageNo} dari ${ticks.length} · ${look.label}`}</Txt> : null}
+            {stageNo > 0 ? <Txt variant="caption" tone="inkSecondary">{t('Tahap {0} dari {1} · {2}', [stageNo, ticks.length, look.label])}</Txt> : null}
           </View>
         ) : null}
 
@@ -86,7 +90,7 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
           </Txt>
           {owes ? (
             <View style={s.owe}>
-              <Txt variant="caption" tone="warnInk" bold>Ada tagihan terbuka</Txt>
+              <Txt variant="caption" tone="warnInk" bold>Ada tagihan yang belum lunas</Txt>
             </View>
           ) : null}
         </View>
@@ -99,7 +103,7 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
         ) : (
           <View style={s.next}>
             <Icon name="arrow-right-circle" size={18} tone="accentInk" />
-            <Txt variant="bodySm" tone="accentInk" style={{ fontWeight: '700', flex: 1 }}>{`Berikutnya: ${o.nextStep}`}</Txt>
+            <Txt variant="bodySm" tone="accentInk" style={{ fontWeight: '700', flex: 1 }}>{t('Berikutnya: {0}', [o.nextStep])}</Txt>
           </View>
         )}
       </PressableScale>

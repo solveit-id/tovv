@@ -1,39 +1,44 @@
-# Project status — Tovv
+# Status proyek — Tovv
 
-Last updated: 2026-10-22 (frontend redesign session). Verified facts only. Rules: `../AGENTS.md`; product facts: `../docs/spec/PRD.md`, `../docs/PRODUCT.md`.
+Diperbarui 23 Oktober 2026. Hanya fakta yang sudah diperiksa. Aturan: `../AGENTS.md`; fakta produk: `../docs/spec/PRD.md`, `../docs/PRODUCT.md`; status per task: `../docs/spec/IMPLEMENTATION_PLAN.md` §0.
 
-## Workflow
+## Alur kerja
 
-1. Read `AGENTS.md`, then this file. Check `git status`, branch (`frontend` for mobile work), and `git fetch`.
-2. Set up: `cd mobile && npm ci`. Android build needs `JAVA_HOME` (Android Studio JBR) and `ANDROID_HOME`.
-3. Change: screens use the typed adapter (`mobile/src/data/api`); business rules stay in `mobile/src/domain` with tests; colours only through `useColors()` / `makeStyles()`.
-4. Verify before claiming done: `npm run typecheck`, `npm run lint`, `npm test`, `npx expo-doctor`; for UI, capture emulator/device screenshots into `.impeccable/review/` and summarise in `docs/qa-report.md` (device, OS, build type, mode, theme).
-5. Release: commit `(jenis) deskripsi` (Indonesian, no co-author/AI attribution) → push `frontend` → PR to `staging` → PR `staging` → `main`. No force-push or protection bypass.
+1. Baca `AGENTS.md`, lalu file ini. Cek `git status`, branch (`frontend` untuk pekerjaan mobile), dan `git fetch`.
+2. Persiapan: `cd mobile && npm ci`. Build Android butuh `JAVA_HOME` (JBR Android Studio) dan `ANDROID_HOME`.
+3. Perubahan: layar memakai adapter bertipe (`mobile/src/data/api`); aturan bisnis di `mobile/src/domain` dengan tes; warna hanya lewat `useColors()` / `makeStyles()`; teks baru wajib diberi entri bahasa Inggris di `mobile/src/core/i18n/en.ts`.
+4. Verifikasi sebelum menyatakan selesai: `npm run typecheck`, `npm run lint`, `npm test`, `npx expo-doctor`; untuk tampilan, ambil screenshot emulator/HP ke `.impeccable/review/` dan rangkum di `docs/QA_REPORT.md` (perangkat, OS, jenis build, mode, tema, bahasa).
+5. Rilis: commit `(type) short description` dalam bahasa Inggris tanpa co-author/atribusi AI → push `frontend` → PR ke `staging` → PR `staging` → `main`. Tanpa force-push atau melewati proteksi.
 
-## Released / merged
+## Sudah di-merge
 
-- PR #1 `frontend` → `staging` and PR #2 `staging` → `main` (2026-10-22): first frontend stage ("Nota Rangkap" visual direction).
-- Redesign round (this session): super-app/fintech visual language, light + dark themes, motion, plain-language copy, docs reorganised. See `git log` and the PRs that follow it.
+- PR #1/#2 (22 Okt 2026): tahap frontend pertama.
+- PR #3/#4 (22 Okt 2026): desain ulang gaya super-app/fintech, tema terang + gelap, gerak, perapian dokumen.
+- Putaran 23 Okt 2026: tiga peran, peta langsung, splash + akun demo, dua bahasa, penulisan ulang teks, penamaan bahasa Inggris. Lihat `git log` dan PR berikutnya.
 
-## Frontend stage (mobile/)
+## Tahap frontend (`mobile/`)
 
-- Expo SDK 57 (`expo` ~57.0.31), RN 0.86.3, React 19.2.3, Expo Router 57, TanStack Query 5, Reanimated 4.5, TypeScript strict. npm + `package-lock.json`.
-- Design: `docs/DESIGN.md`. Two palettes (`core/design/tokens.ts`), `ThemeProvider` (system / light / dark, stored per device), gradient hero headers with parallax, summary card overlapping the header, shortcut grid, card lists with 3D press, staggered entrance, count-up figures, skeleton loading.
-- Typed demo adapter (`mobile/src/data/api/demo-api.ts`) over deterministic fixture F-09; simulated server policy, daily-action projection, ledger and analytics computed from rows.
-- Tests: 85 Jest tests (domain oracle, adapter flows, role DTOs, contrast of both palettes, components). Typecheck and lint clean.
-- Device QA: Android emulator API 36 dev build, light and dark — see `docs/qa-report.md`. iPhone and physical Android run via Expo Go (`npm run start:go`, needs `npx expo login` on the computer and the same account in Expo Go).
+- Expo SDK 57 (`expo` ~57.0.31), RN 0.86.3, React 19.2.3, Expo Router 57, TanStack Query 5, Reanimated 4.5, react-native-maps 1.27.2, TypeScript strict. npm + `package-lock.json`.
+- Tiga peran di aplikasi (owner, driver, pelanggan). Peran `admin` tetap di model data dan uji kebijakan adapter.
+- Desain: `docs/DESIGN.md`. Dua palet, splash beranimasi, header parallax, scroll-trigger, tekan 3D, peta langsung.
+- Dua bahasa (Indonesia sumber, Inggris di `core/i18n/en.ts`), mengikuti bahasa HP dan bisa diganti.
+- Adapter demo bertipe (`mobile/src/data/api/demo-api.ts`) di atas fixture F-09: kebijakan server simulasi, daftar tindakan harian, ledger, analytics, login demo, peta per peran.
+- Tes: 1.292 uji Jest lulus; typecheck dan lint bersih; expo-doctor 21/21.
+- Bukti perangkat putaran 23 Okt: belum ada (lihat `docs/QA_REPORT.md`); pengguna menguji sendiri lewat Expo Go.
 
-## Not done (still PROTO scope)
+## Belum dikerjakan (tetap scope PROTO)
 
-Backend (Laravel/MySQL/Redis/Reverb), server authorization and atomic transactions, device login (TEN-04), background tracking + realtime, push, server PDF, media upload to private storage, Solveit Admin, backup/restore, observability, release performance measurement, fleet/rate-card CRUD. iOS development build: blocked (no macOS/Xcode).
+Backend (Laravel/MySQL/Redis/Reverb), otorisasi server dan transaksi atomik, login perangkat sungguhan (TEN-04), tracking latar belakang + realtime, push, PDF server, upload media ke storage privat, Solveit Admin, backup/restore, observability, pengukuran performa rilis, CRUD armada/tarif, API key Google Maps untuk build Android. iOS development build: terblokir (tanpa macOS/Xcode).
 
-## Repository facts
+## Fakta repository
 
-- Remote `solveit-id/tovv` is public; no branch protection or CI workflow, so local checks are the merge gate.
-- `npm audit`: 17 transitive findings inside the Expo toolchain; the only automated fix downgrades Expo, so it is not applied.
+- Remote `solveit-id/tovv` publik; belum ada proteksi branch atau workflow CI, jadi pemeriksaan lokal adalah gerbang merge.
+- `npm audit`: temuan transitif di toolchain Expo; satu-satunya perbaikan otomatis menurunkan Expo, jadi tidak diterapkan.
+- Port 8081/8083/8090 di laptop pengembang dipakai `wslrelay` (WSL); pakai port lain untuk Metro bila bentrok.
 
-## Open decisions / next steps
+## Keputusan terbuka / langkah berikutnya
 
-1. Backend branch `backend`: scaffold Laravel 13 per ARCHITECTURE, then replace `createDemoApi` with an HTTP adapter of the same `TovvApi` type.
-2. Official Tovv logo to replace the temporary wordmark/icons (`mobile/src/components/brand/wordmark.tsx`, `mobile/scripts/generate-brand-assets.mjs`).
-3. Map provider decision (DEC-08) before replacing `RouteSchematic`.
+1. Hasil uji pengguna di HP (peta, akun, bahasa, tema) → perbaikan bila ada, lalu review desain independen dengan tangkapan layar.
+2. Branch `backend`: scaffold Laravel 13 sesuai ARCHITECTURE, lalu ganti `createDemoApi` dengan adapter HTTP bertipe `TovvApi` yang sama.
+3. Logo resmi Tovv untuk mengganti wordmark sementara (`mobile/src/components/brand/wordmark.tsx`, `mobile/scripts/generate-brand-assets.mjs`).
+4. Provider peta dan biayanya (DEC-08), termasuk API key Google Maps untuk build Android.

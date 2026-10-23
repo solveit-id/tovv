@@ -14,7 +14,7 @@ jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock
 describe('komponen dasar', () => {
   it('status tidak bergantung warna: label aksesibilitas menyebut status dan bentuk garis', async () => {
     await render(<StatusTag look={proofStatus.pending_review} />);
-    expect(screen.getByLabelText('Status: Menunggu pemeriksaan, belum final')).toBeTruthy();
+    expect(screen.getByLabelText('Status: Menunggu dicek, belum final')).toBeTruthy();
     await render(<StatusTag look={quoteStatus.superseded} />);
     expect(screen.getByLabelText('Status: Diganti versi baru, tidak berlaku')).toBeTruthy();
   });

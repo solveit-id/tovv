@@ -11,6 +11,7 @@ import type { QuoteDoc } from '@/data/api/contract';
 import { quoteStatus } from '@/core/i18n/status';
 import { formatDateTime, formatShortDateTime, formatTime, formatUntil } from '@/core/format/time';
 import { formatBps } from '@/core/format/money';
+import { t } from '@/core/i18n';
 
 const CERTAINTY = {
   incomplete: 'Biaya belum lengkap — tidak dapat disebut pasti untung',
@@ -34,45 +35,45 @@ export function QuoteSheet({ q, now, compact }: { q: QuoteDoc; now: string; comp
     <View style={{ gap: space.xs }}>
       <View style={styles.head}>
         <View style={{ gap: 4, flex: 1 }}>
-          <Txt variant="label" tone="inkSecondary">{`Penawaran ${q.id.replace('Q-', '').replace(/-v\d+$/, '')} · v${q.version}`}</Txt>
+          <Txt variant="label" tone="inkSecondary">{t('Penawaran {0} · v{1}', [q.id.replace('Q-', '').replace(/-v\d+$/, ''), q.version])}</Txt>
           <StatusTag look={quoteStatus[q.status]} size="sm" />
         </View>
         {stampFor(q)}
       </View>
-      <Txt variant="caption" tone="inkSecondary">{`Penerbit: ${q.operatorName}${q.termsVersion ? ` · syarat ${q.termsVersion}` : ''}`}</Txt>
+      <Txt variant="caption" tone="inkSecondary">{t('Diterbitkan: {0}{1}', [q.operatorName, q.termsVersion ? ` · syarat ${q.termsVersion}` : ''])}</Txt>
       {!compact
         ? q.items.map((it) => <LineItem key={it.label} label={it.label} value={<Money value={it.amount} />} />)
         : null}
       <Rule strong />
       <LineItem label="Total penawaran" emphasis value={<Money value={q.amount} size="lg" />} />
       {q.priority ? (
-        <Txt variant="bodySm" tone="inkSecondary">{`Prioritas: ${q.priority.commitment}. Bila komitmen gagal: ${q.priority.failureTerms}. Bukan janji kecepatan berkendara.`}</Txt>
+        <Txt variant="bodySm" tone="inkSecondary">{t('Prioritas: {0}. Kalau janji jadwal tidak terpenuhi: {1}. Bukan janji mengebut di jalan.', [q.priority.commitment, q.priority.failureTerms])}</Txt>
       ) : null}
       <Txt variant="caption" tone="inkSecondary">
-        {`${q.unitLabel ?? ''}${q.scheduleStart ? ` · jadwal ${formatShortDateTime(q.scheduleStart)}–${formatTime(q.scheduleEnd)}` : ''}`}
+        {`${q.unitLabel ?? ''}${q.scheduleStart ? t(' · jadwal {0}–{1}', [formatShortDateTime(q.scheduleStart), formatTime(q.scheduleEnd)]) : ''}`}
       </Txt>
       {q.status === 'sent' ? (
         <Txt variant="bodySm" tone="warnInk" style={{ fontWeight: '600' }}>
-          {`Berlaku sampai ${formatDateTime(q.validUntil)} (${formatUntil(q.validUntil, now)}). Penawaran tidak menahan slot; unit dikunci saat disetujui.`}
+          {t('Berlaku sampai {0} ({1}). Penawaran belum memesan unit; unit dikunci setelah disetujui.', [formatDateTime(q.validUntil), formatUntil(q.validUntil, now)])}
         </Txt>
       ) : null}
       {q.assistedConsent ? (
-        <Txt variant="caption" tone="inkSecondary">{`Persetujuan dicatat ${q.assistedConsent.actorName} via ${q.assistedConsent.channel} · ${formatShortDateTime(q.assistedConsent.at)}: ${q.assistedConsent.note}`}</Txt>
+        <Txt variant="caption" tone="inkSecondary">{t('Persetujuan dicatat {0} via {1} · {2}: {3}', [q.assistedConsent.actorName, q.assistedConsent.channel, formatShortDateTime(q.assistedConsent.at), q.assistedConsent.note])}</Txt>
       ) : q.acceptedByName ? (
-        <Txt variant="caption" tone="inkSecondary">{`Disetujui oleh ${q.acceptedByName}`}</Txt>
+        <Txt variant="caption" tone="inkSecondary">{t('Disetujui oleh {0}', [q.acceptedByName])}</Txt>
       ) : null}
-      {q.rejectedReason ? <Txt variant="caption" tone="dangerInk">{`Alasan ditolak: ${q.rejectedReason}`}</Txt> : null}
+      {q.rejectedReason ? <Txt variant="caption" tone="dangerInk">{t('Alasan ditolak: {0}', [q.rejectedReason])}</Txt> : null}
       {q.internal && !compact ? (
         <View style={styles.internal}>
-          <Txt variant="label" tone="inkSecondary">Internal — tidak tampil ke pelanggan</Txt>
+          <Txt variant="label" tone="inkSecondary">Internal — tidak terlihat oleh pelanggan</Txt>
           <LineItem label="Biaya langsung (D)" value={<Money value={q.internal.directCost} missingLabel="belum diisi" />} />
           <LineItem label="Kontribusi estimasi" value={<Money value={q.internal.estimate.contribution} missingLabel="belum lengkap" />} />
-          <LineItem label="Surplus estimasi" hint={q.internal.estimate.marginBps !== null ? `margin ${formatBps(q.internal.estimate.marginBps)}` : undefined} value={<Money value={q.internal.estimate.surplus} missingLabel="belum lengkap" />} />
+          <LineItem label="Perkiraan surplus" hint={q.internal.estimate.marginBps !== null ? `margin ${formatBps(q.internal.estimate.marginBps)}` : undefined} value={<Money value={q.internal.estimate.surplus} missingLabel="belum lengkap" />} />
           <LineItem label="Harga target" value={<Money value={q.internal.estimate.targetPrice} missingLabel="belum lengkap" />} />
           <Txt variant="bodySm" tone={q.internal.estimate.certainty === 'meets_target' ? 'okInk' : 'warnInk'} style={{ fontWeight: '600' }}>
             {CERTAINTY[q.internal.estimate.certainty]}
           </Txt>
-          {q.internal.belowTargetReason ? <Txt variant="caption" tone="inkSecondary">{`Alasan harga di bawah target: ${q.internal.belowTargetReason}`}</Txt> : null}
+          {q.internal.belowTargetReason ? <Txt variant="caption" tone="inkSecondary">{t('Alasan harga di bawah target: {0}', [q.internal.belowTargetReason])}</Txt> : null}
         </View>
       ) : null}
     </View>

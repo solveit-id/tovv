@@ -30,7 +30,7 @@ export function PaymentRequestScreen() {
               <LineItem label="Nominal diminta" value={<Money value={pr.requestedAmount} size="lg" />} />
               <LineItem label="Sisa saat dibuat" value={<Money value={pr.outstandingSnapshot} />} />
               <LineItem label="Berlaku sampai" value={<Txt variant="bodySm">{formatDateTime(pr.expiresAt)}</Txt>} />
-              <Txt variant="caption" tone="inkSecondary">Status permintaan tidak membuktikan dana ada atau tidak ada. Bukti terlambat tetap diperiksa.</Txt>
+              <Txt variant="caption" tone="inkSecondary">Status permintaan ini tidak membuktikan uangnya ada atau tidak. Bukti yang terlambat tetap akan dicek.</Txt>
             </Card>
             {pr.status === 'active' ? <View style={{ alignItems: 'center', marginTop: space.lg }}><InternalQr uri={pr.deepLink} /></View> : null}
             <Card style={{ marginTop: space.lg }}>

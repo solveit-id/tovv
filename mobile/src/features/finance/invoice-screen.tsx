@@ -24,6 +24,7 @@ import { collectionStatus, invoiceStatus, paymentRequestStatus, proofStatus } fr
 import { formatDateTime, formatLocalDate, formatShortDateTime, formatUntil } from '@/core/format/time';
 import { formatRupiah, parseMoneyString } from '@/core/format/money';
 import { useDemoNow } from '@/core/hooks/use-demo-now';
+import { t } from '@/core/i18n';
 
 type SheetK = 'request' | 'credit' | { refund: string } | null;
 
@@ -76,14 +77,14 @@ export function InvoiceScreen() {
   return (
     <Screen
       onRefresh={() => qc.invalidateQueries()}
-      header={<DetailHeader title={d ? `Invoice ${d.alias}` : 'Invoice'} subtitle={d ? d.payerLabel : undefined} />}
+      header={<DetailHeader title={d ? t('Invoice {0}', [d.alias]) : 'Invoice'} subtitle={d ? d.payerLabel : undefined} />}
       footer={
         d && d.allowedActions.includes('submit_proof') ? (
           <Button
-            label={staff ? 'Catat bukti/tunai (dibantu)' : 'Saya sudah bayar — kirim bukti'}
+            label={staff ? 'Catat bukti/tunai (dibantu petugas)' : 'Saya sudah bayar — kirim bukti'}
             icon="file-upload-outline"
             size="lg"
-            accessibilityHint="Bukti menunggu pemeriksaan petugas; tidak langsung melunasi."
+            accessibilityHint={t('Bukti bayar dicek petugas dulu; tagihan tidak langsung lunas.')}
             onPress={() => router.push(`/invoice/${id}/proof`)}
           />
         ) : null
@@ -111,10 +112,10 @@ export function InvoiceScreen() {
                 </View>
                 {inv.collection === 'settled' ? <Stamp label="DITERIMA (DEMO)" tone="ok" detail={inv.fullyCredited ? 'dikreditkan penuh' : 'bukan bukti bank'} /> : null}
               </View>
-              <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.sm }}>{`Penerbit ${inv.operatorName} · dokumen DEMO, bukan faktur pajak`}</Txt>
+              <Txt variant="caption" tone="inkSecondary" style={{ marginTop: space.sm }}>{t('Diterbitkan {0} · dokumen DEMO, bukan faktur pajak', [inv.operatorName])}</Txt>
               <View style={styles.dates}>
                 <View style={{ flex: 1 }}><Txt variant="label" tone="inkSecondary">Terbit</Txt><Txt variant="bodySm">{formatDateTime(inv.issuedAt)}</Txt></View>
-                <View style={{ flex: 1 }}><Txt variant="label" tone="inkSecondary">Jatuh tempo</Txt><Txt variant="bodySm" tone={inv.overdueDays ? 'dangerInk' : 'ink'}>{`${formatLocalDate(inv.dueDate)}${inv.overdueDays ? ` · lewat ${inv.overdueDays} hari` : ''}`}</Txt></View>
+                <View style={{ flex: 1 }}><Txt variant="label" tone="inkSecondary">Jatuh tempo</Txt><Txt variant="bodySm" tone={inv.overdueDays ? 'dangerInk' : 'ink'}>{`${formatLocalDate(inv.dueDate)}${inv.overdueDays ? t(' · lewat {0} hari', [inv.overdueDays]) : ''}`}</Txt></View>
               </View>
               <Rule />
               {inv.items.map((it) => <LineItem key={it.label} label={it.label} value={<Money value={it.amount} />} />)}
@@ -133,8 +134,8 @@ export function InvoiceScreen() {
                 <Icon name="bank-off-outline" tone="demoInk" />
                 <View style={{ flex: 1, gap: 2 }}>
                   <Txt variant="bodyStrong" tone="demoInk">{inv.instruction.account}</Txt>
-                  <Txt variant="bodySm" tone="demoInk">{`${inv.instruction.payeeLabel} · versi ${inv.instruction.version}`}</Txt>
-                  <Txt variant="caption" tone="demoInk">Bukan rekening nyata. Jangan mentransfer uang. Tidak ada gateway, QRIS live, atau pemeriksaan bank otomatis.</Txt>
+                  <Txt variant="bodySm" tone="demoInk">{t('{0} · versi {1}', [inv.instruction.payeeLabel, inv.instruction.version])}</Txt>
+                  <Txt variant="caption" tone="demoInk">Ini bukan rekening asli. Jangan transfer uang. Tidak ada gateway, QRIS live, atau pengecekan bank otomatis.</Txt>
                 </View>
               </View>
             </Card>
@@ -152,7 +153,7 @@ export function InvoiceScreen() {
                       <Money value={pr.requestedAmount} />
                     </View>
                     <Txt variant="caption" tone="inkSecondary" style={{ marginTop: 4 }}>
-                      {`Sisa saat dibuat ${formatRupiah(pr.outstandingSnapshot)} · ${pr.status === 'active' ? `berlaku ${formatUntil(pr.expiresAt, now)}` : `berakhir ${formatShortDateTime(pr.expiresAt)}`}. Status permintaan tidak membuktikan ada/tidaknya dana.`}
+                      {t('Sisa saat dibuat {0} · {1}. Status permintaan ini tidak membuktikan uangnya ada atau tidak.', [formatRupiah(pr.outstandingSnapshot), pr.status === 'active' ? `berlaku ${formatUntil(pr.expiresAt, now)}` : `berakhir ${formatShortDateTime(pr.expiresAt)}`])}
                     </Txt>
                     {pr.status === 'active' ? <View style={{ marginTop: space.md, alignItems: 'center' }}><InternalQr uri={pr.deepLink} /></View> : null}
                   </Card>
@@ -169,12 +170,12 @@ export function InvoiceScreen() {
                   <View style={{ flex: 1, gap: 4 }}>
                     <Txt variant="bodyStrong">{`${p.referenceClaimed} · ${p.method === 'cash_demo' ? 'tunai (demo)' : 'transfer (demo)'}`}</Txt>
                     <StatusTag look={proofStatus[p.status]} size="sm" />
-                    <Txt variant="caption" tone="inkSecondary">{`Diajukan ${p.submittedByName} · ${formatShortDateTime(p.receivedAt)}`}</Txt>
+                    <Txt variant="caption" tone="inkSecondary">{t('Diajukan {0} · {1}', [p.submittedByName, formatShortDateTime(p.receivedAt)])}</Txt>
                   </View>
                   <Money value={p.amountClaimed} size="sm" />
                   <Icon name="chevron-right" tone="inkSecondary" />
                 </Pressable>
-              )) : <View style={{ padding: space.lg }}><Txt variant="bodySm" tone="inkSecondary">Belum ada bukti diajukan.</Txt></View>}
+              )) : <View style={{ padding: space.lg }}><Txt variant="bodySm" tone="inkSecondary">Belum ada bukti yang dikirim.</Txt></View>}
             </Card>
 
             {inv.receipts.length ? (
@@ -190,7 +191,7 @@ export function InvoiceScreen() {
                         </View>
                         <Money value={r.amount} />
                       </View>
-                      {r.unapplied !== '0' ? <LineItem label="Kelebihan bayar" hint="Melebihi tagihan; menunggu keputusan dikembalikan atau dipakai tagihan lain" value={<Money value={r.unapplied} tone="warnInk" />} /> : null}
+                      {r.unapplied !== '0' ? <LineItem label="Kelebihan bayar" hint="Lebih dari tagihan; menunggu keputusan dikembalikan atau dipakai untuk tagihan lain" value={<Money value={r.unapplied} tone="warnInk" />} /> : null}
                       {r.refunds.map((f, i) => <LineItem key={i} label="Refund tercatat (demo)" hint={f.recordedAt ? formatShortDateTime(f.recordedAt) : f.status} value={<Money value={`-${f.amount}`} />} />)}
                       {staff && r.unapplied !== '0' ? <Button label="Catat refund demo" variant="secondary" compact onPress={() => open({ refund: r.id }, parseMoneyString(r.unapplied))} style={{ alignSelf: 'flex-start', marginTop: space.sm }} /> : null}
                     </Card>
@@ -233,7 +234,7 @@ export function InvoiceScreen() {
       >
         {sheet === 'request' ? (
           <>
-            <MoneyField label="Nominal diminta" value={amount} onChange={setAmount} helper={`Maksimum sisa ${formatRupiah(outstanding)}. Boleh sebagian.`} />
+            <MoneyField label="Nominal diminta" value={amount} onChange={setAmount} helper={t('Maksimal sisa tagihan {0}. Boleh dibayar sebagian.', [formatRupiah(outstanding)])} />
             <Choice label="Berlaku" value={hours} onChange={setHours} options={[{ value: '4', label: '4 jam' }, { value: '24', label: '24 jam (default demo)' }, { value: '72', label: '72 jam' }]} />
           </>
         ) : (
