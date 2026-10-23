@@ -24,7 +24,7 @@ Diperbarui 23 Oktober 2026. Hanya fakta yang sudah diperiksa. Aturan: `../AGENTS
 - Dua bahasa (Indonesia sumber, Inggris di `core/i18n/en.ts`), mengikuti bahasa HP dan bisa diganti.
 - Adapter demo bertipe (`mobile/src/data/api/demo-api.ts`) di atas fixture F-09: kebijakan server simulasi, daftar tindakan harian, ledger, analytics, login demo, peta per peran.
 - Tes: 1.292 uji Jest lulus; typecheck dan lint bersih; expo-doctor 20/20 (jumlah cek SDK 58).
-- Bukti perangkat putaran 23 Okt: belum ada (lihat `docs/QA_REPORT.md`); pengguna menguji sendiri lewat Expo Go.
+- Perangkat: pengguna melaporkan aplikasi berjalan di iPhone dan Android lewat Expo Go SDK 58 (23 Okt 2026); belum ada tangkapan layar atau review desain independen untuk putaran ini.
 
 ## Belum dikerjakan (tetap scope PROTO)
 

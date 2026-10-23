@@ -16,7 +16,7 @@ Penyesuaian kode: tipe ref ke `ViewInstance`/`ScrollViewInstance`/`TextInputInst
 | `npx expo-doctor` | PASS — 20/20 |
 | `npx expo export --platform ios --platform android` | PASS — bundel Hermes iOS dan Android terbentuk |
 
-Perangkat: belum diuji pada putaran ini; pengguna menguji sendiri lewat Expo Go SDK 58.
+Perangkat: pengguna melaporkan aplikasi sudah berjalan di iPhone dan Android lewat Expo Go SDK 58 (23 Okt 2026; laporan pengguna, tanpa tangkapan layar di repository). Review desain independen belum dijalankan.
 
 ## Putaran 3 — peran, peta, akun, dua bahasa, 2026-10-23
 
