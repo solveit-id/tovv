@@ -10,7 +10,7 @@ Dimiliki, dikembangkan, dan diterbitkan oleh **Solveit Indonesia**.
 
 | Path | Isi |
 |---|---|
-| `mobile/` | Aplikasi React Native + TypeScript (Expo SDK 57, Expo Router) |
+| `mobile/` | Aplikasi React Native + TypeScript (Expo SDK 58, Expo Router) |
 | `docs/` | Dokumentasi; peta isinya di [`docs/README.md`](docs/README.md) |
 | `docs/spec/` | Paket spesifikasi 2.1 (sumber kebenaran scope dan aturan bisnis) |
 | `.ai/` | Status proyek dan serah terima antar-sesi |

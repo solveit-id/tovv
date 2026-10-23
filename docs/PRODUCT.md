@@ -12,7 +12,7 @@ Satu bahasa desain Tovv untuk Android dan iOS (keputusan pengguna 2026-10-21). K
 
 ## Stack
 
-Ditetapkan dokumen paket 2.1 (`ARCHITECTURE.md` ADR-002): React Native + TypeScript strict, Expo development builds + Expo Router, TanStack Query, SQLite/SecureStore. Exact version tahap frontend: Expo SDK 57 (React Native 0.86, React 19.2.3), Node 22. Backend Laravel/MySQL/Redis/Reverb adalah target integrasi berikutnya.
+Ditetapkan dokumen paket 2.1 (`ARCHITECTURE.md` ADR-002): React Native + TypeScript strict, Expo development builds + Expo Router, TanStack Query, SQLite/SecureStore. Exact version tahap frontend: Expo SDK 58 (React Native 0.88, React 19.3), Node 22. Backend Laravel/MySQL/Redis/Reverb adalah target integrasi berikutnya.
 
 ## Users
 

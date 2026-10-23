@@ -2,6 +2,22 @@
 
 Putaran terbaru di atas. Bukti mentah (screenshot) di `.impeccable/review/` (diabaikan Git).
 
+## Putaran 4 — naik ke Expo SDK 58, 2026-10-23
+
+Pemicu: Expo Go di iPhone dan Android pengguna diperbarui ke versi SDK 58 dan menolak membuka proyek SDK 57 ("Project is incompatible with this version of Expo Go"). Di iPhone, Expo Go versi lama tidak bisa dipasang, jadi proyek dinaikkan ke SDK 58 (React Native 0.88, React 19.3, Reanimated 4.7.1, react-native-maps 1.29.11).
+
+Penyesuaian kode: tipe ref ke `ViewInstance`/`ScrollViewInstance`/`TextInputInstance`, tipe `makeStyles` tanpa `StyleSheet.NamedStyles`, `await File.write()`, alias bertipe untuk `MarkerAnimated`, dan solusi sementara mock Reanimated di Jest. Opsi Expo Router yang dihapus di SDK 58 (`initialRouteName`, `initialParams`, `freezeOnBlur`, objek navigasi bersarang) tidak dipakai.
+
+| Pemeriksaan | Hasil |
+|---|---|
+| `npm run typecheck` | PASS |
+| `npm run lint` | PASS (0 error, 0 warning) |
+| `npm test` | PASS — 1.292 uji / 7 suite |
+| `npx expo-doctor` | PASS — 20/20 |
+| `npx expo export --platform ios --platform android` | PASS — bundel Hermes iOS dan Android terbentuk |
+
+Perangkat: belum diuji pada putaran ini; pengguna menguji sendiri lewat Expo Go SDK 58.
+
 ## Putaran 3 — peran, peta, akun, dua bahasa, 2026-10-23
 
 Pemicu: masukan pengguna setelah mencoba di HP — hanya tiga peran (owner, driver, pelanggan), belum ada peta real-time, belum ada splash/masuk/daftar/lupa kata sandi, belum dua bahasa, teks masih kaku, dan penamaan belum konsisten berbahasa Inggris.
