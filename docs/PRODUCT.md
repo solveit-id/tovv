@@ -42,6 +42,7 @@ Tovv mengelola operasi satu operator (unit sendiri dan mitra kelolaan), bukan ma
 - Status kanonik mengikuti PRD §5 (request, quote, execution, assignment, invoice, payment proof, outbox, dll.). Jangan membuat status tunggal "paid".
 - Tidak ada uang nyata, gateway, QRIS live, rekening numerik nyata; instruksi hanya DEMO-NONPAYABLE-A/B. QR internal `tovv-demo://` bukan QRIS.
 - Lokasi: last updated, akurasi dan sumber selalu terlihat; >90 detik = stale; tidak ada koordinat karangan. Peta langsung memakai peta bawaan HP (react-native-maps); posisi truk di demo berasal dari replay sintetis F-06 dan diberi label simulasi.
+- Pemilihan lokasi jemput/tujuan (keputusan pengguna 23 Okt 2026): pencarian alamat lewat layanan peta bawaan HP (Apple/Android, tanpa API key), lokasi HP, pin yang digeser pengguna, tempat tersimpan dan terakhir dipakai, plus patokan untuk sopir. Alamat ketikan tanpa titik peta tetap diterima dan dipastikan operator. Alamat asli hanya tersimpan lokal di HP pada mode demo.
 - Foto: capture_origin kamera vs galeri, original vs overlay, pending upload tidak boleh tampil "terkirim".
 - Kontribusi bukan laba bersih; biaya hilang adalah null, bukan nol.
 - Tahap frontend ini memakai adapter demo deterministik; backend/otorisasi server/transaksi atomik belum ada dan tidak boleh diklaim.
@@ -54,6 +55,7 @@ Tovv mengelola operasi satu operator (unit sendiri dan mitra kelolaan), bukan ma
 - Antarmuka dua bahasa: Indonesia (sumber) dan Inggris, mengikuti bahasa HP dan bisa diganti di Lainnya → Bahasa. Teks ditulis seperti orang berbicara, bukan istilah teknis. Label "DEMO — SIMULASI FRONTEND" wajib terlihat.
 - Masuk, daftar, dan lupa kata sandi pada tahap ini adalah simulasi lokal berlabel demo, bukan autentikasi produksi (TEN-04).
 - Gaya visual: standar super-app/fintech Indonesia yang akrab bagi pengguna, dengan patokan kualitas Gojek/GoPay, Grab/Tokopedia dan Bank Jago/Jenius (keputusan pengguna 2026-10-22, menggantikan arah "Nota Rangkap"). Tema terang dan gelap mengikuti pengaturan sistem.
+- Mode owner dan mode driver dibedakan jelas: mode driver memakai header biru-arang dengan aksen kuning jalan (keputusan pengguna 2026-10-23). Unit derek tampil sebagai ilustrasi vektor milik Tovv sendiri.
 
 ## Evidence on Hand
 

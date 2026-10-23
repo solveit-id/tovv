@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 import { radius, space, type ColorToken } from '@/core/design/tokens';
 import { makeStyles, useColors } from '@/core/design/theme';
-import { useReducedMotion } from '@/core/design/motion';
+import { easeOut, useReducedMotion } from '@/core/design/motion';
 import { Txt } from '@/components/ui/txt';
 import { Icon } from '@/components/ui/icon';
 import { t } from '@/core/i18n';
@@ -25,7 +25,7 @@ export function Stamp({ label, tone = 'ok', detail }: { label: string; tone?: ke
   const reduced = useReducedMotion();
   const look = TONE[tone];
   return (
-    <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(14)} style={[s.wrap, { backgroundColor: c[look.wash] }]} accessible accessibilityLabel={t('Status {0}{1}', [label, detail ? `, ${detail}` : ''])}>
+    <Animated.View entering={reduced ? undefined : ZoomIn.duration(260).easing(easeOut)} style={[s.wrap, { backgroundColor: c[look.wash] }]} accessible accessibilityLabel={t('Status {0}{1}', [label, detail ? `, ${detail}` : ''])}>
       <Icon name={look.icon} size={22} tone={look.ink} />
       <View style={{ flexShrink: 1 }}>
         <Txt variant="label" tone={look.ink} style={{ letterSpacing: 1, fontWeight: '800' }} maxFontSizeMultiplier={1.3}>

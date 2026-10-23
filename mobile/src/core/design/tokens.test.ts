@@ -1,4 +1,4 @@
-import { palettes } from './tokens';
+import { paletteFor, palettes } from './tokens';
 import { contrastRatio } from './contrast';
 
 const AA_TEXT = 4.5;
@@ -32,5 +32,31 @@ describe.each(Object.entries(palettes))('kontras palet %s', (_scheme, c) => {
 
   it('garis tegas cukup terlihat sebagai pemisah non-teks', () => {
     expect(contrastRatio(c.lineStrong, c.surface)).toBeGreaterThanOrEqual(1.6);
+  });
+});
+
+describe.each(['light', 'dark'] as const)('kontras mode driver (%s)', (scheme) => {
+  const c = paletteFor(scheme, 'field');
+  it.each([
+    ['onHero di heroFrom', c.onHero, c.heroFrom],
+    ['onHero di heroTo', c.onHero, c.heroTo],
+    ['onHeroSecondary di heroTo', c.onHeroSecondary, c.heroTo],
+    ['onModeAccent di modeAccent (tombol & pil mode)', c.onModeAccent, c.modeAccent],
+    ['modeAccentInk di modeAccentSoft (tab aktif)', c.modeAccentInk, c.modeAccentSoft],
+    ['modeAccentInk di surface', c.modeAccentInk, c.surface],
+  ])('%s memenuhi AA 4.5:1', (_label, fg, bg) => {
+    expect(contrastRatio(fg, bg)).toBeGreaterThanOrEqual(AA_TEXT);
+  });
+
+  it('kunci palet mode driver sama dengan palet dasar', () => {
+    expect(Object.keys(c).sort()).toEqual(Object.keys(palettes[scheme]).sort());
+  });
+});
+
+describe.each(['light', 'dark'] as const)('kontras mode owner (%s)', (scheme) => {
+  const c = paletteFor(scheme, 'brand');
+  it('modeAccentInk di modeAccentSoft dan onModeAccent di modeAccent', () => {
+    expect(contrastRatio(c.modeAccentInk, c.modeAccentSoft)).toBeGreaterThanOrEqual(AA_TEXT);
+    expect(contrastRatio(c.onModeAccent, c.modeAccent)).toBeGreaterThanOrEqual(AA_TEXT);
   });
 });

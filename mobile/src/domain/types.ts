@@ -121,6 +121,8 @@ export interface Place {
   address: string;
   lat: number | null;
   lng: number | null;
+  /** Patokan atau catatan untuk sopir (mis. "depan minimarket, pagar hijau"). */
+  note?: string | null;
 }
 
 export interface UnitAsset {

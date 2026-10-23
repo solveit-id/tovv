@@ -1,6 +1,6 @@
 import React from 'react';
 import { KeyboardAvoidingView, Platform, View } from 'react-native';
-import Animated, { Extrapolation, FadeInDown, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withDelay, withSpring } from 'react-native-reanimated';
+import Animated, { Extrapolation, FadeInDown, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { radius, space } from '@/core/design/tokens';
 import { makeStyles } from '@/core/design/theme';
@@ -11,8 +11,8 @@ import { HeroBackground } from '@/components/layout/hero-background';
 
 /**
  * Kerangka layar akun (masuk, daftar, lupa kata sandi): latar gradien merek dengan wordmark,
- * lalu kartu putih yang naik dari bawah sambil tegak dari posisi miring (kesan 3D).
- * Saat digulir, judul di atas bergerak lebih lambat dan memudar (parallax).
+ * lalu kartu isi yang naik pelan dari bawah. Saat digulir, judul di atas bergerak sedikit lebih lambat
+ * dan memudar.
  */
 export function AuthShell({ title, subtitle, children, footer }: { title: string; subtitle: string; children: React.ReactNode; footer?: React.ReactNode }) {
   const s = useStyles();
@@ -21,7 +21,7 @@ export function AuthShell({ title, subtitle, children, footer }: { title: string
   const y = useSharedValue(0);
   const rise = useSharedValue(reduced ? 1 : 0);
   React.useEffect(() => {
-    if (!reduced) rise.value = withDelay(120, withSpring(1, { damping: 18, stiffness: 140, mass: 0.9 }));
+    if (!reduced) rise.value = withDelay(80, withTiming(1, { duration: 420, easing: easeOut }));
   }, [reduced, rise]);
 
   const onScroll = useAnimatedScrollHandler((e) => {
@@ -29,11 +29,11 @@ export function AuthShell({ title, subtitle, children, footer }: { title: string
   });
   const heroStyle = useAnimatedStyle(() => ({
     opacity: interpolate(y.value, [0, 160], [1, 0], Extrapolation.CLAMP),
-    transform: [{ translateY: y.value * 0.45 }, { scale: interpolate(y.value, [-120, 0], [1.08, 1], Extrapolation.CLAMP) }],
+    transform: [{ translateY: y.value * 0.35 }],
   }));
   const cardStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(rise.value, [0, 0.4], [0, 1], Extrapolation.CLAMP),
-    transform: [{ perspective: 1000 }, { translateY: (1 - rise.value) * 80 }, { rotateX: `${(1 - rise.value) * 14}deg` }],
+    opacity: interpolate(rise.value, [0, 0.5], [0, 1], Extrapolation.CLAMP),
+    transform: [{ translateY: (1 - rise.value) * 32 }],
   }));
 
   return (
@@ -42,10 +42,10 @@ export function AuthShell({ title, subtitle, children, footer }: { title: string
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <Animated.ScrollView onScroll={onScroll} scrollEventThrottle={16} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
           <Animated.View style={[s.hero, heroStyle]}>
-            <Animated.View entering={reduced ? undefined : FadeInDown.duration(420).easing(easeOut)}>
+            <Animated.View entering={reduced ? undefined : FadeInDown.duration(360).easing(easeOut)}>
               <Wordmark height={40} />
             </Animated.View>
-            <Animated.View entering={reduced ? undefined : FadeInDown.delay(90).duration(420).easing(easeOut)} style={{ gap: space.xs }}>
+            <Animated.View entering={reduced ? undefined : FadeInDown.delay(60).duration(360).easing(easeOut)} style={{ gap: space.xs }}>
               <Txt variant="display" tone="onHero">{title}</Txt>
               <Txt variant="body" tone="onHeroSecondary">{subtitle}</Txt>
             </Animated.View>

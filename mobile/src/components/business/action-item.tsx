@@ -1,11 +1,10 @@
-import React, { useRef } from 'react';
-import { View, type ViewInstance } from 'react-native';
+import React from 'react';
+import { View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useRouter, type Href } from 'expo-router';
 import { radius, space, cardChrome, type ColorToken } from '@/core/design/tokens';
 import { makeStyles, useColors } from '@/core/design/theme';
 import { useEnter } from '@/core/design/motion';
-import { useScrollReveal } from '@/components/layout/use-scroll-reveal';
 import { Txt } from '@/components/ui/txt';
 import { Icon, IconTile } from '@/components/ui/icon';
 import { Money } from '@/components/ui/surface';
@@ -29,16 +28,14 @@ export function ActionItem({ item, index = 0 }: { item: DailyAction; index?: num
   const s = useStyles();
   const c = useColors();
   const entering = useEnter(index);
-  const revealRef = useRef<ViewInstance>(null);
-  const reveal = useScrollReveal(revealRef);
   const sev = SEVERITY[item.severity];
   return (
-    <Animated.View ref={revealRef} onLayout={reveal.onLayout} entering={entering} style={reveal.style}>
+    <Animated.View entering={entering}>
       <PressableScale
         onPress={() => router.push(item.link as Href)}
         accessibilityRole="button"
         accessibilityLabel={t('{0}: {1}. {2}. Penanggung jawab {3}.', [sev.label, item.title, item.reason, item.picName])}
-        accessibilityHint={t('Buka sumber tindakan')}
+        accessibilityHint={t('Buka untuk menyelesaikan')}
         style={s.card}
       >
         <IconTile name={sev.icon} size={40} tone={sev.ink} wash={sev.wash} />

@@ -46,7 +46,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ show }}>
       {children}
       {msg && look ? (
-        <Animated.View key={msg.id} entering={FadeInUp.springify().damping(18)} exiting={FadeOutUp.duration(160)} style={[s.wrap, { top: insets.top + 44 }]} pointerEvents="box-none">
+        <Animated.View key={msg.id} entering={FadeInUp.duration(220)} exiting={FadeOutUp.duration(160)} style={[s.wrap, { top: insets.top + 44 }]} pointerEvents="box-none">
           <Pressable onPress={() => setMsg(null)} accessibilityRole="alert" accessibilityLabel={msg.text} style={s.toast}>
             <IconTile name={look.icon} size={32} tone={look.ink} wash={look.wash} shape="circle" />
             <View style={{ flex: 1 }}>

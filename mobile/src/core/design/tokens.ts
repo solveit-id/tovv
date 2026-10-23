@@ -56,6 +56,27 @@ const light = {
   overlayInk: 'rgba(14, 23, 38, 0.78)',
   legendWash: 'rgba(255, 255, 255, 0.9)',
   skeleton: '#E4E9F1',
+  skeletonGlow: '#F4F7FB',
+
+  // Warna mode: biru merek di mode owner/pelanggan; mode driver menggantinya (lihat fieldOverrides).
+  modeAccent: '#1136D6',
+  modeAccentSoft: '#E8EEFF',
+  modeAccentInk: '#1136D6',
+  onModeAccent: '#FFFFFF',
+
+  // Ilustrasi unit derek (components/brand/tow-truck.tsx). Hanya untuk gambar, bukan teks.
+  illoBody: '#1F4FE0',
+  illoBodyShade: '#1238B8',
+  illoBodyLight: '#5A84FF',
+  illoSteel: '#3A4659',
+  illoSteelLight: '#5B6A80',
+  illoTire: '#161D29',
+  illoRim: '#C9D3E1',
+  illoGlass: '#BFE6FA',
+  illoBeacon: '#FFB020',
+  illoCar: '#FF6B4A',
+  illoCarShade: '#D9482B',
+  illoGround: 'rgba(14, 23, 38, 0.12)',
 };
 
 export type Palette = { [K in keyof typeof light]: string };
@@ -109,12 +130,67 @@ const dark: Palette = {
   cameraGround: '#000000',
   overlayInk: 'rgba(10, 15, 23, 0.82)',
   legendWash: 'rgba(20, 27, 38, 0.9)',
-  skeleton: '#1E2836',
+  skeleton: '#1B2431',
+  skeletonGlow: '#263244',
+
+  modeAccent: '#2F5EF5',
+  modeAccentSoft: '#18264A',
+  modeAccentInk: '#8EAEFF',
+  onModeAccent: '#FFFFFF',
+
+  illoBody: '#3A68FF',
+  illoBodyShade: '#2348D6',
+  illoBodyLight: '#7A9BFF',
+  illoSteel: '#5B6A80',
+  illoSteelLight: '#7A889C',
+  illoTire: '#05080D',
+  illoRim: '#9AA7BA',
+  illoGlass: '#7FCDF0',
+  illoBeacon: '#FFB84D',
+  illoCar: '#FF7A5C',
+  illoCarShade: '#D9583D',
+  illoGround: 'rgba(0, 0, 0, 0.35)',
 };
 
 export const palettes = { light, dark } as const;
 export type Scheme = keyof typeof palettes;
 export type ColorToken = keyof Palette;
+
+/**
+ * Mode tampilan: `brand` (owner dan pelanggan, header biru merek) atau `field` (mode driver: header
+ * biru-arang dengan aksen kuning jalan). Owner yang berpindah ke mode driver langsung melihat bedanya.
+ */
+export type Mode = 'brand' | 'field';
+
+const fieldOverrides: Record<Scheme, Partial<Palette>> = {
+  light: {
+    heroFrom: '#0E1522',
+    heroTo: '#1C2A40',
+    heroGlow: '#F5A524',
+    onHeroSecondary: '#D7DEEA',
+    heroChip: 'rgba(255, 255, 255, 0.12)',
+    modeAccent: '#F5A524',
+    modeAccentSoft: '#FFF1D6',
+    modeAccentInk: '#8A5300',
+    onModeAccent: '#1A1200',
+  },
+  dark: {
+    heroFrom: '#090E17',
+    heroTo: '#172235',
+    heroGlow: '#E8961A',
+    onHeroSecondary: '#CDD6E4',
+    heroChip: 'rgba(255, 255, 255, 0.1)',
+    modeAccent: '#F4BC52',
+    modeAccentSoft: '#33250A',
+    modeAccentInk: '#F4BC52',
+    onModeAccent: '#1A1200',
+  },
+};
+
+/** Palet aktif untuk skema + mode; kunci selalu sama dengan palet dasar. */
+export function paletteFor(scheme: Scheme, mode: Mode): Palette {
+  return mode === 'field' ? { ...palettes[scheme], ...fieldOverrides[scheme] } : palettes[scheme];
+}
 
 export const space = {
   xxs: 2,
@@ -164,8 +240,8 @@ export const type = {
 
 export type TypeVariant = keyof typeof type;
 
-/** Durasi dalam ms. Easing dan pegas ada di motion.ts (bergantung Reanimated). */
-export const duration = { fast: 140, base: 240, slow: 360, count: 700 } as const;
+/** Durasi dalam ms: pendek agar terasa sigap. Easing dan pegas ada di motion.ts (bergantung Reanimated). */
+export const duration = { fast: 120, base: 220, slow: 300, count: 650 } as const;
 
 export const stroke = {
   hairline: 1,
@@ -174,16 +250,16 @@ export const stroke = {
 } as const;
 
 /**
- * Bayangan lembut berarah ke bawah. Di tema gelap bayangan hampir tak terlihat,
- * jadi kartu memakai garis tipis `line` sebagai gantinya (lihat Card).
+ * Bayangan berlapis: satu bayangan rapat di bawah tepi dan satu bayangan lebar yang sangat lembut,
+ * sehingga kartu terlihat terangkat tanpa garis tebal. Di tema gelap bayangan hampir tak terlihat,
+ * jadi kartu memakai garis tipis `line` sebagai gantinya (lihat cardChrome).
  */
 export function elevation(level: 1 | 2 | 3, c: Palette) {
-  const spec = { 1: [0.07, 10, 2], 2: [0.1, 18, 6], 3: [0.18, 26, 10] }[level];
-  const [opacity, blur, y] = spec as [number, number, number];
+  const spec = { 1: [[1, 2, 0.04], [4, 14, 0.06]], 2: [[2, 4, 0.04], [10, 28, 0.09]], 3: [[4, 8, 0.06], [16, 36, 0.16]] }[level];
   const n = parseInt(c.shadow.slice(1), 16);
-  const rgba = `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${opacity})`;
+  const rgb = `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
   // boxShadow (arsitektur baru RN) mengikuti borderRadius di kedua OS; elevation Android tidak selalu.
-  return { boxShadow: `0px ${y}px ${blur}px ${rgba}` };
+  return { boxShadow: spec.map(([y, blur, o]) => `0px ${y}px ${blur}px rgba(${rgb}, ${o})`).join(', ') };
 }
 
 /** Kerangka permukaan kartu: bayangan lembut di tema terang, garis tipis di tema gelap. */

@@ -35,7 +35,7 @@ export function dailyActions(db: DemoDb, actor: Actor, scopes: Set<Scope>, now: 
         push({ sourceType: 'request', sourceId: r.id, type: 'needs_review', title: t('{0} · data belum lengkap', [r.alias]), reason: r.needsReviewReasons.join('; '), picName: dispatcherName, dueAt: null, link: `/request/${r.id}`, severity: 'attention', amount: null }),
       );
       requests.filter((r) => r.status === 'ready_to_quote').forEach((r) =>
-        push({ sourceType: 'request', sourceId: r.id, type: 'ready_to_quote', title: t('{0} · siap diberi harga', [r.alias]), reason: 'Data minimum sudah lengkap; harga dan unit belum ditentukan.', picName: scopes.has('quote.send') ? actor.user.name : ownerName, dueAt: null, link: `/request/${r.id}`, severity: 'info', amount: null }),
+        push({ sourceType: 'request', sourceId: r.id, type: 'ready_to_quote', title: t('{0} · siap diberi harga', [r.alias]), reason: 'Datanya sudah cukup. Tinggal tentukan harga dan unitnya.', picName: scopes.has('quote.send') ? actor.user.name : ownerName, dueAt: null, link: `/request/${r.id}`, severity: 'info', amount: null }),
       );
       requests.filter((r) => r.status === 'quoted').forEach((r) => {
         const q = db.quotes.filter((x) => x.requestId === r.id).sort((a, b) => b.version - a.version)[0];
@@ -44,7 +44,7 @@ export function dailyActions(db: DemoDb, actor: Actor, scopes: Set<Scope>, now: 
         push({
           sourceType: 'quote', sourceId: q.id, type: expired ? 'quote_expired' : 'quote_waiting',
           title: t('{0} · penawaran v{1} {2}', [r.alias, q.version, expired ? 'kedaluwarsa' : 'menunggu pelanggan']),
-          reason: expired ? 'Buat versi baru atau tandai tidak dilanjutkan. Versi lama tidak bisa diterima lagi.' : t('Berlaku sampai {0}.', [formatUntil(q.validUntil, now)]),
+          reason: expired ? 'Penawaran ini sudah lewat batas. Kirim harga baru, atau tandai tidak dilanjutkan.' : t('Berlaku sampai {0}.', [formatUntil(q.validUntil, now)]),
           picName: expired ? dispatcherName : r.parties.orderer, dueAt: q.validUntil, link: `/request/${r.id}`, severity: expired ? 'attention' : 'info', amount: toMoneyString(q.amount),
         });
       });
@@ -52,7 +52,7 @@ export function dailyActions(db: DemoDb, actor: Actor, scopes: Set<Scope>, now: 
     db.orders.filter((o) => o.tenantId === tenant).forEach((o) => {
       const asg = currentAssignment(db, o.id);
       if ((dispatcher || actor.view === 'owner') && asg?.status === 'offered') {
-        push({ sourceType: 'assignment', sourceId: asg.id, type: 'assignment_pending', title: t('{0} · tugas belum diterima', [o.alias]), reason: t('Ditawarkan ke {0}. Belum pasti berangkat.', [userName(db, asg.driverId)]), picName: userName(db, asg.driverId), dueAt: o.scheduleStart, link: `/order/${o.id}`, severity: 'attention', amount: null });
+        push({ sourceType: 'assignment', sourceId: asg.id, type: 'assignment_pending', title: t('{0} · tugas belum diterima', [o.alias]), reason: t('Sudah ditawarkan ke {0}, tapi belum diterima.', [userName(db, asg.driverId)]), picName: userName(db, asg.driverId), dueAt: o.scheduleStart, link: `/order/${o.id}`, severity: 'attention', amount: null });
       }
       if (dispatcher || actor.view === 'owner') {
         db.incidents.filter((i) => i.orderId === o.id && i.status === 'open').forEach((i) =>
@@ -63,17 +63,17 @@ export function dailyActions(db: DemoDb, actor: Actor, scopes: Set<Scope>, now: 
         );
       }
       if ((finance || actor.view === 'owner') && o.status === 'handed_over' && !db.invoices.some((i) => i.orderId === o.id && i.status !== 'void')) {
-        push({ sourceType: 'order', sourceId: o.id, type: 'handover_not_invoiced', title: t('{0} · sudah diserahkan, invoice belum dibuat', [o.alias]), reason: 'Serah-terima tidak berarti lunas; terbitkan invoice dari penawaran yang disetujui.', picName: financeName, dueAt: null, link: `/order/${o.id}`, severity: 'attention', amount: null });
+        push({ sourceType: 'order', sourceId: o.id, type: 'handover_not_invoiced', title: t('{0} · sudah diserahkan, invoice belum dibuat', [o.alias]), reason: 'Mobil sudah diserahkan, tapi tagihannya belum dibuat. Buat invoice dari harga yang disetujui.', picName: financeName, dueAt: null, link: `/order/${o.id}`, severity: 'attention', amount: null });
       }
       if ((finance || actor.view === 'owner') && ['handed_over', 'closed'].includes(o.status) && o.costCompleteness === 'provisional') {
-        push({ sourceType: 'order', sourceId: o.id, type: 'cost_not_final', title: t('{0} · biaya belum final', [o.alias]), reason: 'Kontribusi masih sementara; biaya yang belum ada tidak dihitung nol.', picName: financeName, dueAt: null, link: `/order/${o.id}`, severity: 'info', amount: null });
+        push({ sourceType: 'order', sourceId: o.id, type: 'cost_not_final', title: t('{0} · biaya belum final', [o.alias]), reason: 'Ada biaya yang belum masuk, jadi kontribusi pekerjaan ini masih sementara.', picName: financeName, dueAt: null, link: `/order/${o.id}`, severity: 'info', amount: null });
       }
     });
     if (finance || actor.view === 'owner') {
       db.proofs.filter((p) => (p.status === 'pending_review' || p.status === 'flagged_review') && db.invoices.find((i) => i.id === p.invoiceId)?.tenantId === tenant).forEach((p) => {
         const inv = db.invoices.find((i) => i.id === p.invoiceId)!;
         const alias = db.orders.find((o) => o.id === inv.orderId)?.alias ?? '';
-        push({ sourceType: 'proof', sourceId: p.id, type: 'proof_review', title: t('{0} · bukti bayar perlu dicek', [alias]), reason: p.flagReason ?? 'Bukti belum mengubah saldo sampai dicek petugas yang berwenang.', picName: financeName, dueAt: null, link: `/proof/${p.id}`, severity: p.status === 'flagged_review' ? 'attention' : 'blocker', amount: toMoneyString(p.amountClaimed) });
+        push({ sourceType: 'proof', sourceId: p.id, type: 'proof_review', title: t('{0} · bukti bayar perlu dicek', [alias]), reason: p.flagReason ?? 'Saldo baru berubah setelah bukti ini dicek dan diterima.', picName: financeName, dueAt: null, link: `/proof/${p.id}`, severity: p.status === 'flagged_review' ? 'attention' : 'blocker', amount: toMoneyString(p.amountClaimed) });
       });
       db.invoices.filter((i) => i.tenantId === tenant && i.status === 'issued').forEach((i) => {
         const b = invoiceBalance(db, i.id, now);
@@ -92,14 +92,14 @@ export function dailyActions(db: DemoDb, actor: Actor, scopes: Set<Scope>, now: 
   if (actor.view === 'driver') {
     db.assignments.filter((a) => a.driverId === actor.user.id && a.tenantId === tenant).forEach((a) => {
       const o = db.orders.find((x) => x.id === a.orderId)!;
-      if (a.status === 'offered') push({ sourceType: 'assignment', sourceId: a.id, type: 'assignment_offer', title: t('{0} · tawaran tugas', [o.alias]), reason: 'Terima, atau tolak dengan alasan. Belum pasti berangkat.', picName: actor.user.name, dueAt: o.scheduleStart, link: `/order/${o.id}`, severity: 'blocker', amount: null });
+      if (a.status === 'offered') push({ sourceType: 'assignment', sourceId: a.id, type: 'assignment_offer', title: t('{0} · tawaran tugas', [o.alias]), reason: 'Terima tugas ini, atau tolak dengan alasan singkat.', picName: actor.user.name, dueAt: o.scheduleStart, link: `/order/${o.id}`, severity: 'blocker', amount: null });
     });
   }
 
   if (actor.view === 'customer') {
     const visible = db.requests.filter((r) => r.tenantId === tenant && customerCanSeeRequest(actor.user, r));
     visible.forEach((r) => {
-      if (r.status === 'draft') push({ sourceType: 'request', sourceId: r.id, type: 'draft', title: t('{0} · draf permintaan belum dikirim', [r.alias]), reason: 'Lengkapi lokasi dan foto kondisi, lalu kirim.', picName: actor.user.name, dueAt: null, link: `/request/${r.id}`, severity: 'info', amount: null });
+      if (r.status === 'draft') push({ sourceType: 'request', sourceId: r.id, type: 'draft', title: t('{0} · draf permintaan belum dikirim', [r.alias]), reason: 'Lengkapi lokasi dan foto kondisi mobil, lalu kirim.', picName: actor.user.name, dueAt: null, link: `/request/${r.id}`, severity: 'info', amount: null });
       const q = db.quotes.filter((x) => x.requestId === r.id).sort((a, b) => b.version - a.version)[0];
       if (q && q.status === 'sent' && Date.parse(q.validUntil) > tNow) {
         const canApprove = !actor.user.businessAccountId || (actor.user.b2bRoles ?? []).includes('approver');

@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { space } from '@/core/design/tokens';
-import { useReducedMotion } from '@/core/design/motion';
+import { easeOut, useReducedMotion } from '@/core/design/motion';
 import { Txt } from '@/components/ui/txt';
 import { IconTile } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
@@ -43,7 +43,7 @@ export function ForgotPasswordScreen() {
     <AuthShell title="Lupa kata sandi" subtitle="Tulis email akun Anda. Kami kirimkan tautan untuk membuat kata sandi baru.">
       {sentTo ? (
         <Animated.View entering={reduced ? undefined : FadeIn.duration(240)} style={{ alignItems: 'center', gap: space.md, paddingVertical: space.lg }}>
-          <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(12)}>
+          <Animated.View entering={reduced ? undefined : ZoomIn.duration(300).easing(easeOut)}>
             <IconTile name="email-check-outline" size={72} tone="okInk" wash="okWash" shape="circle" />
           </Animated.View>
           <Txt variant="headline" align="center">Cek email Anda</Txt>

@@ -78,7 +78,7 @@ export function ProofScreen() {
         ) : null
       }
     >
-      <QueryView q={q}>
+      <QueryView q={q} skeleton="detail">
         {(d) => (
           <>
             <Card>

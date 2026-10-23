@@ -141,7 +141,7 @@ export function QuoteBuilderScreen() {
       <Choice label="Jadwal" hideLabel helper="Rentang ±2,5 jam plus jeda 30 menit." value={slot} onChange={(v) => { setSlot(v); setUnitId(null); }} options={presets.map((p, i) => ({ value: String(i), label: p.label }))} />
 
       <SectionTitle title="Unit" />
-      <QueryView q={cands} loadingLabel="Mengecek unit yang cocok…">
+      <QueryView q={cands} skeleton="action" loadingLabel="Mengecek unit yang cocok…">
         {(list) => (
           <View style={{ gap: space.sm }}>
             {list.map((c) => <UnitOption key={c.unitId} c={c} on={unitId === c.unitId} onPress={() => { setUnitId(c.unitId); setErr(null); }} />)}

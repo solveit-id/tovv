@@ -1,11 +1,13 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Appearance, StyleSheet, useColorScheme, type ImageStyle, type TextStyle, type ViewStyle } from 'react-native';
-import { palettes, type Palette, type Scheme } from './tokens';
+import { paletteFor, palettes, type Mode, type Palette, type Scheme } from './tokens';
 
 export type ThemePreference = 'system' | 'light' | 'dark';
 
 interface ThemeValue {
   scheme: Scheme;
+  /** `brand` untuk owner/pelanggan, `field` untuk mode driver. */
+  mode: Mode;
   c: Palette;
   preference: ThemePreference;
   setPreference: (p: ThemePreference) => void;
@@ -26,6 +28,7 @@ function kv(): KV | null {
 
 const ThemeContext = createContext<ThemeValue>({
   scheme: 'light',
+  mode: 'brand',
   c: palettes.light,
   preference: 'system',
   setPreference: () => undefined,
@@ -73,7 +76,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const scheme: Scheme = preference === 'system' ? (system === 'dark' ? 'dark' : 'light') : preference;
-  const value = useMemo(() => ({ scheme, c: palettes[scheme], preference, setPreference }), [scheme, preference, setPreference]);
+  const value = useMemo(() => ({ scheme, mode: 'brand' as Mode, c: palettes[scheme], preference, setPreference }), [scheme, preference, setPreference]);
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+}
+
+/**
+ * Lingkup mode tampilan: semua yang ada di dalamnya memakai palet mode tersebut
+ * (mis. mode driver = header biru-arang dengan aksen kuning). Kunci palet tetap sama.
+ */
+export function ThemeModeScope({ mode, children }: { mode: Mode; children: React.ReactNode }) {
+  const parent = useContext(ThemeContext);
+  const value = useMemo(() => ({ ...parent, mode, c: paletteFor(parent.scheme, mode) }), [parent, mode]);
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
@@ -81,15 +94,15 @@ export const useTheme = () => useContext(ThemeContext);
 export const useColors = () => useContext(ThemeContext).c;
 
 /**
- * Gaya yang bergantung palet: dibuat sekali per skema lalu di-cache, jadi berganti tema
+ * Gaya yang bergantung palet: dibuat sekali per skema + mode lalu di-cache, jadi berganti tema
  * tidak membuat ulang StyleSheet di setiap render.
  */
 type NamedStyles<T> = { [P in keyof T]: ViewStyle | TextStyle | ImageStyle };
 
-export function makeStyles<T extends NamedStyles<T>>(factory: (c: Palette, scheme: Scheme) => T) {
-  const cache: Partial<Record<Scheme, T>> = {};
+export function makeStyles<T extends NamedStyles<T>>(factory: (c: Palette, scheme: Scheme, mode: Mode) => T) {
+  const cache: Partial<Record<`${Scheme}:${Mode}`, T>> = {};
   return function useStyles(): T {
-    const { scheme, c } = useTheme();
-    return (cache[scheme] ??= StyleSheet.create(factory(c, scheme)));
+    const { scheme, mode, c } = useTheme();
+    return (cache[`${scheme}:${mode}`] ??= StyleSheet.create(factory(c, scheme, mode)));
   };
 }
