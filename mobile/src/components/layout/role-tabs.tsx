@@ -7,6 +7,7 @@ import { radius } from '@/core/design/tokens';
 import { makeStyles, useColors } from '@/core/design/theme';
 import { glideSpring, useReducedMotion } from '@/core/design/motion';
 import { Icon } from '@/components/ui/icon';
+import { fontStyle } from '@/components/ui/txt';
 import { useSession } from '@/data/api/provider';
 import type { ViewGroup } from '@/domain/types';
 import { t, tr } from '@/core/i18n';
@@ -56,7 +57,7 @@ export function RoleTabs({ view, tabs }: { view: ViewGroup; tabs: TabDef[] }) {
           minHeight: 64 + insets.bottom,
           paddingTop: 8,
         },
-        tabBarLabelStyle: { fontSize: 12, fontWeight: '600', marginTop: 2, marginBottom: Platform.OS === 'android' ? 6 : 0 },
+        tabBarLabelStyle: { fontSize: 12, fontWeight: '600', marginTop: 2, marginBottom: Platform.OS === 'android' ? 6 : 0, ...fontStyle('600') },
         tabBarAllowFontScaling: true,
         sceneStyle: { backgroundColor: c.bg },
         // Pindah tab = pudar singkat. Tab yang tidak terlihat dibekukan agar tidak ikut menggambar ulang

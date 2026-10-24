@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Linking, StyleSheet, View, type ViewInstance } from 'react-native';
+import { StyleSheet, View, type ViewInstance } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
@@ -22,6 +22,7 @@ import type { CaptureOrigin, MediaStage } from '@/domain/types';
 import { stageLabel, locationSourceLabel } from '@/core/i18n/status';
 import { formatAge, formatDateTime } from '@/core/format/time';
 import { readCaptureLocation, type CaptureLocation } from './location-adapter';
+import { usePermission } from '@/components/feedback/permissions';
 import { persistDerivative, persistOriginal, StorageFullError } from './durable-media';
 import { t } from '@/core/i18n';
 
@@ -47,7 +48,8 @@ export function CameraScreen() {
   const api = useApi();
   const toast = useToast();
   const insets = useSafeAreaInsets();
-  const [perm, requestPerm] = useCameraPermissions();
+  const [perm, , refreshPerm] = useCameraPermissions();
+  const ask = usePermission();
   const camRef = useRef<CameraView>(null);
   const overlayRef = useRef<ViewInstance>(null);
   const [ready, setReady] = useState(false);
@@ -60,18 +62,31 @@ export function CameraScreen() {
   const req = useTovvQuery(['capture-context', p.requestId], (a) => a.getCaptureContext(p.requestId));
   const now = api.now();
 
-  // Izin kamera ditanya sekali saat layar dibuka; bila ditolak, layar penjelasan + alternatif ditampilkan.
+  // Saat layar dibuka: jelaskan dulu lalu minta izin kamera, kemudian izin lokasi untuk keterangan foto.
+  // Bila ditolak, layar penjelasan + alternatif (galeri, tanpa foto) tetap tersedia.
+  const asked = useRef(false);
+  const mounted = useRef(true);
   useEffect(() => {
-    if (perm && !perm.granted && perm.canAskAgain && perm.status === 'undetermined') void requestPerm();
-  }, [perm, requestPerm]);
-
-  useEffect(() => {
-    let alive = true;
-    void readCaptureLocation().then((l) => alive && setLoc(l));
+    mounted.current = true;
     return () => {
-      alive = false;
+      mounted.current = false;
     };
   }, []);
+  useEffect(() => {
+    if (!perm || asked.current) return;
+    asked.current = true;
+    void (async () => {
+      let cameraOk = perm.granted;
+      if (!cameraOk && perm.status === 'undetermined') {
+        cameraOk = await ask('camera');
+        await refreshPerm();
+      }
+      // Lokasi hanya ditanyakan bila kamera diizinkan, supaya tidak muncul dua dialog berturut-turut sia-sia.
+      const locOk = cameraOk ? await ask('location') : false;
+      const l = locOk ? await readCaptureLocation() : null;
+      if (mounted.current) setLoc(l ?? { latitude: null, longitude: null, accuracyM: null, capturedAt: null, source: 'unknown', note: t('Izin lokasi tidak diberikan; foto tetap tersimpan tanpa koordinat.') });
+    })();
+  }, [perm, ask, refreshPerm]);
 
   const effectiveLoc = (): CaptureLocation => {
     if (manual !== 'none' && req.data) {
@@ -95,6 +110,7 @@ export function CameraScreen() {
 
   const importGallery = async () => {
     setError(null);
+    if (!(await ask('photos'))) return;
     const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1, exif: false, allowsEditing: false });
     if (res.canceled || !res.assets[0]) return;
     const a = res.assets[0];
@@ -160,7 +176,7 @@ export function CameraScreen() {
           <Txt variant="body" tone="inkSecondary" align="center">
             Tovv butuh kamera untuk memotret kondisi kendaraan. Kalau tidak diizinkan, Anda masih bisa mengambil foto dari galeri (ditandai sebagai impor) atau lanjut dengan catatan saja.
           </Txt>
-          {perm.canAskAgain ? <Button label="Izinkan kamera" icon="camera-outline" onPress={() => void requestPerm()} /> : <Button label="Buka pengaturan" icon="cog-outline" onPress={() => void Linking.openSettings()} />}
+          <Button label="Izinkan kamera" icon="camera-outline" onPress={() => void ask('camera').then(() => refreshPerm())} />
           <Button label="Ambil dari galeri" icon="image-multiple-outline" variant="secondary" onPress={() => void importGallery()} />
           <Button label="Kembali tanpa foto" variant="quiet" onPress={() => goBack()} />
         </View>

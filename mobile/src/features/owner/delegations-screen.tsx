@@ -19,6 +19,7 @@ import type { StatusLook } from '@/core/i18n/status';
 import { formatDateTime } from '@/core/format/time';
 import { formatRupiah } from '@/core/format/money';
 import { t } from '@/core/i18n';
+import { useDialog } from '@/components/feedback/dialog';
 
 const SCOPES: { value: DelegationScope; label: string; hint: string }[] = [
   { value: 'quote.send', label: 'Kirim penawaran', hint: 'Harga di atas target dan biaya lengkap' },
@@ -42,6 +43,7 @@ export function DelegationsScreen() {
   const api = useApi();
   const q = useTovvQuery(['delegations'], (a) => a.listDelegations());
   const admins = useTovvQuery(['admins'], (a) => a.listAdmins());
+  const dialog = useDialog();
   const revoke = useTovvMutation((a, id: string) => a.revokeDelegation(id), { success: 'Delegasi dicabut; tindakan berikutnya dari penerima delegasi akan ditolak.' });
   const [open, setOpen] = useState(false);
   const [delegate, setDelegate] = useState('');
@@ -83,7 +85,7 @@ export function DelegationsScreen() {
                   </View>
                   <LineItem label="Batas diskon dari target" value={<Txt variant="figure">{formatRupiah(d.limit)}</Txt>} />
                   <LineItem label="Berlaku" value={<Txt variant="caption">{`${formatDateTime(d.effectiveAt)} – ${formatDateTime(d.expiresAt)}`}</Txt>} />
-                  {d.status === 'active' ? <Button label="Cabut sekarang" variant="danger" compact loading={revoke.isPending} onPress={() => revoke.mutate(d.id)} style={{ alignSelf: 'flex-start', marginTop: space.sm }} /> : null}
+                  {d.status === 'active' ? <Button label="Cabut sekarang" variant="danger" compact loading={revoke.isPending} onPress={() => void dialog.confirm({ title: 'Cabut delegasi?', message: 'Penerima delegasi tidak bisa lagi bertindak atas nama Anda.', icon: 'account-cancel-outline', tone: 'danger', confirmLabel: 'Cabut delegasi' }).then((ok) => (ok ? revoke.mutate(d.id) : undefined))} style={{ alignSelf: 'flex-start', marginTop: space.sm }} /> : null}
                 </Card>
               ))}
             </View>

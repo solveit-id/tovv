@@ -13,6 +13,8 @@ import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { useApi } from '@/data/api/provider';
 import { errorMessage, useTovvQuery } from '@/data/api/hooks';
 import { useToast } from '@/components/feedback/toast';
+import { useDialog } from '@/components/feedback/dialog';
+import { formatRupiah } from '@/core/format/money';
 import { QuoteStack } from './quote-doc-view';
 import { useDemoNow } from '@/core/hooks/use-demo-now';
 import { t } from '@/core/i18n';
@@ -35,8 +37,21 @@ export function QuoteScreen() {
   const [endReq, setEndReq] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const dialog = useDialog();
+  const doc = q.data;
 
   const accept = async () => {
+    if (!doc) return;
+    const ok = await dialog.confirm({
+      title: t('Setujui harga {0}?', [formatRupiah(doc.amount)]),
+      message: 'Setelah disetujui, unit dan jadwal dikunci untuk Anda dan operator mulai menugaskan sopir.',
+      points: ['Belum ada pembayaran sekarang', 'Tagihan dikirim setelah pekerjaan selesai'],
+      icon: 'check-decagram-outline',
+      tone: 'ok',
+      confirmLabel: 'Ya, setujui',
+      cancelLabel: 'Periksa lagi',
+    });
+    if (!ok) return;
     setBusy(true);
     setErr(null);
     try {
@@ -50,7 +65,6 @@ export function QuoteScreen() {
     }
   };
 
-  const doc = q.data;
   const canDecide = doc?.allowedActions.includes('accept');
   const needPo = req.data?.businessAccount?.poRequired && !req.data.poRef;
 

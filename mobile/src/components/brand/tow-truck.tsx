@@ -9,7 +9,7 @@ import { Txt } from '@/components/ui/txt';
 import { t, tr } from '@/core/i18n';
 
 /**
- * Ilustrasi unit derek flatbed Tovv (tampak samping, menghadap kanan): kabin biru merek, lampu rotari
+ * Ilustrasi unit towing flatbed Tovv (tampak samping, menghadap kanan): kabin biru merek, lampu rotari
  * kuning, dek baja, dan — bila `loaded` — mobil pelanggan yang diikat di atas dek. Vektor (SVG) dengan
  * warna dari palet aktif, jadi tajam di semua kepadatan layar dan ikut tema terang/gelap.
  */
@@ -83,7 +83,7 @@ export const TowTruckArt = React.memo(function TowTruckArt({ width = 240, loaded
 });
 
 /**
- * Unit derek tampak atas (menghadap ke atas) untuk penanda peta. `body` = warna kabin sesuai status unit.
+ * Unit towing tampak atas (menghadap ke atas) untuk penanda peta. `body` = warna kabin sesuai status unit.
  * Diputar oleh pemanggil sesuai arah gerak.
  */
 export const TowTruckTop = React.memo(function TowTruckTop({ size = 40, body }: { size?: number; body: string }) {
@@ -107,7 +107,7 @@ export const TowTruckTop = React.memo(function TowTruckTop({ size = 40, body }: 
 const ROAD_DASH = 22;
 
 /**
- * Loader bermerek: unit derek berjalan di atas marka jalan yang bergerak. Dipakai saat menunggu yang
+ * Loader bermerek: unit towing berjalan di atas marka jalan yang bergerak. Dipakai saat menunggu yang
  * lebih lama dari sekejap (membuka peta, menyiapkan data, mengirim). Hanya berjalan selama tampil;
  * "kurangi gerakan" = gambar diam dengan teks.
  */

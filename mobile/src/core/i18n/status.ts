@@ -17,6 +17,7 @@ import type {
   ChangeOrderStatus,
   EvidenceCompleteness,
   CostCompleteness,
+  ServiceKind,
 } from '@/domain/types';
 
 /**
@@ -174,6 +175,14 @@ export const channelLabel: Record<Channel, string> = {
   b2b: 'Pelanggan bisnis',
   chat: 'Chat (dicatat petugas)',
   manual: 'Manual',
+};
+
+/** Nama paket layanan (nama produk, sama di kedua bahasa) dan ikonnya. */
+export const serviceLook: Record<ServiceKind, { label: string; icon: string }> = {
+  car_towing: { label: 'Car Towing', icon: 'tow-truck' },
+  car_carrier: { label: 'Car Carrier', icon: 'truck-trailer' },
+  motor_storing: { label: 'Storing Motor', icon: 'motorbike' },
+  self_drive: { label: 'Self Drive', icon: 'steering' },
 };
 
 export const timingLabel = { immediate: 'Segera', scheduled: 'Terjadwal', flexible: 'Fleksibel (rentang waktu)' } as const;

@@ -435,3 +435,28 @@ describe('pemilih lokasi: buku tempat', () => {
     expect(book.recent.some((p) => p.note === 'depan minimarket')).toBe(true);
   });
 });
+
+describe('paket layanan towing', () => {
+  it('empat paket dengan harga contoh "mulai dari" berupa string rupiah bulat', async () => {
+    const { api, as } = setup();
+    as('customer-a1', 'customer');
+    const list = await api.listServicePackages();
+    expect(list.map((p) => p.kind)).toEqual(['car_towing', 'car_carrier', 'motor_storing', 'self_drive']);
+    list.forEach((p) => {
+      expect(p.startFrom).toMatch(/^\d+$/);
+      expect(p.bestFor.length).toBeGreaterThan(0);
+    });
+    expect(list.find((p) => p.kind === 'motor_storing')?.vehicleClass).toBe('motorcycle');
+  });
+
+  it('paket yang dipilih tersimpan di permintaan; data lama tanpa paket dianggap Car Towing', async () => {
+    const { api, as } = setup();
+    as('admin-a1', 'admin');
+    const req = await api.createRequest({ ...newPhoneRequest, idempotencyKey: 'svc-1', service: 'car_carrier' });
+    expect(req.service).toBe('car_carrier');
+    const plain = await api.createRequest({ ...newPhoneRequest, idempotencyKey: 'svc-2' });
+    expect(plain.service).toBe('car_towing');
+    const orders = await api.listOrders('active');
+    orders.forEach((o) => expect(['car_towing', 'car_carrier', 'motor_storing', 'self_drive']).toContain(o.service));
+  });
+});

@@ -11,12 +11,13 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Card, Money, SectionTitle } from '@/components/ui/surface';
 import { CountUpMoney, HeroCard, HeroStats, ShortcutGrid } from '@/components/ui/summary';
-import { QueryView, EmptyBlock } from '@/components/ui/states';
+import { QueryView, EmptyBlock, LoadingBlock } from '@/components/ui/states';
+import { useDeferred } from '@/core/hooks/use-deferred';
 import { TowTruckArt } from '@/components/brand/tow-truck';
 import { useTovvQuery } from '@/data/api/hooks';
-import { useApiState } from '@/data/api/provider';
 import type { OrderSummary } from '@/data/api/contract';
 import { DailyActionsBlock } from '@/features/home/daily-actions-block';
+import { useModeSwitch } from '@/features/home/use-mode-switch';
 import { HeaderActions } from '@/features/home/header-actions';
 import { OrderRow } from '@/features/orders/order-row';
 import { useDemoNow } from '@/core/hooks/use-demo-now';
@@ -65,8 +66,9 @@ function DriveModeCardBody({ job, onPress }: { job: OrderSummary | undefined; on
 export function OwnerHome() {
   const router = useRouter();
   const qc = useQueryClient();
-  const { switchView } = useApiState();
+  const switchMode = useModeSwitch();
   const now = useDemoNow();
+  const later = useDeferred();
   const session = useTovvQuery(['session'], (api) => api.getSession());
   const summary = useTovvQuery(['owner-summary'], (api) => api.getOwnerSummary());
   const active = useTovvQuery(['orders', 'active'], (api) => api.listOrders('active'));
@@ -125,12 +127,12 @@ export function OwnerHome() {
         ]}
       />
 
-      {canDrive ? <DriveModeCard job={myDrive} onPress={() => void switchView('driver').then(() => router.replace('/driver'))} /> : null}
+      {canDrive ? <DriveModeCard job={myDrive} onPress={() => void switchMode('driver')} /> : null}
 
-      <DailyActionsBlock limit={3} />
+      {later ? <DailyActionsBlock limit={3} /> : <LoadingBlock kind="action" rows={2} />}
 
       <SectionTitle title="Pekerjaan yang sedang jalan" count={active.data?.length} action={<Button label="Semua" variant="quiet" compact onPress={() => router.push('/owner/jobs')} />} />
-      <QueryView q={active} skeleton="order" skeletonRows={2}>
+      <QueryView q={active} ready={later} skeleton="order" skeletonRows={2}>
         {(list) =>
           list.length ? (
             list.slice(0, 4).map((o, i) => <OrderRow key={o.id} o={o} index={i} />)

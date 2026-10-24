@@ -1,23 +1,25 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import MapView, { PROVIDER_DEFAULT, type Region } from 'react-native-maps';
 import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { radius, space, type, cardChrome, type ColorToken } from '@/core/design/tokens';
 import { makeStyles, useTheme } from '@/core/design/theme';
 import { glideSpring, useReducedMotion } from '@/core/design/motion';
-import { Txt } from '@/components/ui/txt';
+import { Txt, fontStyle } from '@/components/ui/txt';
 import { Icon, IconTile } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/form';
 import { PressableScale } from '@/components/ui/pressable-scale';
 import { HeaderIconButton } from '@/components/layout/app-header';
-import { useToast } from '@/components/feedback/toast';
+import { ToastProvider, useToast } from '@/components/feedback/toast';
+import { DialogProvider } from '@/components/feedback/dialog';
 import type { PlaceBook } from '@/data/api/contract';
 import type { Place } from '@/domain/types';
 import { DARK_MAP_STYLE, LIGHT_MAP_STYLE } from '@/features/map/map-style';
 import { t, tr } from '@/core/i18n';
 import { currentPoint, ensureGeocoderAccess, placeFromPoint, useAddressSearch } from './geocode';
+import { usePermission } from '@/components/feedback/permissions';
 import { DemoStrip } from '@/components/layout/demo-strip';
 
 export type PlaceField = 'pickup' | 'dropoff';
@@ -74,7 +76,12 @@ export function PlacePicker({ field, initial, book, onClose, onPick }: { field: 
       statusBarTranslucent
       navigationBarTranslucent
     >
-      <PickerBody key={field} field={field} initial={initial} book={book} onClose={onClose} onPick={onPick} backRef={backRef} />
+      {/* Modal adalah jendela terpisah: dialog izin dan toast harus dirender di dalamnya agar terlihat (iOS). */}
+      <ToastProvider>
+        <DialogProvider>
+          <PickerBody key={field} field={field} initial={initial} book={book} onClose={onClose} onPick={onPick} backRef={backRef} />
+        </DialogProvider>
+      </ToastProvider>
     </Modal>
   );
 }
@@ -88,7 +95,9 @@ function PickerBody({ field, initial, book, onClose, onPick, backRef }: { field:
   const [query, setQuery] = useState('');
   const [confirm, setConfirm] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
-  const search = useAddressSearch(confirm ? '' : query);
+  const ask = usePermission();
+  const [nonce, setNonce] = useState(0);
+  const search = useAddressSearch(confirm ? '' : query, nonce);
 
   // Back Android: dari konfirmasi pin kembali ke pencarian dulu.
   useEffect(() => {
@@ -107,6 +116,7 @@ function PickerBody({ field, initial, book, onClose, onPick, backRef }: { field:
   }, [query, book]);
 
   const locateMe = async () => {
+    if (!(await ask('location'))) return;
     setLocating(true);
     const p = await currentPoint().catch(() => null);
     setLocating(false);
@@ -163,7 +173,7 @@ function PickerBody({ field, initial, book, onClose, onPick, backRef }: { field:
                 keyboardAppearance={scheme}
                 returnKeyType="search"
                 accessibilityLabel={tr(copy.search)}
-                style={s.searchInput}
+                style={[s.searchInput, fontStyle('500')]}
               />
               {query ? (
                 <Pressable onPress={() => setQuery('')} hitSlop={10} accessibilityRole="button" accessibilityLabel={tr('Hapus teks')}>
@@ -197,7 +207,10 @@ function PickerBody({ field, initial, book, onClose, onPick, backRef }: { field:
                       <Txt variant="bodySm" tone="inkSecondary" style={s.note}>Alamatnya belum ketemu. Coba tulis nama jalan dan kotanya, atau pilih di peta.</Txt>
                     )
                   ) : search.status === 'denied' ? (
-                    <Txt variant="bodySm" tone="inkSecondary" style={s.note}>Izinkan akses lokasi supaya alamat bisa dicari, atau pilih langsung di peta.</Txt>
+                    <View style={s.note}>
+                      <Txt variant="bodySm" tone="inkSecondary">Izinkan akses lokasi supaya alamat bisa dicari, atau pilih langsung di peta.</Txt>
+                      <Button label="Izinkan lokasi" icon="map-marker-check-outline" variant="secondary" compact style={{ alignSelf: 'flex-start', marginTop: space.sm }} onPress={() => void ask('location').then((ok) => ok && setNonce((n) => n + 1))} />
+                    </View>
                   ) : search.status === 'unavailable' ? (
                     <Txt variant="bodySm" tone="inkSecondary" style={s.note}>Pencarian alamat belum bisa dipakai di HP ini. Pilih di peta, atau pakai alamat yang Anda ketik.</Txt>
                   ) : null}
@@ -255,11 +268,18 @@ function PinConfirm({ field, start, initialNote, onBack, onConfirm, scheme }: { 
   const seq = useRef(0);
   const copy = COPY[field];
 
+  const ask = usePermission();
   const [access, setAccess] = useState(false);
-  // Di Android alamat baru bisa dibaca setelah izin lokasi; minta sekali saat konfirmasi pin dibuka.
+  // Di Android alamat baru bisa dibaca setelah izin lokasi; jelaskan dan minta sekali saat konfirmasi pin dibuka.
+  const askedAccess = useRef(false);
   useEffect(() => {
-    void ensureGeocoderAccess(true).then(setAccess);
-  }, []);
+    if (askedAccess.current) return;
+    askedAccess.current = true;
+    void (async () => {
+      if (await ensureGeocoderAccess(false)) return setAccess(true);
+      if (Platform.OS === 'android') setAccess(await ask('location'));
+    })();
+  }, [ask]);
 
   useEffect(() => {
     const id = ++seq.current;
@@ -288,6 +308,7 @@ function PinConfirm({ field, start, initialNote, onBack, onConfirm, scheme }: { 
   };
 
   const recenter = async () => {
+    if (!(await ask('location'))) return;
     const p = await currentPoint().catch(() => null);
     if (p === 'denied' || !p) {
       toast.show(t('Lokasi HP belum bisa dibaca.'), 'info');

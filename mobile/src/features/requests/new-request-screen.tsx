@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { BackHandler, View } from 'react-native';
 import Animated, { FadeInLeft, FadeInRight, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, usePreventRemove, useRouter } from 'expo-router';
 import { radius, space } from '@/core/design/tokens';
 import { makeStyles } from '@/core/design/theme';
 import { easeOut, useReducedMotion } from '@/core/design/motion';
@@ -16,11 +16,14 @@ import { RouteRail } from '@/components/business/route-rail';
 import { useApi, useSession } from '@/data/api/provider';
 import { errorMessage, useTovvQuery } from '@/data/api/hooks';
 import { useToast } from '@/components/feedback/toast';
+import { useDialog } from '@/components/feedback/dialog';
 import { ApiError } from '@/data/api/contract';
-import type { Channel, Place, TimingKind } from '@/domain/types';
+import type { Channel, Place, ServiceKind, TimingKind } from '@/domain/types';
 import { addMinutes, formatShortDateTime, timePresets } from '@/core/format/time';
 import { t } from '@/core/i18n';
 import { PlacePicker, type PlaceField } from './place-picker';
+import { ServicePicker } from '@/features/services/service-picker';
+import { formatRupiah } from '@/core/format/money';
 import { RouteCard } from './route-card';
 
 /** Kunci idempotensi per layar formulir: kirim ulang (mis. setelah jaringan putus) tidak membuat request ganda. */
@@ -35,7 +38,10 @@ const toNum = (s: string) => {
 
 type Step = 'customer' | 'route' | 'vehicle' | 'time' | 'review';
 
-const STEP_LABEL: Record<Step, string> = { customer: 'Pelanggan', route: 'Lokasi', vehicle: 'Kendaraan', time: 'Waktu', review: 'Periksa' };
+const STEP_LABEL: Record<Step, string> = { customer: 'Pelanggan', route: 'Lokasi', vehicle: 'Layanan', time: 'Waktu', review: 'Periksa' };
+
+const SERVICE_KINDS: ServiceKind[] = ['car_towing', 'car_carrier', 'motor_storing', 'self_drive'];
+const asService = (v: string | undefined): ServiceKind => (SERVICE_KINDS.includes(v as ServiceKind) ? (v as ServiceKind) : 'car_towing');
 
 const VEHICLE_TYPES = [
   { value: 'Sedan', label: 'Sedan', icon: 'car-side' },
@@ -45,6 +51,15 @@ const VEHICLE_TYPES = [
   { value: 'Minibus / van', label: 'Minibus / van', icon: 'van-passenger' },
   { value: 'other', label: 'Lainnya', icon: 'dots-horizontal' },
 ];
+
+const MOTOR_TYPES = [
+  { value: 'Moge (motor besar)', label: 'Moge (motor besar)', icon: 'motorbike' },
+  { value: 'Motor sport', label: 'Motor sport', icon: 'motorbike' },
+  { value: 'Skuter / matik', label: 'Skuter / matik', icon: 'moped' },
+  { value: 'other', label: 'Lainnya', icon: 'dots-horizontal' },
+];
+
+const MOTOR_CONDITIONS = ['Mogok, tidak bisa jalan', 'Habis jatuh atau kecelakaan', 'Ban rusak atau bocor', 'Sehat, hanya perlu dipindah'].map((x) => ({ value: x, label: x }));
 
 const CONDITIONS = [
   'Mogok, tidak bisa jalan',
@@ -99,7 +114,7 @@ function SummaryBlock({ icon, title, onEdit, children }: { icon: string; title: 
 }
 
 /**
- * Pesan derek (pelanggan) / catat permintaan (owner) sebagai formulir bertahap: lokasi → kendaraan →
+ * Pesan towing (pelanggan) / catat permintaan (owner) sebagai formulir bertahap: lokasi → kendaraan →
  * waktu → periksa (owner mulai dari pelanggan & kanal). ORD-01–ORD-04. Berat/dimensi kosong tidak
  * ditebak: permintaan menjadi "perlu dicek". Lokasi dipilih seperti aplikasi ojek online.
  */
@@ -110,7 +125,11 @@ export function NewRequestScreen() {
   const toast = useToast();
   const session = useSession();
   const reduced = useReducedMotion();
-  const params = useLocalSearchParams<{ pick?: string }>();
+  const params = useLocalSearchParams<{ pick?: string; service?: string }>();
+  const packages = useTovvQuery(['service-packages'], (a) => a.listServicePackages());
+  const [service, setService] = useState<ServiceKind>(() => asService(params.service));
+  const pkg = packages.data?.find((p) => p.kind === service);
+  const motor = service === 'motor_storing';
   const staff = session?.view === 'owner' || session?.view === 'admin';
   const customers = useTovvQuery(['customers'], (a) => a.listCustomers(), { enabled: staff });
   const me = useTovvQuery(['session'], (a) => a.getSession());
@@ -136,6 +155,8 @@ export function NewRequestScreen() {
     return () => clearTimeout(timer);
   }, [params.pick]);
   const [vehicleType, setVehicleType] = useState<string[]>([]);
+  const [carCount, setCarCount] = useState('1');
+  const [drivable, setDrivable] = useState(false);
   const [otherType, setOtherType] = useState('');
   const [plate, setPlate] = useState('');
   const [conditions, setConditions] = useState<string[]>([]);
@@ -161,7 +182,14 @@ export function NewRequestScreen() {
   const ordererName = staff ? (cust?.name ?? '') : (me.data?.userName ?? '');
   const bizName = staff ? cust?.businessAccountName : me.data?.businessAccountName;
   const vehicleLabel = vehicleType[0] === 'other' ? otherType.trim() : (vehicleType[0] ?? '');
-  const condition = [...conditions, conditionNote.trim()].filter(Boolean).join('. ');
+  const condition = [
+    service === 'car_carrier' && Number(carCount) > 1 ? t('Jumlah mobil: {0}', [Number(carCount)]) : '',
+    service === 'self_drive' ? (drivable ? t('Pelanggan memastikan mobil layak dikemudikan') : '') : '',
+    ...(service === 'self_drive' ? [] : conditions),
+    conditionNote.trim(),
+  ]
+    .filter(Boolean)
+    .join('. ');
   const start = presets[Number(startIdx)]?.start ?? presets[0]!.start;
 
   const go = (to: number) => {
@@ -169,6 +197,20 @@ export function NewRequestScreen() {
     setDir(to > index ? 1 : -1);
     setIndex(to);
   };
+
+  // Keluar dari formulir yang sudah diisi (tombol kembali, gesture, Back) selalu ditanyakan dulu.
+  const dialog = useDialog();
+  const [discarded, setDiscarded] = useState(false);
+  const dirty = !!(pickup || dropoff || customerId || vehicleType.length || plate.trim() || conditions.length || conditionNote.trim() || drivable || carCount !== '1' || service !== asService(params.service));
+  const allowLeave = usePreventRemove(dirty && !discarded, ({ repeat }) => {
+    void dialog
+      .confirm({ title: 'Buang isian permintaan?', message: 'Lokasi dan data kendaraan yang sudah diisi akan hilang.', icon: 'file-remove-outline', tone: 'warn', confirmLabel: 'Buang dan keluar', cancelLabel: 'Lanjut mengisi' })
+      .then((ok) => {
+        if (!ok) return;
+        setDiscarded(true);
+        repeat();
+      });
+  });
 
   // Tombol Back Android: mundur satu langkah dulu, baru keluar dari formulir.
   useEffect(() => {
@@ -189,6 +231,7 @@ export function NewRequestScreen() {
     }
     if (st === 'vehicle') {
       if (!vehicleLabel) return t('Pilih jenis kendaraannya.');
+      if (service === 'self_drive' && !drivable) return t('Self Drive hanya untuk mobil yang layak dikemudikan. Centang pernyataannya, atau pilih Car Towing.');
       if (!plate.trim()) return t('Isi nomor polisinya.');
     }
     return null;
@@ -214,6 +257,7 @@ export function NewRequestScreen() {
     setBusy(asDraft ? 'draft' : 'send');
     try {
       const r = await api.createRequest({
+        service,
         channel,
         customerUserId: staff ? customerId : null,
         businessAccountId: staff ? (cust?.businessAccountId ?? null) : null,
@@ -232,7 +276,8 @@ export function NewRequestScreen() {
         asDraft,
         idempotencyKey: idem,
       });
-      toast.show(
+      // Pelanggan mendapat dialog "apa yang terjadi berikutnya"; toast dipakai untuk owner dan draf.
+      if (staff || asDraft) toast.show(
         r.status === 'needs_review'
           ? t('{0} tercatat. Masih perlu dilengkapi: {1}.', [r.alias, r.needsReviewReasons.join(', ').toLowerCase()])
           : asDraft
@@ -242,6 +287,18 @@ export function NewRequestScreen() {
               : t('Permintaan {0} terkirim. Kami kabari begitu harganya siap.', [r.alias]),
         'ok',
       );
+      setDiscarded(true);
+      allowLeave();
+      if (!staff && !asDraft) {
+        await dialog.inform({
+          title: t('Permintaan {0} terkirim', [r.alias]),
+          message: 'Ini yang terjadi berikutnya:',
+          points: ['Operator mengecek lokasi dan kendaraan Anda', 'Anda menerima harga untuk disetujui', 'Belum ada yang perlu dibayar sekarang'],
+          icon: 'check-circle-outline',
+          tone: 'ok',
+          confirmLabel: 'Lihat permintaan',
+        });
+      }
       router.replace(`/request/${r.id}`);
     } catch (e) {
       setErr(errorMessage(e));
@@ -260,7 +317,7 @@ export function NewRequestScreen() {
       scrollKey={step}
       header={
         <View>
-          <DetailHeader title={staff ? 'Catat permintaan' : 'Pesan derek'} subtitle={t('Langkah {0} dari {1} · {2}', [index + 1, steps.length, t(STEP_LABEL[step])])} />
+          <DetailHeader title={staff ? 'Catat permintaan' : 'Pesan towing'} subtitle={t('Langkah {0} dari {1} · {2}', [index + 1, steps.length, t(STEP_LABEL[step])])} />
           <StepProgress steps={steps} index={index} />
         </View>
       }
@@ -335,11 +392,34 @@ export function NewRequestScreen() {
 
         {step === 'vehicle' ? (
           <>
-            <Txt variant="title" style={s.q}>Mobil apa yang diderek?</Txt>
-            <ChipSelect label="Jenis kendaraan" options={VEHICLE_TYPES} value={vehicleType} onChange={setVehicleType} />
+            <Txt variant="title" style={s.q}>Pakai layanan apa?</Txt>
+            {packages.data ? (
+              <ServicePicker
+                packages={packages.data}
+                value={service}
+                onChange={(k) => {
+                  if ((k === 'motor_storing') !== motor) setVehicleType([]);
+                  setService(k);
+                }}
+              />
+            ) : null}
+            {pkg ? (
+              <View style={s.svcNote}>
+                <Icon name="information-outline" size={16} tone="accentInk" />
+                <Txt variant="caption" style={{ flex: 1 }}>{pkg.description}</Txt>
+              </View>
+            ) : null}
+            <ChipSelect label={motor ? 'Jenis motor' : 'Jenis mobil'} options={motor ? MOTOR_TYPES : VEHICLE_TYPES} value={vehicleType} onChange={setVehicleType} />
             {vehicleType[0] === 'other' ? <Field label="Tulis jenisnya" value={otherType} onChangeText={setOtherType} placeholder="mis. truk kecil, mobil listrik" /> : null}
             <Field label="Nomor polisi" value={plate} onChangeText={setPlate} autoCapitalize="characters" placeholder="mis. L 1234 AB" icon="card-text-outline" />
-            <ChipSelect label="Kondisinya sekarang" options={CONDITIONS} value={conditions} onChange={setConditions} multi />
+            {service === 'car_carrier' ? <Field label="Berapa mobil yang dikirim?" value={carCount} onChangeText={(v) => setCarCount(v.replace(/[^\d]/g, '').slice(0, 2))} keyboardType="number-pad" helper="Isi 1 bila hanya satu mobil." /> : null}
+            {service === 'self_drive' ? (
+              <Card padded={false} style={{ marginBottom: space.lg }}>
+                <Toggle label="Mobil layak dikemudikan" hint="Rem, lampu, dan ban aman. Kalau mogok, pilih Car Towing." value={drivable} onChange={setDrivable} />
+              </Card>
+            ) : (
+              <ChipSelect label="Kondisinya sekarang" options={motor ? MOTOR_CONDITIONS : CONDITIONS} value={conditions} onChange={setConditions} multi />
+            )}
             <Field label="Catatan kondisi (boleh dikosongkan)" value={conditionNote} onChangeText={setConditionNote} multiline placeholder="mis. setir berat, mobil ada di basement lantai 2" />
             <Card padded={false} style={{ marginBottom: space.lg }}>
               <Toggle label="Saya tahu berat dan ukurannya" hint="Boleh dilewati. Operator akan menanyakannya sebelum memberi harga." value={showSize} onChange={setShowSize} />
@@ -358,7 +438,7 @@ export function NewRequestScreen() {
 
         {step === 'time' ? (
           <>
-            <Txt variant="title" style={s.q}>Kapan derek dibutuhkan?</Txt>
+            <Txt variant="title" style={s.q}>Kapan towing dibutuhkan?</Txt>
             <Choice
               label="Waktu"
               hideLabel
@@ -392,7 +472,11 @@ export function NewRequestScreen() {
                 {pickup.note || dropoff.note ? <Txt variant="caption" tone="accentInk">{[pickup.note && t('Jemput: {0}', [pickup.note]), dropoff.note && t('Tujuan: {0}', [dropoff.note])].filter(Boolean).join(' · ')}</Txt> : null}
               </SummaryBlock>
             ) : null}
-            <SummaryBlock icon="car-side" title="Kendaraan" onEdit={() => go(steps.indexOf('vehicle'))}>
+            <SummaryBlock icon="tow-truck" title="Layanan" onEdit={() => go(steps.indexOf('vehicle'))}>
+              <Txt variant="bodyStrong">{pkg?.name ?? service}</Txt>
+              {pkg ? <Txt variant="caption" tone="inkSecondary">{t('Mulai dari {0} {1} (harga contoh DEMO). Harga pasti dikirim operator.', [formatRupiah(pkg.startFrom), pkg.priceUnit])}</Txt> : null}
+            </SummaryBlock>
+            <SummaryBlock icon={motor ? 'motorbike' : 'car-side'} title="Kendaraan" onEdit={() => go(steps.indexOf('vehicle'))}>
               <Txt variant="bodyStrong">{`${vehicleLabel} · ${plate.trim().toUpperCase()}`}</Txt>
               <Txt variant="caption" tone="inkSecondary">{condition || t('Kondisi belum dijelaskan')}</Txt>
               {!weight || !length || !width ? <Txt variant="caption" tone="warnInk">Berat atau ukuran belum diisi, jadi operator akan menanyakannya dulu.</Txt> : null}
@@ -461,5 +545,6 @@ const useStyles = makeStyles((c) => ({
   parties: { paddingHorizontal: space.lg, paddingTop: space.sm },
   sumHead: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginBottom: space.xs },
   err: { flexDirection: 'row', gap: 6, alignItems: 'flex-start' },
+  svcNote: { flexDirection: 'row', gap: space.sm, alignItems: 'flex-start', padding: space.md, marginTop: -space.sm, marginBottom: space.lg, borderRadius: radius.md, backgroundColor: c.accentSoft },
   footRow: { flexDirection: 'row', gap: space.sm },
 }));

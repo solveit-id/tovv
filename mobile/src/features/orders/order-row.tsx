@@ -12,7 +12,8 @@ import { StatusTag } from '@/components/ui/status-tag';
 import { StageTicks } from '@/components/business/stage-line';
 import { RouteRail } from '@/components/business/route-rail';
 import type { OrderSummary, TimelineEntry } from '@/data/api/contract';
-import { executionStatus, EXECUTION_FLOW } from '@/core/i18n/status';
+import { executionStatus, EXECUTION_FLOW, serviceLook } from '@/core/i18n/status';
+import { EtaStrip } from '@/features/home/eta-strip';
 import { formatShortDateTime, formatTime } from '@/core/format/time';
 import { t } from '@/core/i18n';
 
@@ -53,8 +54,9 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
       >
         <View style={s.head}>
           <Txt variant="titleSm">{o.alias}</Txt>
-          <StatusTag look={look} size="sm" />
-          <View style={{ flex: 1 }} />
+          <View style={s.tag}>
+            <StatusTag look={look} size="sm" />
+          </View>
           {o.incidentOpen ? <Icon name="alert-octagon" size={18} tone="dangerInk" /> : null}
           {o.changeOrderPending ? <Icon name="cash-plus" size={18} tone="warnInk" /> : null}
           <Icon name="chevron-right" size={20} tone="inkMuted" />
@@ -65,7 +67,11 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
           <RouteRail pickup={o.pickup} dropoff={o.dropoff} />
         </View>
 
-        <Txt variant="caption" tone="inkSecondary" numberOfLines={1}>{`${o.vehicleLabel} · ${o.plate}`}</Txt>
+        <View style={s.meta}>
+          <Icon name={serviceLook[o.service].icon} size={14} tone="inkSecondary" />
+          <Txt variant="caption" tone="inkSecondary" numberOfLines={1} style={{ flex: 1 }}>{`${serviceLook[o.service].label} · ${o.vehicleLabel} · ${o.plate}`}</Txt>
+        </View>
+        <EtaStrip orderId={o.id} status={o.status} compact />
         {!terminal ? (
           <View style={{ gap: 4 }}>
             <StageTicks entries={ticks} />
@@ -88,12 +94,12 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
         {passive ? (
           <View style={s.passive}>
             <Icon name="information-outline" size={16} tone="inkSecondary" />
-            <Txt variant="bodySm" tone="inkSecondary" style={{ flex: 1 }}>{o.nextStep}</Txt>
+            <Txt variant="bodySm" tone="inkSecondary" style={{ flex: 1 }} numberOfLines={2}>{o.nextStep}</Txt>
           </View>
         ) : (
           <View style={s.next}>
             <Icon name="arrow-right-circle" size={18} tone="accentInk" />
-            <Txt variant="bodySm" tone="accentInk" style={{ fontWeight: '700', flex: 1 }}>{t('Berikutnya: {0}', [o.nextStep])}</Txt>
+            <Txt variant="bodySm" tone="accentInk" style={{ fontWeight: '700', flex: 1 }} numberOfLines={2}>{t('Berikutnya: {0}', [o.nextStep])}</Txt>
           </View>
         )}
       </PressableScale>
@@ -104,6 +110,8 @@ export function OrderRow({ o, showMoney, index = 0 }: { o: OrderSummary; last?: 
 const useStyles = makeStyles((c, scheme) => ({
   card: { padding: space.lg, gap: space.sm, borderRadius: radius.xl, backgroundColor: c.surface, marginBottom: space.md, ...cardChrome(c, scheme) },
   head: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  // Status panjang (mis. "Menuju lokasi jemput") menyusut dan membungkus, tidak mendorong ikon keluar.
+  tag: { flex: 1, minWidth: 0, alignItems: 'flex-start' },
   route: { paddingVertical: space.xs },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   owe: { backgroundColor: c.warnWash, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },

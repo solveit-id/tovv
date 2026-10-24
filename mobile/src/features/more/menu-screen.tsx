@@ -13,6 +13,9 @@ import { useApiState } from '@/data/api/provider';
 import { APP_VIEWS, type ViewGroup } from '@/domain/types';
 import { setLocale, t, useLocale, type Locale } from '@/core/i18n';
 import { Button } from '@/components/ui/button';
+import { useDialog } from '@/components/feedback/dialog';
+import { useToast } from '@/components/feedback/toast';
+import { useModeSwitch } from '@/features/home/use-mode-switch';
 
 export interface MenuItem {
   icon: string;
@@ -30,10 +33,15 @@ function Row({ item, last }: { item: MenuItem; last: boolean }) {
 /** Pilihan tampilan: ikut sistem, terang, atau gelap. Disimpan di perangkat ini saja. */
 function AppearancePicker() {
   const { preference, setPreference } = useTheme();
+  const toast = useToast();
+  const NAME: Record<ThemePreference, string> = { system: 'ikut sistem', light: 'terang', dark: 'gelap' };
   return (
     <Segmented<ThemePreference>
       value={preference}
-      onChange={setPreference}
+      onChange={(p) => {
+        setPreference(p);
+        toast.show(t('Tampilan diganti: {0}.', [t(NAME[p])]), 'ok');
+      }}
       options={[
         { value: 'system', label: 'Ikut sistem' },
         { value: 'light', label: 'Terang' },
@@ -46,10 +54,14 @@ function AppearancePicker() {
 /** Bahasa aplikasi. Teks layar langsung berganti; data dimuat ulang dalam bahasa baru. */
 function LanguagePicker() {
   const locale = useLocale();
+  const toast = useToast();
   return (
     <Segmented<Locale>
       value={locale}
-      onChange={setLocale}
+      onChange={(l) => {
+        setLocale(l);
+        toast.show(l === 'en' ? 'Language changed to English.' : 'Bahasa diganti ke Bahasa Indonesia.', 'ok');
+      }}
       options={[
         { value: 'id', label: 'Bahasa Indonesia' },
         { value: 'en', label: 'English' },
@@ -63,11 +75,22 @@ const VIEW_LABEL: Record<ViewGroup, string> = { owner: 'Owner', admin: 'Admin', 
 /** Menu "Lainnya": fitur sekunder per peran, perpindahan konteks eksplisit, dan pengaturan demo. */
 export function MenuScreen({ groups }: { groups: { title: string; items: MenuItem[] }[] }) {
   const router = useRouter();
-  const { switchView, setSession } = useApiState();
+  const { setSession } = useApiState();
+  const switchMode = useModeSwitch();
+  const dialog = useDialog();
   const session = useTovvQuery(['session'], (a) => a.getSession());
   const s = session.data;
   const others = s?.views.filter((v) => v !== s.view && APP_VIEWS.includes(v)) ?? [];
   const logout = async () => {
+    const ok = await dialog.confirm({
+      title: 'Keluar dari Tovv?',
+      message: 'Data demo di HP ini tetap tersimpan. Anda bisa masuk lagi kapan saja.',
+      icon: 'logout',
+      tone: 'danger',
+      confirmLabel: 'Keluar',
+      cancelLabel: 'Batal',
+    });
+    if (!ok) return;
     await setSession(null);
     if (router.canDismiss()) router.dismissAll();
     router.replace('/auth/login');
@@ -86,7 +109,7 @@ export function MenuScreen({ groups }: { groups: { title: string; items: MenuIte
                   icon: v === 'driver' ? 'steering' : 'briefcase-outline',
                   label: t('Pindah ke mode {0}', [t(VIEW_LABEL[v])]),
                   hint: v === 'driver' ? 'Hanya tugas Anda yang tampil; akses owner tidak ikut.' : 'Kembali ke semua menu owner.',
-                  onPress: () => void switchView(v).then(() => router.replace(`/${v}`)),
+                  onPress: () => void (v === 'owner' || v === 'driver' ? switchMode(v) : undefined),
                 }}
               />
             ))}

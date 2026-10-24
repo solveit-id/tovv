@@ -176,6 +176,32 @@ export interface AssistedConsent {
   note: string;
 }
 
+/**
+ * Paket layanan yang ditawarkan operator towing (keputusan pengguna 25 Okt 2026).
+ * - car_towing: satu kendaraan diangkut truk towing sedang (flatbed), menjangkau lokasi sempit, paling cepat;
+ * - car_carrier: truk panjang pengangkut banyak mobil sekaligus, lebih hemat, waktu tempuh lebih lama;
+ * - motor_storing: truk khusus motor/moge dengan rel atau tangga naik;
+ * - self_drive: kendaraan dikemudikan sopir berpengalaman lewat darat.
+ */
+export type ServiceKind = 'car_towing' | 'car_carrier' | 'motor_storing' | 'self_drive';
+
+export interface ServicePackage {
+  kind: ServiceKind;
+  name: string;
+  tagline: string;
+  description: string;
+  bestFor: string[];
+  /** Kecepatan relatif sampai tujuan. */
+  speed: 'fastest' | 'fast' | 'slower';
+  /** Biaya relatif dibanding paket lain. */
+  cost: 'saver' | 'standard' | 'premium';
+  capacity: string;
+  vehicleClass: 'car' | 'motorcycle';
+  /** Harga contoh "mulai dari" per kendaraan (DEMO, sintetis). */
+  startFrom: Rupiah;
+  priceUnit: string;
+}
+
 export interface ServiceRequest {
   id: string;
   alias: string;
@@ -198,6 +224,8 @@ export interface ServiceRequest {
   poRef?: string | null;
   sourceOrderId?: string | null;
   idempotencyKey: string;
+  /** Paket layanan yang dipesan; data lama tanpa nilai dianggap car_towing. */
+  service?: ServiceKind;
 }
 
 export interface QuoteItem {
