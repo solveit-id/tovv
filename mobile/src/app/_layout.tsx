@@ -3,6 +3,7 @@ import { Platform, View } from 'react-native';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as SystemUI from 'expo-system-ui';
+import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -13,7 +14,9 @@ import { ToastProvider } from '@/components/feedback/toast';
 import { DemoStrip } from '@/components/layout/demo-strip';
 import { SplashOverlay } from '@/components/feedback/splash-overlay';
 import { ModeSwitchOverlay } from '@/components/feedback/mode-switch-overlay';
+import { DialogProvider } from '@/components/feedback/dialog';
 import { useReducedMotion } from '@/core/design/motion';
+import { FONT_ASSETS, setFontsReady } from '@/core/design/fonts';
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -66,6 +69,7 @@ function Shell() {
           <StatusBar style="dark" />
           <LocaleBoundary>
             <SessionThemeScope>
+              <DialogProvider>
               <View style={{ flex: 1 }}>
                 <DemoStrip />
                 <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg }, animation: push, animationDuration: 300 }}>
@@ -79,6 +83,7 @@ function Shell() {
                 </Stack>
               </View>
               <ModeSwitchOverlay />
+              </DialogProvider>
             </SessionThemeScope>
           </LocaleBoundary>
         </ApiProvider>
@@ -89,6 +94,10 @@ function Shell() {
 }
 
 export default function RootLayout() {
+  // Splash native tetap tampil sampai Plus Jakarta Sans siap (atau gagal: teks jatuh ke font sistem).
+  const [loaded, error] = useFonts(FONT_ASSETS);
+  if (!loaded && !error) return null;
+  setFontsReady(loaded && !error);
   return (
     <SafeAreaProvider>
       <ThemeProvider>

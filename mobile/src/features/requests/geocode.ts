@@ -69,17 +69,18 @@ export type SearchState =
   | { status: 'unavailable' };
 
 /** Cari alamat setelah pengguna berhenti mengetik 700 ms (minimal 4 huruf); maksimal 3 hasil. */
-export function useAddressSearch(query: string): SearchState {
+/** `nonce` dinaikkan untuk mencari ulang (mis. setelah izin lokasi diberikan). */
+export function useAddressSearch(query: string, nonce = 0): SearchState {
   const q = query.trim();
-  const [answer, setAnswer] = useState<{ q: string; state: SearchState } | null>(null);
+  const [answer, setAnswer] = useState<{ q: string; nonce: number; state: SearchState } | null>(null);
   const seq = useRef(0);
   useEffect(() => {
     const id = ++seq.current;
     if (q.length < 4) return;
     const timer = setTimeout(async () => {
       try {
-        if (!(await ensureGeocoderAccess(true))) {
-          if (id === seq.current) setAnswer({ q, state: { status: 'denied' } });
+        if (!(await ensureGeocoderAccess(false))) {
+          if (id === seq.current) setAnswer({ q, nonce, state: { status: 'denied' } });
           return;
         }
         const hits = (await Location.geocodeAsync(q)).slice(0, 3);
@@ -89,21 +90,21 @@ export function useAddressSearch(query: string): SearchState {
           places.push(await placeFromPoint(h.latitude, h.longitude));
         }
         const unique = places.filter((p, i) => places.findIndex((x) => x.address === p.address) === i);
-        if (id === seq.current) setAnswer({ q, state: { status: 'done', results: unique } });
+        if (id === seq.current) setAnswer({ q, nonce, state: { status: 'done', results: unique } });
       } catch {
-        if (id === seq.current) setAnswer({ q, state: { status: 'unavailable' } });
+        if (id === seq.current) setAnswer({ q, nonce, state: { status: 'unavailable' } });
       }
     }, 700);
     return () => clearTimeout(timer);
-  }, [q]);
+  }, [q, nonce]);
   if (q.length < 4) return { status: 'idle' };
-  return answer?.q === q ? answer.state : { status: 'searching' };
+  return answer?.q === q && answer.nonce === nonce ? answer.state : { status: 'searching' };
 }
 
-/** Lokasi HP sekarang (meminta izin bila perlu). `null` bila GPS tidak menjawab. */
+/** Lokasi HP sekarang. Izin diminta lebih dulu oleh pemanggil (lewat dialog). `null` bila GPS tidak menjawab. */
 export async function currentPoint(): Promise<{ lat: number; lng: number } | 'denied' | null> {
-  const perm = await Location.requestForegroundPermissionsAsync();
-  if (perm.status !== 'granted') return 'denied';
+  const perm = await Location.getForegroundPermissionsAsync();
+  if (!perm.granted) return 'denied';
   const fix =
     (await Location.getLastKnownPositionAsync({ maxAge: 60_000 }).catch(() => null)) ??
     (await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }).catch(() => null));

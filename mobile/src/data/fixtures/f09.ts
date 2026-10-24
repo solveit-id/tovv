@@ -267,7 +267,7 @@ export function buildF09(): DemoDb {
       status: quoteStatus,
       amount: price,
       items: [
-        { label: 'Jasa derek flatbed reguler', amount: Math.round((price * 0.7) / 10_000) * 10_000 },
+        { label: 'Jasa towing flatbed reguler', amount: Math.round((price * 0.7) / 10_000) * 10_000 },
         { label: 'Jarak tempuh dan tol', amount: price - Math.round((price * 0.7) / 10_000) * 10_000 },
       ],
       priority: null,

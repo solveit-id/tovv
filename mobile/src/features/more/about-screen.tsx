@@ -36,6 +36,7 @@ export function AboutScreen() {
   const f = faults.data;
   const set = async <K extends keyof NonNullable<typeof f>>(k: K, v: NonNullable<typeof f>[K]) => {
     await api.setFault(k, v);
+    toast.show(v ? t('Simulasi dinyalakan.') : t('Simulasi dimatikan.'), 'info');
   };
   return (
     <Screen header={<DetailHeader title="Mode demo & tentang" />}>
@@ -45,7 +46,7 @@ export function AboutScreen() {
           <Txt variant="caption" tone="onHeroSecondary">Logo sementara — logo resmi Tovv belum ada</Txt>
         </View>
         <Txt variant="bodySm" style={{ marginTop: space.md }}>
-          Tovv adalah aplikasi untuk mengelola usaha derek: satu aplikasi untuk owner, sopir, dan pelanggan. Ini prototype tampilan; semua datanya contoh.
+          Tovv adalah aplikasi untuk mengelola usaha towing: satu aplikasi untuk owner, sopir, dan pelanggan. Ini prototype tampilan; semua datanya contoh.
         </Txt>
         <View style={{ marginTop: space.lg, gap: space.xs }}>
           <Txt variant="label" tone="inkSecondary">Pemilik, pengembang, dan penerbit</Txt>

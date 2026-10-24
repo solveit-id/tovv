@@ -6,7 +6,7 @@ import { makeStyles, useColors, useTheme } from '@/core/design/theme';
 import { glideSpring, useReducedMotion } from '@/core/design/motion';
 import { formatInputRupiah, parseRupiahInput } from '@/core/format/money';
 import { tr, useLocale } from '@/core/i18n';
-import { Txt } from './txt';
+import { Txt, fontStyle } from './txt';
 import { Icon, IconTile } from './icon';
 
 export interface FieldProps {
@@ -68,7 +68,7 @@ export function Field({ label, value, onChangeText, placeholder, helper, error, 
           selectionColor={c.accent}
           cursorColor={c.accent}
           keyboardAppearance={scheme}
-          style={[s.input, multiline && s.multiline, (keyboardType === 'number-pad' || keyboardType === 'numeric') && { fontVariant: ['tabular-nums'] }]}
+          style={[s.input, fontStyle('400'), multiline && s.multiline, (keyboardType === 'number-pad' || keyboardType === 'numeric') && { fontVariant: ['tabular-nums'] }]}
         />
         {suffix ? <Txt variant="body" tone="inkSecondary">{suffix}</Txt> : null}
         {secure ? (

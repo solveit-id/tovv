@@ -11,10 +11,14 @@ import { SectionTitle, Card } from '@/components/ui/surface';
 import { ErrorBlock, LoadingBlock } from '@/components/ui/states';
 import { StageLine } from '@/components/business/stage-line';
 import { useToast } from '@/components/feedback/toast';
+import { useDialog } from '@/components/feedback/dialog';
+import { formatShortDateTime } from '@/core/format/time';
 import { useTovvQuery } from '@/data/api/hooks';
 import { useApi, useSession } from '@/data/api/provider';
 import type { OrderAction, OrderDetail } from '@/data/api/contract';
-import { expenseStatus } from '@/core/i18n/status';
+import { executionStatus, expenseStatus } from '@/core/i18n/status';
+import { StatusTag } from '@/components/ui/status-tag';
+import { EtaStrip } from '@/features/home/eta-strip';
 import { formatRupiah } from '@/core/format/money';
 import { QuoteStack } from '@/features/quotes/quote-doc-view';
 import { useDemoNow } from '@/core/hooks/use-demo-now';
@@ -37,6 +41,7 @@ type TripAction = 'start_pickup' | 'arrive_pickup' | 'start_loading' | 'start_tr
 
 /** Detail pekerjaan untuk semua peran. Isi dan tindakan mengikuti DTO dan allowedActions dari sumber data. */
 export function OrderDetailScreen() {
+  const dialog = useDialog();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const api = useApi();
@@ -103,6 +108,14 @@ export function OrderDetailScreen() {
     >
       {q.isPending ? <LoadingBlock kind="detail" /> : q.isError ? <ErrorBlock error={q.error} onRetry={() => void q.refetch()} /> : d ? (
         <>
+          <View style={styles.now}>
+            <View style={styles.nowHead}>
+              <Txt variant="label" tone="inkSecondary" style={{ flex: 1 }}>Sekarang</Txt>
+              <StatusTag look={executionStatus[d.summary.status]} size="sm" />
+            </View>
+            <Txt variant="titleSm" numberOfLines={3} accessibilityLiveRegion="polite">{d.summary.nextStep}</Txt>
+            <EtaStrip orderId={d.summary.id} status={d.summary.status} />
+          </View>
           <TripDocument d={d} />
           <OrderAlerts
             d={d}
@@ -141,7 +154,17 @@ export function OrderDetailScreen() {
               </Card>
             </View>
           ) : null}
-          <InternalCostSection d={d} onFinalize={isStaff ? () => void act('close', () => api.finalizeCosts(id), 'Biaya ditandai final.') : undefined} />
+          <InternalCostSection
+            d={d}
+            onFinalize={
+              isStaff
+                ? () =>
+                    void dialog
+                      .confirm({ title: 'Tandai biaya final?', message: 'Kontribusi pekerjaan ini tidak lagi sementara. Biaya yang datang belakangan perlu koreksi terpisah.', icon: 'calculator-variant-outline', confirmLabel: 'Tandai final' })
+                      .then((ok) => (ok ? act('close', () => api.finalizeCosts(id), 'Biaya ditandai final.') : undefined))
+                : undefined
+            }
+          />
           {isStaff ? <AssignmentHistory d={d} /> : null}
           {isStaff ? <StaffSecondary d={d} setSheet={setSheet} /> : null}
           {isDriver && d.allowedActions.includes('abort') ? (
@@ -192,6 +215,7 @@ function Footer({
 }) {
   const router = useRouter();
   const api = useApi();
+  const dialog = useDialog();
   const a = d.allowedActions;
   const id = d.summary.id;
 
@@ -200,7 +224,25 @@ function Footer({
       return (
         <View style={styles.row}>
           <Button label="Tolak" variant="danger" style={{ flex: 1 }} onPress={() => setSheet({ kind: 'reject' })} />
-          <Button label="Terima tugas" size="lg" style={{ flex: 2 }} loading={busy === 'accept_assignment'} onPress={() => void act('accept_assignment', () => api.respondAssignment(id, true, null), 'Tugas diterima. Order kini ditugaskan kepada Anda.')} />
+          <Button
+            label="Terima tugas"
+            size="lg"
+            style={{ flex: 2 }}
+            loading={busy === 'accept_assignment'}
+            onPress={() =>
+              void dialog
+                .confirm({
+                  title: t('Terima tugas {0}?', [d.summary.alias]),
+                  message: t('{0} → {1}', [d.summary.pickup.label, d.summary.dropoff.label]),
+                  points: [t('Jadwal {0}', [formatShortDateTime(d.summary.scheduleStart)]), t('Unit {0}', [d.summary.unitCode])],
+                  icon: 'clipboard-check-outline',
+                  tone: 'mode',
+                  confirmLabel: 'Terima tugas',
+                  cancelLabel: 'Belum',
+                })
+                .then((ok) => (ok ? act('accept_assignment', () => api.respondAssignment(id, true, null), 'Tugas diterima. Order kini ditugaskan kepada Anda.') : undefined))
+            }
+          />
         </View>
       );
     }
@@ -235,13 +277,43 @@ function Footer({
 
   if (isStaff) {
     if (a.includes('issue_invoice')) {
-      return <Button label="Terbitkan invoice" icon="file-document-plus-outline" size="lg" loading={busy === 'issue_invoice'} onPress={() => void act('issue_invoice', () => api.issueInvoice(id), 'Invoice terbit dari penawaran yang disetujui.')} />;
+      return (
+        <Button
+          label="Terbitkan invoice"
+          icon="file-document-plus-outline"
+          size="lg"
+          loading={busy === 'issue_invoice'}
+          onPress={() =>
+            void dialog
+              .confirm({
+                title: 'Terbitkan invoice sekarang?',
+                message: 'Invoice dibuat dari harga yang sudah disetujui pelanggan dan langsung bisa dilihat pembayar.',
+                points: ['Nomor invoice tidak bisa dipakai ulang', 'Koreksi nanti lewat nota kredit, bukan menghapus'],
+                icon: 'file-document-plus-outline',
+                confirmLabel: 'Terbitkan invoice',
+              })
+              .then((ok) => (ok ? act('issue_invoice', () => api.issueInvoice(id), 'Invoice terbit dari penawaran yang disetujui.') : undefined))
+          }
+        />
+      );
     }
     if (a.includes('manage_assignment')) {
       return <Button label="Atur penugasan" icon="account-switch-outline" size="lg" onPress={() => router.push(`/order/${id}/assign`)} />;
     }
     if (a.includes('close')) {
-      return <Button label="Tutup order" icon="archive-check-outline" size="lg" loading={busy === 'close'} onPress={() => void act('close', () => api.closeOrder(id), 'Order ditutup. Piutang tetap tercatat bila ada.')} />;
+      return (
+        <Button
+          label="Tutup order"
+          icon="archive-check-outline"
+          size="lg"
+          loading={busy === 'close'}
+          onPress={() =>
+            void dialog
+              .confirm({ title: 'Tutup order ini?', message: 'Pekerjaan pindah ke riwayat. Tagihan yang belum lunas tetap tercatat.', icon: 'archive-check-outline', confirmLabel: 'Tutup order' })
+              .then((ok) => (ok ? act('close', () => api.closeOrder(id), 'Order ditutup. Piutang tetap tercatat bila ada.') : undefined))
+          }
+        />
+      );
     }
     if (a.includes('view_tracking')) {
       return <Button label="Lihat lokasi & tahap" icon="map-marker-path" size="lg" variant="secondary" onPress={() => router.push(`/order/${id}/tracking`)} />;
@@ -276,5 +348,7 @@ function Footer({
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: space.sm },
+  now: { gap: space.sm, marginBottom: space.md },
+  nowHead: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   secondary: { gap: space.sm },
 });

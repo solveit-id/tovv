@@ -187,7 +187,7 @@ export function ErrorBlock({ error, onRetry }: { error: unknown; onRetry?: () =>
   );
 }
 
-/** Keadaan kosong. `art` menampilkan ilustrasi unit derek (daftar pekerjaan/pesanan) sebagai ganti ikon. */
+/** Keadaan kosong. `art` menampilkan ilustrasi unit towing (daftar pekerjaan/pesanan) sebagai ganti ikon. */
 export function EmptyBlock({ icon = 'inbox-outline', title, body, action, art }: { icon?: string; title: string; body?: string; action?: React.ReactNode; art?: 'truck' | 'truck-loaded' }) {
   const s = useStyles();
   return (
@@ -201,8 +201,9 @@ export function EmptyBlock({ icon = 'inbox-outline', title, body, action, art }:
 }
 
 /** Pola tunggal untuk state query: kerangka → gagal (dengan coba lagi) → isi. */
-export function QueryView<T>({ q, children, loadingLabel, skeletonRows, skeleton }: { q: UseQueryResult<T, unknown>; children: (data: T) => React.ReactNode; loadingLabel?: string; skeletonRows?: number; skeleton?: SkeletonKind }) {
-  if (q.isPending) return <LoadingBlock label={loadingLabel} rows={skeletonRows} kind={skeleton} />;
+/** `ready={false}` menahan isi (tetap kerangka) mis. sampai transisi halaman selesai (useDeferred). */
+export function QueryView<T>({ q, children, loadingLabel, skeletonRows, skeleton, ready = true }: { q: UseQueryResult<T, unknown>; children: (data: T) => React.ReactNode; loadingLabel?: string; skeletonRows?: number; skeleton?: SkeletonKind; ready?: boolean }) {
+  if (q.isPending || !ready) return <LoadingBlock label={loadingLabel} rows={skeletonRows} kind={skeleton} />;
   if (q.isError) return <ErrorBlock error={q.error} onRetry={() => void q.refetch()} />;
   return <>{children(q.data as T)}</>;
 }

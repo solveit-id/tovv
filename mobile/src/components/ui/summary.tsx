@@ -7,7 +7,7 @@ import { easeOut, useReducedMotion } from '@/core/design/motion';
 import { formatRupiah, parseMoneyString } from '@/core/format/money';
 import type { MoneyString } from '@/domain/types';
 import { PressableScale } from './pressable-scale';
-import { Txt, type TxtProps } from './txt';
+import { Txt, fontStyle, type TxtProps } from './txt';
 import { Icon, IconTile } from './icon';
 import { t, tr } from '@/core/i18n';
 
@@ -57,7 +57,7 @@ export function CountUpMoney({ value, variant = 'figureXl', tone = 'ink', missin
         importantForAccessibility="no-hide-descendants"
         defaultValue={formatRupiah(reduced ? target : 0)}
         animatedProps={animatedProps}
-        style={[type[variant] as TextStyle, { color: c[tone], padding: 0, margin: 0 }]}
+        style={[type[variant] as TextStyle, { color: c[tone], padding: 0, margin: 0 }, fontStyle((type[variant] as TextStyle).fontWeight)]}
       />
     </View>
   );

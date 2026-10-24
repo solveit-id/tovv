@@ -2,6 +2,51 @@
 
 Putaran terbaru di atas. Bukti mentah (screenshot) di `.impeccable/review/` (diabaikan Git).
 
+## Putaran 6 — font, dialog, paket layanan, ETA, kesederhanaan, 2026-10-25
+
+Pemicu: masukan pengguna setelah mencoba di iPhone dan Android lewat Expo Go — font kurang premium dan nama tertulis "tovv", belum ada pop-up konfirmasi/izin/informasi, kata "derek" harus "towing", belum ada paket layanan towing (patokan: Car Towing, Car Carrier, Storing, Self Drive), teks panjang kurang rapi, tampilan masih membingungkan terutama untuk driver dan pelanggan, perlu estimasi waktu di peta, perlu sorotan hal penting, peta harus memakai aset unit towing, `docs/` perlu dirapikan, dan aplikasi kadang tersendat.
+
+Keputusan pengguna (ditanyakan di awal putaran): font Plus Jakarta Sans; paket dengan harga "mulai dari" berlabel DEMO; `docs/` per kelompok.
+
+### Yang berubah
+
+- **Font & nama:** Plus Jakarta Sans (5 berat) untuk seluruh teks, termasuk kolom isian dan label tab; wordmark, ikon aplikasi, dan splash native kini "Tovv" dengan T kapital.
+- **Dialog:** dialog Tovv untuk pindah mode, keluar, terima tugas, terbitkan invoice, tutup order, tandai biaya final, setujui harga, terima/batalkan pembayaran, setujui/tolak biaya, ganti paket langganan, cabut akses/delegasi, dan buang isian formulir; pemberitahuan "apa yang terjadi berikutnya" setelah pelanggan mengirim permintaan; toast saat ganti bahasa/tema, simulasi, dan masuk.
+- **Izin:** penjelasan sebelum dialog sistem kamera, lokasi, dan galeri; tombol "Buka pengaturan" bila sudah ditolak permanen.
+- **Towing:** semua "derek" di teks aplikasi diganti "towing" (termasuk terjemahan Inggris).
+- **Paket layanan:** layar `/services`, kartu di beranda pelanggan, pilihan paket di formulir (jenis motor untuk Storing, jumlah mobil untuk Car Carrier, pernyataan layak jalan untuk Self Drive), paket tampil di kartu pesanan; ilustrasi vektor per paket.
+- **Kesederhanaan:** beranda pelanggan = "Mau towing ke mana?" + pesanan berjalan + keputusan yang menunggu (hanya bila ada) + paket; beranda driver = satu tugas sekarang dengan ETA dan satu tombol besar; detail pesanan dibuka dengan kartu "Sekarang".
+- **ETA:** pita perkiraan tiba di kartu pesanan, beranda, detail pesanan, header peta (per peran), kartu unit owner, dan tag penanda truk.
+- **Peta:** penanda truk berupa gelembung berisi gambar unit towing tampak samping yang menghadap arah jalan.
+- **Teks panjang:** pemecahan baris seimbang, status yang membungkus di kartu, batas baris untuk langkah berikutnya.
+- **Performa:** bagian bawah beranda dirender setelah transisi, muat ulang berkala hanya saat layar terlihat, hanya satu font ikon di bundel (±1,5 MB lebih kecil), dialog/toast dirender di dalam Modal pemilih lokasi.
+- **Docs:** `docs/product`, `docs/design`, `docs/engineering`, `docs/qa`, `docs/spec`; semua tautan diperbarui.
+
+### Pemeriksaan otomatis
+
+| Pemeriksaan | Hasil |
+|---|---|
+| `npm run typecheck` | PASS |
+| `npm run lint` | PASS (0 error, 0 warning) |
+| `npm test` | PASS — 1.680 uji / 8 suite |
+| `npx expo-doctor` | PASS — 20/20 |
+| `npx expo export --platform android --platform ios` | PASS — bundel Hermes iOS dan Android terbentuk |
+
+### Review desain
+
+Review akhir Impeccable dijalankan dari kode (tanpa tangkapan layar), hasil **fix**: lima belas cacat kode, semuanya sudah diperbaiki di putaran ini — konteks toast yang berganti tiap render sehingga dialog izin muncul berulang dan lokasi kamera tidak terisi, dialog dari dalam lembar bawah yang tidak tampil di iOS (lembar itu kini menjadi langkah konfirmasinya), ketukan ganda yang menjawab dialog berikutnya, ETA yang berhenti diperbarui setelah pindah tab, penanda peta mini yang tidak digambar ulang, ujung penanda yang meleset di iOS (Apple Maps mengabaikan anchor; kini centerOffset), ETA dan ciri paket yang terpotong di layar 360 dp/teks 1,3x, region live yang terlalu sering dibacakan, klaim paket yang bertentangan dengan harganya, penjaga keluar formulir yang tidak lengkap, judul beranda pelanggan yang tidak cocok dengan isiannya, dialog yang tidak bisa digulir, dua dialog izin berturut-turut di kamera, dan lembar bawah tanpa jalur 'kurangi gerakan'. Putusan visual tetap menunggu tangkapan layar dari HP.
+
+### Perangkat
+
+**Belum diuji di perangkat pada putaran ini dan belum ada tangkapan layar.** Yang perlu dicek di HP lewat Expo Go:
+
+1. Font Plus Jakarta Sans tampil di semua layar (bukan font sistem) dan "Tovv" bertuliskan T kapital di splash/header.
+2. Owner: "Masuk mode driver" memunculkan dialog konfirmasi lalu transisi; "Keluar" memunculkan dialog.
+3. Pelanggan: "Mau towing ke mana?" → pilih paket (Storing Motor menampilkan jenis motor) → kirim → dialog "apa yang terjadi berikutnya".
+4. Kamera dan "Lokasi saya": dialog penjelasan muncul sebelum dialog izin sistem.
+5. Peta: gelembung truk towing dengan tag ETA, pita perkiraan tiba di header.
+6. Teks besar (1,3x) dan tema gelap pada beranda, kartu paket, dan dialog.
+
 ## Putaran 5 — tampilan premium, mode driver, peta, lokasi ala ojek online, 2026-10-23
 
 Pemicu: masukan pengguna setelah mencoba di iPhone dan Android lewat Expo Go — tampilan masih bisa lebih modern dan premium, peta kurang hidup, belum ada loader yang bagus, isian lokasi jemput/tujuan kurang fleksibel (patokan: Gojek/Grab/ShopeeFood), formulir "Pesan derek" membingungkan, mode owner dan mode driver belum terlihat beda, belum ada aset unit derek, animasi berlebihan dan kurang halus, bahasa masih kaku, dan kadang tersendat.
