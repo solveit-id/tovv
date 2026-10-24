@@ -40,8 +40,9 @@ export function RequestRow({ r, index = 0 }: { r: RequestSummary; last?: boolean
       >
         <View style={styles.head}>
           <Txt variant="titleSm">{r.alias}</Txt>
-          <StatusTag look={requestStatus[r.status]} size="sm" />
-          <View style={{ flex: 1 }} />
+          <View style={{ flex: 1, minWidth: 0, alignItems: 'flex-start' }}>
+            <StatusTag look={requestStatus[r.status]} size="sm" />
+          </View>
           <Icon name="chevron-right" size={20} tone="inkMuted" />
         </View>
         <Txt variant="bodyStrong" numberOfLines={1}>{r.customerLabel}</Txt>

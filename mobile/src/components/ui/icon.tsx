@@ -1,6 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+// Impor langsung satu keluarga ikon: hanya font MaterialCommunityIcons yang ikut dibundel, bukan semua set ikon.
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { radius, type ColorToken } from '@/core/design/tokens';
 import { useColors } from '@/core/design/theme';
 

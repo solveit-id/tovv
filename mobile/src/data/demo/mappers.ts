@@ -129,6 +129,7 @@ export function orderSummary(db: DemoDb, order: Order, now: string): OrderSummar
   return {
     id: order.id,
     alias: order.alias,
+    service: req.service ?? 'car_towing',
     tenantId: order.tenantId,
     status: order.status,
     customerLabel: req.parties.orderer + (req.businessAccountId ? ` · ${db.businessAccounts.find((b) => b.id === req.businessAccountId)?.name}` : ''),
@@ -487,6 +488,7 @@ export function requestSummary(db: DemoDb, r: ServiceRequest, now: string): Requ
   return {
     id: r.id,
     alias: r.alias,
+    service: r.service ?? 'car_towing',
     status: r.status,
     channel: r.channel,
     customerLabel: r.parties.orderer + (r.businessAccountId ? ` · ${db.businessAccounts.find((b) => b.id === r.businessAccountId)?.name}` : ''),

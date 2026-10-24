@@ -13,7 +13,7 @@ import { t } from '@/core/i18n';
 const TRUCK_W = 200;
 
 /**
- * Splash saat aplikasi dibuka (±1,2 detik): unit derek meluncur masuk dan berhenti di tengah,
+ * Splash saat aplikasi dibuka (±1,2 detik): unit towing meluncur masuk dan berhenti di tengah,
  * wordmark muncul di atasnya, lalu seluruh lapisan memudar memperlihatkan aplikasi.
  * Label DEMO tetap tampil. "Kurangi gerakan" = pudar singkat saja.
  */
@@ -51,7 +51,7 @@ export function SplashOverlay() {
       <HeroBackground id="splash" />
       <Animated.View style={[s.center, markStyle]}>
         <Wordmark height={52} />
-        <Txt variant="bodySm" tone="onHeroSecondary">Urusan derek, beres dalam satu aplikasi</Txt>
+        <Txt variant="bodySm" tone="onHeroSecondary">Urusan towing, beres dalam satu aplikasi</Txt>
       </Animated.View>
       <View style={s.stage}>
         <Animated.View style={truckStyle}>

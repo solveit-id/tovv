@@ -13,6 +13,7 @@ import { useApiState } from '@/data/api/provider';
 import { errorMessage } from '@/data/api/hooks';
 import { t } from '@/core/i18n';
 import { AuthShell } from './auth-shell';
+import { useToast } from '@/components/feedback/toast';
 
 /** Akun cepat untuk mencoba tiap peran; semua akun demo memakai kata sandi yang sama. */
 const QUICK = [
@@ -35,6 +36,7 @@ export function LoginScreen() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const passRef = useRef<TextInputInstance>(null);
+  const toast = useToast();
 
   const submit = async () => {
     if (!email.trim() || !password) {
@@ -46,6 +48,7 @@ export function LoginScreen() {
     try {
       const res = await api.login(email, password);
       await setSession(res);
+      toast.show(t('Berhasil masuk. Selamat datang di Tovv!'), 'ok');
       router.replace(`/${res.view}`);
     } catch (e) {
       setErr(errorMessage(e));
@@ -65,7 +68,7 @@ export function LoginScreen() {
   return (
     <AuthShell
       title="Selamat datang"
-      subtitle="Masuk untuk mengatur derek, memantau perjalanan, dan mengecek tagihan."
+      subtitle="Masuk untuk mengatur towing, memantau perjalanan, dan mengecek tagihan."
       footer={
         <View style={s.row}>
           <Txt variant="bodySm" tone="inkSecondary">Belum punya akun?</Txt>

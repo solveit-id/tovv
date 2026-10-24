@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Linking, Platform, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -15,9 +15,11 @@ import { StatusTag } from '@/components/ui/status-tag';
 import { EmptyBlock, LoadingBlock, QueryView } from '@/components/ui/states';
 import { RouteRail } from '@/components/business/route-rail';
 import { useTovvQuery } from '@/data/api/hooks';
-import { useApiState } from '@/data/api/provider';
+import { useModeSwitch } from '@/features/home/use-mode-switch';
 import type { OrderSummary } from '@/data/api/contract';
 import { OrderRow } from '@/features/orders/order-row';
+import { EtaStrip } from '@/features/home/eta-strip';
+import { useDeferred } from '@/core/hooks/use-deferred';
 import { HeaderActions } from '@/features/home/header-actions';
 import { executionStatus } from '@/core/i18n/status';
 import { formatShortDateTime } from '@/core/format/time';
@@ -39,17 +41,6 @@ function openNavigation(o: OrderSummary) {
   void Linking.openURL(url);
 }
 
-function Stat({ icon, value, label }: { icon: string; value: number | string; label: string }) {
-  const s = useStyles();
-  return (
-    <View style={s.stat} accessible accessibilityLabel={`${label}: ${value}`}>
-      <Icon name={icon} size={18} tone="modeAccentInk" />
-      <Txt variant="figure" tabular>{String(value)}</Txt>
-      <Txt variant="caption" tone="inkSecondary" numberOfLines={2}>{label}</Txt>
-    </View>
-  );
-}
-
 /**
  * Beranda mode driver (palet lapangan: biru-arang + kuning). Tugas terdekat menguasai kartu atas dengan
  * satu tombol besar untuk langkah berikutnya, lalu navigasi, ringkasan hari ini, tawaran, dan riwayat.
@@ -59,7 +50,7 @@ export function DriverHome() {
   const router = useRouter();
   const qc = useQueryClient();
   const s = useStyles();
-  const { switchView } = useApiState();
+  const switchMode = useModeSwitch();
   const session = useTovvQuery(['session'], (api) => api.getSession());
   const active = useTovvQuery(['orders', 'active'], (api) => api.listOrders('active'));
   const history = useTovvQuery(['orders', 'history'], (api) => api.listOrders('history'));
@@ -69,6 +60,8 @@ export function DriverHome() {
   const lead = active.data?.[0];
   const isOwner = me?.views.includes('owner');
   const target = lead ? navTarget(lead) : null;
+  const [allHistory, setAllHistory] = useState(false);
+  const later = useDeferred();
 
   return (
     <Screen
@@ -83,7 +76,7 @@ export function DriverHome() {
           right={<HeaderActions />}
         >
           {isOwner ? (
-            <Button variant="onHero" compact icon="briefcase-outline" label="Kembali ke mode owner" style={{ alignSelf: 'flex-start' }} accessibilityHint={t('Menu owner seperti keuangan dan armada aktif lagi.')} onPress={() => void switchView('owner').then(() => router.replace('/owner'))} />
+            <Button variant="onHero" compact icon="briefcase-outline" label="Kembali ke mode owner" style={{ alignSelf: 'flex-start' }} accessibilityHint={t('Menu owner seperti keuangan dan armada aktif lagi.')} onPress={() => void switchMode('owner')} />
           ) : null}
         </RootHeader>
       }
@@ -94,13 +87,14 @@ export function DriverHome() {
         ) : lead ? (
           <>
             <View style={s.leadHead}>
-              <Txt variant="label" tone="inkSecondary" style={{ flex: 1 }}>Tugas berikutnya</Txt>
+              <Txt variant="label" tone="inkSecondary" style={{ flex: 1 }}>Tugas sekarang</Txt>
               <StatusTag look={executionStatus[lead.status]} size="sm" />
             </View>
             <View style={{ gap: 2 }}>
               <Txt variant="title">{lead.alias}</Txt>
               <Txt variant="bodySm" tone="inkSecondary">{`${lead.vehicleLabel} · ${lead.plate}`}</Txt>
             </View>
+            <EtaStrip orderId={lead.id} status={lead.status} />
             <RouteRail pickup={lead.pickup} dropoff={lead.dropoff} detailed />
             <View style={s.meta}>
               <Icon name="clock-outline" size={15} tone="inkSecondary" />
@@ -124,14 +118,17 @@ export function DriverHome() {
         <Txt variant="bodySm" tone="warnInk" bold style={{ flex: 1 }}>Isi aplikasi hanya saat kendaraan berhenti.</Txt>
       </View>
 
-      <View style={s.stats}>
-        <Stat icon="clipboard-text-outline" value={active.data?.length ?? '–'} label="Tugas aktif" />
-        <Stat icon="check-all" value={history.data?.length ?? '–'} label="Sudah selesai" />
-        <Stat icon="cloud-upload-outline" value={pending} label="Belum terkirim" />
-      </View>
-
       {pending ? (
-        <Button label={t('Kirim {0} catatan yang tertunda', [pending])} icon="cloud-upload-outline" variant="secondary" onPress={() => router.push('/driver/sync')} style={{ marginTop: space.md }} />
+        <Card tone="warn" style={{ marginTop: space.md }} onPress={() => router.push('/driver/sync')} accessibilityLabel={t('Kirim {0} catatan yang tertunda', [pending])}>
+          <View style={s.pendingRow}>
+            <Icon name="cloud-upload-outline" size={22} tone="warnInk" />
+            <View style={{ flex: 1 }}>
+              <Txt variant="bodyStrong" tone="warnInk">{t('{0} catatan belum terkirim', [pending])}</Txt>
+              <Txt variant="caption">Tersimpan aman di HP. Ketuk untuk mengirim saat sinyal bagus.</Txt>
+            </View>
+            <Icon name="chevron-right" size={20} tone="warnInk" />
+          </View>
+        </Card>
       ) : null}
 
       {active.data && active.data.length > 1 ? (
@@ -142,10 +139,13 @@ export function DriverHome() {
       ) : null}
 
       <SectionTitle title="Riwayat" count={history.data?.length} />
-      <QueryView q={history} skeleton="order" skeletonRows={2}>
+      <QueryView q={history} ready={later} skeleton="order" skeletonRows={2}>
         {(list) =>
           list.length ? (
-            list.slice(0, 8).map((o, i) => <OrderRow key={o.id} o={o} index={i} />)
+            <>
+              {(allHistory ? list : list.slice(0, 3)).map((o, i) => <OrderRow key={o.id} o={o} index={i} />)}
+              {list.length > 3 ? <Button label={allHistory ? 'Tampilkan lebih sedikit' : t('Lihat {0} lainnya', [list.length - 3])} variant="secondary" icon={allHistory ? 'chevron-up' : 'chevron-down'} onPress={() => setAllHistory((v) => !v)} /> : null}
+            </>
           ) : (
             <Card>
               <EmptyBlock icon="history" title="Belum ada riwayat" body="Tugas yang sudah diserahkan akan tercatat di sini." />
@@ -162,6 +162,5 @@ const useStyles = makeStyles((c) => ({
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   row: { flexDirection: 'row', gap: space.sm },
   safety: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginTop: space.lg, paddingHorizontal: space.md, paddingVertical: space.md, borderRadius: radius.lg, backgroundColor: c.warnWash },
-  stats: { flexDirection: 'row', gap: space.sm, marginTop: space.md },
-  stat: { flex: 1, gap: 2, padding: space.md, borderRadius: radius.lg, backgroundColor: c.surface, borderWidth: 1, borderColor: c.line },
+  pendingRow: { flexDirection: 'row', alignItems: 'center', gap: space.md },
 }));

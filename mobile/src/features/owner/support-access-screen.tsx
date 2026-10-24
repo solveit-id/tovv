@@ -14,6 +14,7 @@ import { useTovvMutation, useTovvQuery } from '@/data/api/hooks';
 import type { StatusLook } from '@/core/i18n/status';
 import { formatDateTime } from '@/core/format/time';
 import { t } from '@/core/i18n';
+import { useDialog } from '@/components/feedback/dialog';
 
 const LOOK: Record<string, StatusLook> = {
   active: { label: 'Aktif', tone: 'warn', line: 'solid', icon: 'account-eye-outline' },
@@ -31,6 +32,7 @@ export function SupportAccessScreen() {
   const [scope, setScope] = useState('trips.read');
   const [hours, setHours] = useState('2');
   const [reason, setReason] = useState('');
+  const dialog = useDialog();
   const approve = useTovvMutation((a, _: void) => a.approveSupportGrant(scope === 'both' ? ['trips.read', 'location.read'] : [scope], Number(hours), reason), { success: 'Akses dukungan disetujui dan berakhir otomatis.', onSuccess: () => setOpen(false) });
   const revoke = useTovvMutation((a, id: string) => a.revokeSupportGrant(id), { success: 'Akses dicabut; permintaan berikutnya ditolak.' });
   return (
@@ -51,7 +53,7 @@ export function SupportAccessScreen() {
                   <LineItem label="Cakupan" value={<Txt variant="mono">{g.scopes.join(', ')}</Txt>} />
                   <LineItem label="Alasan" value={<Txt variant="bodySm">{g.reason}</Txt>} />
                   <LineItem label="Berlaku sampai" value={<Txt variant="bodySm">{formatDateTime(g.expiresAt)}</Txt>} />
-                  {g.status === 'active' ? <Button label="Cabut" variant="danger" compact onPress={() => revoke.mutate(g.id)} style={{ alignSelf: 'flex-start' }} /> : null}
+                  {g.status === 'active' ? <Button label="Cabut" variant="danger" compact onPress={() => void dialog.confirm({ title: 'Cabut akses dukungan?', message: 'Tim Solveit tidak bisa lagi melihat data Anda mulai sekarang.', icon: 'shield-off-outline', tone: 'danger', confirmLabel: 'Cabut akses' }).then((ok) => (ok ? revoke.mutate(g.id) : undefined))} style={{ alignSelf: 'flex-start' }} /> : null}
                 </Card>
               ))}
             </View>

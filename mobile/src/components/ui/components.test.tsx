@@ -5,7 +5,7 @@ import { Money } from './surface';
 import { proofStatus, quoteStatus } from '@/core/i18n/status';
 import { formatRupiah } from '@/core/format/money';
 
-jest.mock('@expo/vector-icons', () => ({ MaterialCommunityIcons: () => null }));
+jest.mock('@expo/vector-icons/MaterialCommunityIcons', () => () => null);
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 jest.mock('react-native-worklets', () => require('react-native-worklets/src/mock'));
 // Reanimated 4.7.1: inisialisasi memanggil setCSSEventHandler yang melempar di mode JS (Jest).

@@ -54,7 +54,7 @@ export function RegisterScreen() {
   return (
     <AuthShell
       title="Buat akun"
-      subtitle="Daftar sebagai pelanggan untuk memesan derek dan memantau kendaraan Anda."
+      subtitle="Daftar sebagai pelanggan untuk memesan towing dan memantau kendaraan Anda."
       footer={
         <View style={s.row}>
           <Txt variant="bodySm" tone="inkSecondary">Sudah punya akun?</Txt>

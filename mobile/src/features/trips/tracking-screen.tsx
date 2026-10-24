@@ -84,6 +84,8 @@ export function TrackingScreen() {
                   dropoff={snap.dropoff}
                   position={snap.lat !== null && snap.lng !== null ? { lat: snap.lat, lng: snap.lng } : null}
                   stale={snap.freshness === 'stale'}
+                  code={d.summary.unitCode}
+                  eta={snap.eta?.minutes ?? null}
                   onExpand={() => router.push(`/${session?.view === 'admin' ? 'owner' : (session?.view ?? 'customer')}/map`)}
                 />
               </View>

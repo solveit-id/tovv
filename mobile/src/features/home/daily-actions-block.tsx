@@ -8,9 +8,11 @@ import { useTovvQuery } from '@/data/api/hooks';
 import { t } from '@/core/i18n';
 
 /** Daftar tindakan harian (FIN-05) — proyeksi dari sumber; item hilang hanya saat sumbernya selesai. */
-export function DailyActionsBlock({ title = 'Perlu tindakan', limit = 5, hint = 'Yang paling menghambat ada di atas.' }: { title?: string; limit?: number; hint?: string }) {
+export function DailyActionsBlock({ title = 'Perlu tindakan', limit = 5, hint = 'Yang paling menghambat ada di atas.', hideWhenEmpty }: { title?: string; limit?: number; hint?: string; hideWhenEmpty?: boolean }) {
   const q = useTovvQuery(['daily-actions'], (api) => api.getDailyActions());
   const [all, setAll] = useState(false);
+  // Untuk pelanggan: bagian ini disembunyikan bila tidak ada yang perlu dijawab, supaya beranda tetap ringkas.
+  if (hideWhenEmpty && (!q.data || q.data.length === 0)) return null;
   return (
     <View>
       <SectionTitle title={title} count={q.data?.length} hint={q.data?.length ? hint : undefined} />

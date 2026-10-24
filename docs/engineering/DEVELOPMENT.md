@@ -8,9 +8,10 @@ Diperbarui 23 Oktober 2026.
 |---|---|---|
 | Node | 22.23.1 (minimum 22.13; 23 dan 25 tidak didukung) | Persyaratan Expo SDK 58 |
 | npm | 10.9.8, `package-lock.json` | Satu package manager |
-| Expo SDK | ~58.0.17 | Expo Go di App Store/Play Store sekarang hanya membuka SDK 58; iPhone tidak bisa memasang Expo Go versi lama |
+| Expo SDK | ~58.0.19 | Expo Go di App Store/Play Store sekarang hanya membuka SDK 58; iPhone tidak bisa memasang Expo Go versi lama |
 | React Native / React | 0.88.0 / 19.3.0 | Kombinasi bawaan SDK 58 |
-| Expo Router | ~58.0.25 | Bawaan SDK 58 |
+| Expo Router | ~58.0.26 | Bawaan SDK 58 |
+| Plus Jakarta Sans | `@expo-google-fonts/plus-jakarta-sans` 0.4.2 | Font antarmuka (OFL); dimuat lewat expo-font, termasuk di Expo Go |
 | Reanimated / Worklets | 4.7.1 / 0.13.0 | `expo install` |
 | react-native-maps | 1.29.11 | `expo install`; termasuk di Expo Go |
 | TanStack Query | 5.104.5 | JS murni |
@@ -78,7 +79,7 @@ mobile/src/
     auth/              login, register, forgot-password
     owner/ driver/ customer/   tab per peran: index, jobs/orders, map, finance/invoices, expenses, sync, more
   features/<domain>/   Layar per domain: auth, owner, driver, customer, map, orders, trips, camera,
-                       requests, quotes, pricing, finance, reports, more, work, home, identity
+                       requests, services, quotes, pricing, finance, reports, more, work, home, identity
   components/          ui (teks, tombol, kartu, form, ringkasan, kerangka muat), business (tindakan
                        harian, tahap perjalanan, rute ringkas, riwayat versi, QR internal), layout
                        (layar, header parallax, tab), brand (wordmark, unit derek + loader),
@@ -114,12 +115,30 @@ Mengganti sumber data: buat objek bertipe `TovvApi` (`data/api/demo-api.ts`) yan
 - Dua palet (terang/gelap) dengan kunci sama di `core/design/tokens.ts`, plus palet mode driver lewat `paletteFor(scheme, 'field')`. Sesi peran driver otomatis dibungkus `ThemeModeScope mode="field"` (`app/_layout.tsx`). Gaya dibuat lewat `makeStyles((c, scheme, mode) => …)` dan di-cache per skema + mode.
 - Semua animasi memakai Reanimated di UI thread dan tidak memantul: splash unit derek, transisi ganti mode, header parallax ringan, bar ringkas, kartu masuk singkat (6 item pertama), tekan = sedikit mengecil, angka menghitung naik, FAB yang menyusut, pil tab dan segmen, kilau kerangka muat, loader unit derek, langkah formulir. "Kurangi gerakan" mematikan gerak ruang.
 
+## Font
+
+Plus Jakarta Sans dimuat di `app/_layout.tsx` (`useFonts(FONT_ASSETS)` dari `core/design/fonts.ts`, lima berat diimpor per file supaya bundel kecil). Splash native ditahan sampai font siap. `Txt` dan `fontStyle()` (untuk TextInput dan label tab) memetakan berat huruf ke nama keluarga; jangan menulis `fontFamily` per layar.
+
+## Dialog, izin, dan toast
+
+- `useDialog()` (`components/feedback/dialog.tsx`): `confirm({...})` → `Promise<boolean>` dan `inform({...})`. Pakai untuk tindakan penting/tak bisa dibatalkan.
+- `usePermission()` (`components/feedback/permissions.ts`): `await ask('camera' | 'location' | 'photos')` menjelaskan dulu, lalu memanggil dialog sistem; bila ditolak permanen menawarkan pengaturan HP.
+- `useModeSwitch()` (`features/home/use-mode-switch.ts`): pindah owner ↔ driver selalu lewat konfirmasi.
+- Di dalam `Modal` (mis. pemilih lokasi) bungkus isi dengan `ToastProvider` + `DialogProvider` sendiri: Modal adalah jendela terpisah, dialog dari akar tidak terlihat di atasnya (iOS).
+
+## Paket layanan
+
+`api.listServicePackages()` membaca `SERVICE_PACKAGES` (`data/fixtures/reference.ts`, harga contoh DEMO). Permintaan menyimpan `service` (`ServiceKind`); data lama tanpa nilai dianggap `car_towing`. Ilustrasi per paket di `components/brand/service-art.tsx`.
+
 ## Performa
 
 - Tab yang tidak terlihat dibekukan (`freezeOnBlur`) dan dimuat saat pertama dibuka (`lazy`).
 - Query memakai `staleTime` 60 detik; data demo tetap segar karena setiap perubahan store memicu baca ulang (`store.subscribe`).
 - Peta hanya memuat posisi selama layar terbuka; penanda dan kartu di-memo.
 - Tidak ada animasi yang dihitung per kartu dari posisi gulir.
+- Bagian bawah beranda (tindakan, daftar pekerjaan, riwayat, paket) dirender setelah JS lengang lewat `useDeferred()` + `QueryView ready={…}`, sehingga transisi halaman tidak tersendat.
+- Ikon diimpor dari `@expo/vector-icons/MaterialCommunityIcons` saja, jadi hanya satu font ikon yang ikut bundel (hemat ±1,5 MB).
+- Muat ulang berkala memakai `useFocusInterval()`: berhenti saat layar tidak terlihat walau tab dibekukan.
 
 ## Ikon dan splash
 
@@ -131,4 +150,4 @@ Mengganti sumber data: buat objek bertipe `TovvApi` (`data/api/demo-api.ts`) yan
 - Nama file, folder, route, commit, dan PR dalam bahasa Inggris; isi dokumentasi dalam bahasa Indonesia.
 - Commit `(type) short description` tanpa baris co-author/atribusi AI. Promosi `frontend` → `staging` → `main` lewat PR.
 - `backend/`, `contracts/`, `tools/admin-harness/`, `infra/`, `.github/workflows/` belum dibuat.
-- Screenshot mentah di `.impeccable/review/` (diabaikan Git), dirangkum di [`QA_REPORT.md`](QA_REPORT.md).
+- Screenshot mentah di `.impeccable/review/` (diabaikan Git), dirangkum di [`QA_REPORT.md`](../qa/QA_REPORT.md).

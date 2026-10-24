@@ -17,7 +17,7 @@ import { ErrorBlock } from '@/components/ui/states';
 import { StatusTag } from '@/components/ui/status-tag';
 import { RouteRail } from '@/components/business/route-rail';
 import { TowLoader } from '@/components/brand/tow-truck';
-import { useToast } from '@/components/feedback/toast';
+import { usePermission } from '@/components/feedback/permissions';
 import { useTovvQuery } from '@/data/api/hooks';
 import type { LiveJob, LiveMapDTO, LiveUnit } from '@/data/api/contract';
 import { executionStatus } from '@/core/i18n/status';
@@ -32,7 +32,7 @@ const REFRESH_MS = 2000;
 type Filter = 'all' | 'on_job' | 'available';
 type Item = { kind: 'unit'; unit: LiveUnit } | { kind: 'job'; job: LiveJob };
 
-const TITLE = { owner: 'Peta armada', admin: 'Peta armada', driver: 'Peta tugas', customer: 'Lacak derek' } as const;
+const TITLE = { owner: 'Peta armada', admin: 'Peta armada', driver: 'Peta tugas', customer: 'Lacak towing' } as const;
 const PRE_LOAD = ['confirmed', 'assigned', 'en_route_pickup', 'arrived_pickup'];
 
 const coord = (p: { lat: number; lng: number }) => ({ latitude: p.lat, longitude: p.lng });
@@ -93,6 +93,14 @@ const UnitCard = React.memo(function UnitCard({ unit, job, width, now, following
           </View>
         </View>
       </View>
+      {job && job.trackingVisible && job.etaMinutes !== null ? (
+        <View style={s.eta}>
+          <Icon name="clock-fast" size={18} tone="accentInk" />
+          <Txt variant="bodyStrong" tone="accentInk" style={{ flex: 1 }} numberOfLines={2}>
+            {t('{0} tiba ±{1} mnt ({2}) {3}', [job.alias, job.etaMinutes, formatTime(addMinutes(now, job.etaMinutes)), PRE_LOAD.includes(job.status) ? t('di lokasi jemput') : t('di tujuan')])}
+          </Txt>
+        </View>
+      ) : null}
       {job ? <RouteRail pickup={job.pickup} dropoff={job.dropoff} /> : <Txt variant="bodySm" tone="inkSecondary">Sedang tidak ada pekerjaan.</Txt>}
       <View style={s.metaRow}>
         <Icon name={unit.freshness === 'live' ? 'crosshairs-gps' : 'clock-alert-outline'} size={14} tone={unit.freshness === 'live' ? 'okInk' : 'warnInk'} />
@@ -192,7 +200,7 @@ const RouteLines = React.memo(function RouteLines({ job, truck, glideMs }: { job
 });
 
 /**
- * Peta langsung: owner melihat semua unit, driver tugasnya, pelanggan derek yang menuju kendaraannya.
+ * Peta langsung: owner melihat semua unit, driver tugasnya, pelanggan unit towing yang menuju kendaraannya.
  * Posisi diperbarui tiap 2 detik selama layar terbuka (berhenti saat pindah tab) dan truk meluncur
  * terus-menerus sambil menghadap arah jalannya. Ketuk truk untuk memilih kartunya, geser kartu untuk
  * memindahkan kamera, atau "Ikuti" agar kamera mengikuti truk.
@@ -201,7 +209,7 @@ export function LiveMapScreen() {
   const s = useStyles();
   const { scheme } = useTheme();
   const router = useRouter();
-  const toast = useToast();
+  const ask = usePermission();
   const insets = useSafeAreaInsets();
   const reduced = useReducedMotion();
   const focusedRef = useRef(false);
@@ -332,11 +340,7 @@ export function LiveMapScreen() {
   };
 
   const showMe = async () => {
-    const perm = await Location.requestForegroundPermissionsAsync();
-    if (perm.status !== 'granted') {
-      toast.show(t('Izin lokasi ditolak. Anda bisa mengaktifkannya di pengaturan HP.'), 'info');
-      return;
-    }
+    if (!(await ask('location'))) return;
     setMyLocation(true);
     setFollow(false);
     const fix = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }).catch(() => null);
@@ -346,6 +350,20 @@ export function LiveMapScreen() {
   const latestAge = data?.units.length ? Math.min(...data.units.map((u) => u.ageSeconds)) : null;
   const live = latestAge !== null && latestAge <= 90;
   const selectedItem = items[selected];
+  // Sorotan perkiraan tiba di header: driver/pelanggan = tugas/pesanan yang dipilih; owner = yang paling cepat tiba.
+  const headline = useMemo(() => {
+    const now = data?.generatedAt;
+    if (!now) return null;
+    const tracked = jobs.filter((j) => j.trackingVisible && j.etaMinutes !== null);
+    const pick = fleet ? [...tracked].sort((a, b) => (a.etaMinutes ?? 0) - (b.etaMinutes ?? 0))[0] : (selectedItem?.kind === 'job' && selectedItem.job.trackingVisible ? selectedItem.job : tracked[0]);
+    if (!pick || pick.etaMinutes === null) return null;
+    const at = formatTime(addMinutes(now, pick.etaMinutes));
+    const where = PRE_LOAD.includes(pick.status) ? t('lokasi jemput') : t('tujuan');
+    if (view === 'customer') return { title: t('Towing tiba ±{0} mnt · sekitar {1}', [pick.etaMinutes, at]), body: t('Menuju {0} · perkiraan kasar, belum termasuk macet', [where]) };
+    if (view === 'driver') return { title: t('Sampai {0} ±{1} mnt · {2}', [where, pick.etaMinutes, at]), body: t('{0} · perkiraan kasar dari jarak lurus', [pick.alias]) };
+    return { title: t('{0} tiba paling cepat: ±{1} mnt · {2}', [pick.alias, pick.etaMinutes, at]), body: t('Menuju {0} · {1} pekerjaan dilacak', [where, tracked.length]) };
+  }, [data?.generatedAt, jobs, fleet, selectedItem, view]);
+
   const counts = useMemo(() => {
     const list = data?.units ?? [];
     return { on: list.filter((u) => u.state === 'on_job').length, ready: list.filter((u) => u.state === 'available').length };
@@ -394,6 +412,7 @@ export function LiveMapScreen() {
             unit={u}
             glideMs={REFRESH_MS}
             fallbackHeading={headingFor(u)}
+            eta={jobs.find((j) => j.orderId === u.orderId && j.trackingVisible)?.etaMinutes ?? null}
             selected={selectedItem?.kind === 'unit' ? selectedItem.unit.unitId === u.unitId : selectedItem?.kind === 'job' ? selectedItem.job.orderId === u.orderId : false}
             onSelect={onTruck}
           />
@@ -411,6 +430,15 @@ export function LiveMapScreen() {
             </View>
             <LiveBadge live={live} pending={q.isPending} />
           </View>
+          {headline ? (
+            <View style={s.headEta}>
+              <Icon name="clock-fast" size={20} tone="onAccent" />
+              <View style={{ flex: 1 }}>
+                <Txt variant="bodyStrong" tone="onAccent" numberOfLines={2}>{headline.title}</Txt>
+                <Txt variant="caption" tone="onAccent" numberOfLines={2} style={{ opacity: 0.9 }}>{headline.body}</Txt>
+              </View>
+            </View>
+          ) : null}
           {fleet ? (
             <ChipRow<Filter>
               label={t('Saring unit')}
@@ -442,7 +470,7 @@ export function LiveMapScreen() {
           <View style={[s.card, s.wide, { width: width - space.lg * 2 }]}><ErrorBlock error={q.error} onRetry={() => void q.refetch()} /></View>
         ) : items.length === 0 ? (
           <View style={[s.card, s.wide, { width: width - space.lg * 2 }]}>
-            <Txt variant="titleSm">{fleet ? t('Tidak ada unit di pilihan ini') : view === 'driver' ? t('Belum ada tugas aktif') : t('Belum ada derek yang menuju Anda')}</Txt>
+            <Txt variant="titleSm">{fleet ? t('Tidak ada unit di pilihan ini') : view === 'driver' ? t('Belum ada tugas aktif') : t('Belum ada unit towing yang menuju Anda')}</Txt>
             <Txt variant="bodySm" tone="inkSecondary">
               {fleet ? t('Coba pilih "Semua".') : view === 'driver' ? t('Tugas baru muncul di peta setelah Anda menerimanya.') : t('Lokasi truk muncul di sini setelah sopir berangkat ke tempat Anda.')}
             </Txt>
@@ -510,6 +538,8 @@ const useStyles = makeStyles((c, scheme) => ({
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   btnRow: { flexDirection: 'row', gap: space.sm },
   etaRow: { flexDirection: 'row', alignItems: 'baseline', gap: space.sm },
+  eta: { flexDirection: 'row', alignItems: 'center', gap: space.sm, padding: space.sm + 2, borderRadius: radius.md, backgroundColor: c.accentSoft },
+  headEta: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingHorizontal: space.md, paddingVertical: space.sm, marginBottom: space.sm, borderRadius: radius.lg, backgroundColor: c.accent },
   hidden: { flexDirection: 'row', gap: space.sm, alignItems: 'flex-start', padding: space.md, borderRadius: radius.md, backgroundColor: c.surfaceAlt },
   progressTrack: { height: 8, borderRadius: 4, backgroundColor: c.surfaceAlt, marginVertical: 6 },
   progressFill: { height: 8, borderRadius: 4, backgroundColor: c.accent },

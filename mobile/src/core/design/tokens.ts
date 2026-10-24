@@ -64,7 +64,7 @@ const light = {
   modeAccentInk: '#1136D6',
   onModeAccent: '#FFFFFF',
 
-  // Ilustrasi unit derek (components/brand/tow-truck.tsx). Hanya untuk gambar, bukan teks.
+  // Ilustrasi unit towing (components/brand/tow-truck.tsx). Hanya untuk gambar, bukan teks.
   illoBody: '#1F4FE0',
   illoBodyShade: '#1238B8',
   illoBodyLight: '#5A84FF',

@@ -59,7 +59,7 @@ colors:
   field-mode-accent-soft: "#FFF1D6"
   field-mode-accent-ink: "#8A5300"
   field-on-mode-accent: "#1A1200"
-  # Ilustrasi unit derek (hanya gambar, bukan teks)
+  # Ilustrasi unit towing (hanya gambar, bukan teks)
   illo-body: "#1F4FE0"
   illo-body-shade: "#1238B8"
   illo-body-light: "#5A84FF"
@@ -126,18 +126,18 @@ colors:
   illo-beacon-dark: "#FFB84D"
   illo-car-dark: "#FF7A5C"
 typography:
-  display: { fontFamily: "system (Roboto / SF Pro)", fontSize: "30px", fontWeight: 800, lineHeight: "36px", letterSpacing: "-0.4px" }
-  title: { fontFamily: "system (Roboto / SF Pro)", fontSize: "24px", fontWeight: 700, lineHeight: "30px", letterSpacing: "-0.2px" }
-  headline: { fontFamily: "system (Roboto / SF Pro)", fontSize: "20px", fontWeight: 700, lineHeight: "26px" }
-  titleSm: { fontFamily: "system (Roboto / SF Pro)", fontSize: "17px", fontWeight: 700, lineHeight: "22px" }
-  body: { fontFamily: "system (Roboto / SF Pro)", fontSize: "16px", fontWeight: 400, lineHeight: "22px" }
-  bodyStrong: { fontFamily: "system (Roboto / SF Pro)", fontSize: "16px", fontWeight: 600, lineHeight: "22px" }
-  bodySm: { fontFamily: "system (Roboto / SF Pro)", fontSize: "14px", fontWeight: 400, lineHeight: "20px" }
-  label: { fontFamily: "system (Roboto / SF Pro)", fontSize: "13px", fontWeight: 600, lineHeight: "18px" }
-  caption: { fontFamily: "system (Roboto / SF Pro)", fontSize: "12px", fontWeight: 400, lineHeight: "16px" }
-  figure: { fontFamily: "system (Roboto / SF Pro)", fontSize: "17px", fontWeight: 700, lineHeight: "22px", fontFeature: "tnum" }
-  figureLg: { fontFamily: "system (Roboto / SF Pro)", fontSize: "26px", fontWeight: 800, lineHeight: "32px", letterSpacing: "-0.3px", fontFeature: "tnum" }
-  figureXl: { fontFamily: "system (Roboto / SF Pro)", fontSize: "32px", fontWeight: 800, lineHeight: "38px", letterSpacing: "-0.6px", fontFeature: "tnum" }
+  display: { fontFamily: "Plus Jakarta Sans", fontSize: "30px", fontWeight: 800, lineHeight: "36px", letterSpacing: "-0.4px" }
+  title: { fontFamily: "Plus Jakarta Sans", fontSize: "24px", fontWeight: 700, lineHeight: "30px", letterSpacing: "-0.2px" }
+  headline: { fontFamily: "Plus Jakarta Sans", fontSize: "20px", fontWeight: 700, lineHeight: "26px" }
+  titleSm: { fontFamily: "Plus Jakarta Sans", fontSize: "17px", fontWeight: 700, lineHeight: "22px" }
+  body: { fontFamily: "Plus Jakarta Sans", fontSize: "16px", fontWeight: 400, lineHeight: "22px" }
+  bodyStrong: { fontFamily: "Plus Jakarta Sans", fontSize: "16px", fontWeight: 600, lineHeight: "22px" }
+  bodySm: { fontFamily: "Plus Jakarta Sans", fontSize: "14px", fontWeight: 400, lineHeight: "20px" }
+  label: { fontFamily: "Plus Jakarta Sans", fontSize: "13px", fontWeight: 600, lineHeight: "18px" }
+  caption: { fontFamily: "Plus Jakarta Sans", fontSize: "12px", fontWeight: 400, lineHeight: "16px" }
+  figure: { fontFamily: "Plus Jakarta Sans", fontSize: "17px", fontWeight: 700, lineHeight: "22px", fontFeature: "tnum" }
+  figureLg: { fontFamily: "Plus Jakarta Sans", fontSize: "26px", fontWeight: 800, lineHeight: "32px", letterSpacing: "-0.3px", fontFeature: "tnum" }
+  figureXl: { fontFamily: "Plus Jakarta Sans", fontSize: "32px", fontWeight: 800, lineHeight: "38px", letterSpacing: "-0.6px", fontFeature: "tnum" }
   mono: { fontFamily: "Menlo (iOS), monospace (Android)", fontSize: "13px", fontWeight: 500, lineHeight: "18px" }
 rounded:
   xs: "6px"
@@ -200,7 +200,7 @@ components:
 
 # Design System: Tovv
 
-Sistem ini dicatat dari build yang dikirim: `mobile/src/core/design/tokens.ts` (dua palet `light`/`dark` berkunci sama, `paletteFor()` untuk mode driver, `space`, `radius`, `type`, `duration`, `elevation()`, `cardChrome()`), `theme.tsx` (`ThemeProvider`, `ThemeModeScope`, `useColors`, `makeStyles`), `motion.ts`, `core/i18n/status.ts`, `components/**` (termasuk aset unit derek `components/brand/tow-truck.tsx`), dan tangkapan emulator Android terang + gelap di `.impeccable/review/final/` (putaran 2; putaran 5 pada 23 Okt 2026 belum punya tangkapan layar). Kontrak permukaan: [`.impeccable/surfaces/mobile-src-app.md`](../.impeccable/surfaces/mobile-src-app.md) (seed 99bfc5b6111de108), yang menggantikan seluruh dunia "Nota Rangkap" yang ditolak. Konteks produk: [PRODUCT.md](PRODUCT.md). Frontmatter bersifat normatif; satuan px berarti dp/pt di React Native; kunci berakhiran `-dark` adalah nilai palet gelap untuk token yang sama.
+Sistem ini dicatat dari build yang dikirim: `mobile/src/core/design/tokens.ts` (dua palet `light`/`dark` berkunci sama, `paletteFor()` untuk mode driver, `space`, `radius`, `type`, `duration`, `elevation()`, `cardChrome()`), `theme.tsx` (`ThemeProvider`, `ThemeModeScope`, `useColors`, `makeStyles`), `motion.ts`, `core/i18n/status.ts`, `components/**` (termasuk aset unit towing `components/brand/tow-truck.tsx`), dan tangkapan emulator Android terang + gelap di `.impeccable/review/final/` (putaran 2; putaran 5 pada 23 Okt 2026 belum punya tangkapan layar). Kontrak permukaan: [`.impeccable/surfaces/mobile-src-app.md`](../../.impeccable/surfaces/mobile-src-app.md) (seed 99bfc5b6111de108), yang menggantikan seluruh dunia "Nota Rangkap" yang ditolak. Konteks produk: [PRODUCT.md](../product/PRODUCT.md). Frontmatter bersifat normatif; satuan px berarti dp/pt di React Native; kunci berakhiran `-dark` adalah nilai palet gelap untuk token yang sama.
 
 ## Overview
 
@@ -208,11 +208,11 @@ Sistem ini dicatat dari build yang dikirim: `mobile/src/core/design/tokens.ts` (
 
 Tovv memakai bahasa yang sudah dikenal pengguna Indonesia dari Gojek/GoPay, Grab/Tokopedia, dan Bank Jago/Jenius: header gradien biru merek di puncak layar akar, kartu ringkasan putih yang melayang menimpa tepi bawah header dengan satu angka uang besar, grid pintasan berikon, lalu daftar kartu membulat. Setiap kartu menjawab satu pertanyaan dalam bahasa sehari-hari dan dapat diketuk untuk diselesaikan.
 
-Biru merek diturunkan dari logo Solveit (#1136D6 → #19B8F2). Gradien hanya hidup di header; isi layar duduk di latar dingin dengan kartu putih (terang) atau permukaan biru-arang (gelap). Tema mengikuti sistem kecuali pengguna memilih lain di Lainnya → Tampilan; kedua palet berkunci sama dan diuji kontrasnya. Font sistem, satu keluarga ikon (MaterialCommunityIcons) dalam tile ikon membulat, salinan dua bahasa (Indonesia sumber, Inggris lewat `core/i18n`) yang ditulis seperti orang berbicara. Navigasi, back gesture, safe area, keyboard dan ukuran teks tetap native.
+Biru merek diturunkan dari logo Solveit (#1136D6 → #19B8F2). Gradien hanya hidup di header; isi layar duduk di latar dingin dengan kartu putih (terang) atau permukaan biru-arang (gelap). Tema mengikuti sistem kecuali pengguna memilih lain di Lainnya → Tampilan; kedua palet berkunci sama dan diuji kontrasnya. Font Plus Jakarta Sans, satu keluarga ikon (MaterialCommunityIcons) dalam tile ikon membulat, salinan dua bahasa (Indonesia sumber, Inggris lewat `core/i18n`) yang ditulis seperti orang berbicara. Navigasi, back gesture, safe area, keyboard dan ukuran teks tetap native.
 
 Owner punya dua mode yang terlihat berbeda. **Mode owner** (dan pelanggan) memakai biru merek. **Mode driver** memakai palet lapangan: header biru-arang dengan cahaya kuning dan garis marka jalan samar, pil "Mode driver" kuning, tombol langkah berikutnya kuning, dan pil tab kuning. Berpindah mode menampilkan transisi singkat yang menyebut mode tujuannya.
 
-Unit derek flatbed Tovv tampil sebagai ilustrasi vektor (splash, loader, keadaan kosong, kartu mode driver, beranda pelanggan) dan sebagai truk tampak atas di peta.
+Unit towing flatbed Tovv tampil sebagai ilustrasi vektor (splash, loader, keadaan kosong, kartu mode driver, beranda pelanggan) dan sebagai truk tampak atas di peta.
 
 Gerak tenang dan pendek, tanpa memantul: header bergeser sedikit lebih lambat dari isi lalu menyerahkan judul ke bar ringkas, kartu daftar memudar masuk singkat, tombol dan kartu sedikit mengecil saat ditekan, angka ringkasan menghitung naik sekali, pil tab meluncur, truk di peta meluncur terus-menerus. Semua di UI thread (Reanimated); "kurangi gerakan" berarti tanpa gerak ruang.
 
@@ -221,7 +221,7 @@ Gerak tenang dan pendek, tanpa memantul: header bergeser sedikit lebih lambat da
 - Kartu ringkasan menimpa header (−72 dp), angka uang `figureXl` tabular yang menghitung naik sekali.
 - Kartu membulat 16–20: bayangan berlapis yang lembut di terang, garis tipis `line` di gelap.
 - Dua mode dengan kunci palet yang sama (`paletteFor(scheme, 'brand' | 'field')`); mode driver = biru-arang + kuning.
-- Kerangka muat berbentuk isi yang akan datang, dengan kilau lembut; loader unit derek untuk tunggu yang lebih lama.
+- Kerangka muat berbentuk isi yang akan datang, dengan kilau lembut; loader unit towing untuk tunggu yang lebih lama.
 - Status = teks + ikon + bentuk garis (utuh/putus-putus/coret) dalam chip pil; warna hanya penguat.
 - Pita kuning "DEMO — SIMULASI FRONTEND" permanen di atas semua layar, sama di kedua tema.
 
@@ -256,7 +256,7 @@ Satu biru merek dengan tonal wash, netral biru-dingin, empat pasangan status ink
 - Di mode owner token yang sama bernilai biru merek, sehingga komponen tidak perlu tahu mode.
 
 ### Ilustrasi
-- Token `illo*` hanya untuk gambar unit derek (`components/brand/tow-truck.tsx`): kabin `illoBody`, dek `illoSteel`, lampu rotari dan strap `illoBeacon`, mobil pelanggan `illoCar`, bayangan tanah `illoGround`. Nilai gelap disesuaikan agar tetap terbaca di permukaan gelap.
+- Token `illo*` hanya untuk gambar unit towing (`components/brand/tow-truck.tsx`): kabin `illoBody`, dek `illoSteel`, lampu rotari dan strap `illoBeacon`, mobil pelanggan `illoCar`, bayangan tanah `illoGround`. Nilai gelap disesuaikan agar tetap terbaca di permukaan gelap.
 
 ### Named Rules
 **The Same Keys Rule.** Palet terang dan gelap — dan palet mode driver — memiliki kunci yang identik (`Palette` diketik dari `light`); layar dan komponen hanya membaca `useColors()`/`makeStyles`, tidak pernah hex mentah. `makeStyles` menyimpan gaya per skema + mode. Pasangan teks diuji ≥ 4,5:1 di `tokens.test.ts`, termasuk palet mode driver.
@@ -265,10 +265,12 @@ Satu biru merek dengan tonal wash, netral biru-dingin, empat pasangan status ink
 
 ## Typography
 
-**Display/Body Font:** font sistem (Roboto di Android, SF Pro di iOS).
+**Display/Body Font:** **Plus Jakarta Sans** (OFL, buatan Indonesia; keputusan pengguna 25 Okt 2026), dimuat lewat `@expo-google-fonts/plus-jakarta-sans` dalam lima berat (400, 500, 600, 700, 800). Splash native ditahan sampai font siap; bila gagal dimuat, teks jatuh ke font sistem.
 **Data Font:** Menlo (iOS) / monospace (Android) hanya untuk `mono` (nomor dokumen lewat `Serial`, URI, ref).
 
-**Character:** sans sistem yang tebal di puncak (800 untuk sapaan dan angka uang) dan tenang di isi; hierarki dibawa ukuran dan berat, bukan huruf kapital.
+**Character:** sans geometris yang hangat — tebal di puncak (800 untuk sapaan dan angka uang) dan tenang di isi; angka tabular untuk rupiah; hierarki dibawa ukuran dan berat, bukan huruf kapital.
+
+**Cara pakai:** setiap berat adalah keluarga terpisah (`PlusJakartaSans_700Bold`, dst.). `Txt` mengubah `fontWeight` (dari varian, `bold`, atau gaya pemanggil) menjadi nama keluarga yang sesuai dan menulis `fontWeight: 'normal'`, supaya Android tidak menebalkan dua kali. Input teks memakai `fontStyle()` yang sama. Teks panjang memakai `textBreakStrategy="balanced"` (Android) dan `lineBreakStrategyIOS="standard"`.
 
 ### Hierarchy
 - **Display** (800, 30/36, −0.4): judul/sapaan header akar ("Halo, Raka", "Pekerjaan"), layar sambutan.
@@ -358,9 +360,9 @@ Label `label` di atas, kotak `surface` bergaris `line` 1,5, sudut 14, min 52 dp,
 ### Feedback
 - **Toast:** `inverse`, `lg` 16, tile ikon bulat 32 tone ok/danger/info, `bodySm` `onInverse`, bayangan level 3; muncul di bawah pita DEMO (bukan area ibu jari), diumumkan ke pembaca layar.
 - **LoadingBlock / SkeletonGroup:** kerangka berbentuk isi yang akan datang — `list`, `order` (kartu pekerjaan), `action` (tindakan), `hero` (ringkasan uang), `detail` — berwarna `skeleton` dengan kilau `skeletonGlow` selebar 140 dp yang melintas (1,1 detik) dari satu penggerak bersama per kelompok; tanpa kilau saat "kurangi gerakan".
-- **TowLoader:** unit derek bermuatan yang sedikit bergoyang di atas marka jalan yang bergerak, dengan teks di bawahnya. Untuk tunggu yang lebih lama dari sekejap (menyiapkan peta). Hanya berjalan selama tampil.
+- **TowLoader:** unit towing bermuatan yang sedikit bergoyang di atas marka jalan yang bergerak, dengan teks di bawahnya. Untuk tunggu yang lebih lama dari sekejap (menyiapkan peta). Hanya berjalan selama tampil.
 - **ModeSwitchOverlay:** saat owner berpindah ke mode driver atau sebaliknya, layar memakai warna mode tujuan, menampilkan tile ikon 76 (setir/tas), judul `display` "Mode driver"/"Mode owner" dan satu kalimat, lalu memudar (±0,8 detik).
-- **ErrorBlock / EmptyBlock:** tile ikon bulat 56 (danger / netral), judul, isi, tombol compact secondary "Coba lagi". Keadaan kosong daftar pekerjaan/pesanan memakai ilustrasi unit derek (`art="truck"`) sebagai ganti ikon.
+- **ErrorBlock / EmptyBlock:** tile ikon bulat 56 (danger / netral), judul, isi, tombol compact secondary "Coba lagi". Keadaan kosong daftar pekerjaan/pesanan memakai ilustrasi unit towing (`art="truck"`) sebagai ganti ikon.
 
 ### Akun (masuk, daftar, lupa kata sandi)
 - **AuthShell:** latar `HeroBackground` penuh dengan wordmark 40, judul `display` `onHero` dan subjudul `onHeroSecondary`; kartu isi `bg` bersudut atas 28 yang naik 32 dp sambil memudar (420 ms, ease-out). Saat digulir, judul bergerak 0,35× kecepatan dan memudar.
@@ -368,9 +370,9 @@ Label `label` di atas, kotak `surface` bergaris `line` 1,5, sudut 14, min 52 dp,
 - **Lupa kata sandi:** setelah dikirim, tile ikon bulat 72 `okWash` muncul dengan pegas dan teks yang tidak membocorkan apakah email terdaftar.
 
 ### Splash
-`SplashOverlay` menutupi aplikasi ±1,2 detik saat dibuka: gradien merek, unit derek bermuatan meluncur masuk dari kiri dan berhenti di tengah di atas garis jalan (700 ms, ease-out), wordmark 52 dan tagline muncul di atasnya, lalu lapisan memudar 260 ms. Pil DEMO tetap tampil. "Kurangi gerakan" = pudar singkat.
+`SplashOverlay` menutupi aplikasi ±1,2 detik saat dibuka: gradien merek, unit towing bermuatan meluncur masuk dari kiri dan berhenti di tengah di atas garis jalan (700 ms, ease-out), wordmark 52 dan tagline muncul di atasnya, lalu lapisan memudar 260 ms. Pil DEMO tetap tampil. "Kurangi gerakan" = pudar singkat.
 
-### Unit derek (aset)
+### Unit towing (aset)
 `components/brand/tow-truck.tsx`, vektor SVG dengan warna token:
 - **TowTruckArt:** flatbed tampak samping menghadap kanan — kabin biru merek dengan kaca dan lampu rotari kuning, dek baja bergaris reflektor, tiga roda; `loaded` menambahkan mobil pelanggan (koral) yang diikat strap kuning di atas dek.
 - **TowTruckTop:** truk tampak atas (kabin berwarna status, dek bergaris, lampu rotari) untuk penanda peta; diputar sesuai arah gerak.
@@ -381,13 +383,14 @@ Label `label` di atas, kotak `surface` bergaris `line` 1,5, sudut 14, min 52 dp,
 - **Data:** posisi diperbarui tiap 2 detik hanya selama layar peta terbuka (berhenti saat pindah tab).
 - **Header mengambang:** kartu `surface` sudut `xl`, bayangan level 3, judul `headline`, ringkasan "{n} bertugas · {n} siap · posisi simulasi", pil status "Langsung" (`okWash`, titik `okInk` dengan riak pelan) atau "Posisi lama" (`warnWash`, garis putus-putus), chip filter unit untuk owner.
 - **Kontrol peta:** kolom tombol bulat 48 di bawah header: Lihat semua, Lokasi saya, Ikuti truk (aktif = `accent`), Ganti tampilan peta (standar/satelit).
-- **Penanda truk:** `TowTruckTop` (38; 44 saat dipilih) yang menghadap arah geraknya, kabin `accent` (bertugas) / `okInk` (siap) / `neutralInk` (tidak beroperasi), dalam halo 52 (`accentSoft` bergaris `accent` saat dipilih; putus-putus `warnInk` bila posisi lama) dan tag kode unit. Meluncur linier selama jeda pembaruan (2 detik) sehingga gerak terlihat terus-menerus — animasi native peta di Android, AnimatedRegion di iOS.
+- **Penanda truk (`TruckBubble`):** gelembung `surface` sudut `lg` berisi ilustrasi unit towing tampak samping (`TowTruckArt` 56; 66 saat dipilih, bermuatan saat bertugas) yang dibalik saat bergerak ke barat, bingkai 2,5 berwarna status (`accent` bertugas / `okInk` siap / `neutralInk` tidak beroperasi; putus-putus `warnInk` bila posisi lama), ujung runcing yang menunjuk titiknya, dan tag "U2 · 12 mnt" (kode + perkiraan tiba). Meluncur linier selama jeda pembaruan (2 detik) sehingga gerak terlihat terus-menerus — animasi native peta di Android, AnimatedRegion di iOS.
 - **Rute:** garis dasar `surface` 9 sebagai tepi, sisa rute putus-putus `inkMuted` 4, ruas yang sudah ditempuh utuh `accent` 6; jemput = cincin `accent` dengan label "Jemput", tujuan = pin `dangerInk` dengan label "Tujuan".
 - **Karosel kartu:** kartu `surface` sudut `xl`, digeser dengan snap; mengetuk truk menggulir ke kartunya, menggeser kartu memindahkan kamera. Kartu unit: status + sopir, rute, umur posisi, "Ikuti di peta". Kartu pekerjaan: perkiraan tiba `figureLg` + jam tiba, progres 8 dp dengan truk kecil di ujungnya, sisa jarak garis lurus, rute, Detail, dan Navigasi (`variant="mode"`) untuk driver.
-- **Peta mini** (layar Perjalanan): peta 220 dp sudut `xl` yang tidak bisa digeser, rute + truk, tombol "Buka peta" ke peta langsung.
+- **Sorotan perkiraan tiba:** pita `accent` di header peta — pelanggan: "Towing tiba ±12 mnt · sekitar 14.20"; driver: "Sampai tujuan ±12 mnt · 14.20"; owner: unit yang paling cepat tiba. Kartu unit owner juga memuat baris ETA `accentSoft`.
+- **Peta mini** (layar Perjalanan): peta 220 dp sudut `xl` yang tidak bisa digeser, rute + `TruckBubble` dengan ETA, tombol "Buka peta" ke peta langsung.
 
-### Pemesanan derek
-- **Formulir bertahap** (`/request/new`): pelanggan 4 langkah (Lokasi → Kendaraan → Waktu → Periksa); owner mulai dari Pelanggan. Di bawah header: garis langkah (ruas 4 dp, terisi `accent` dengan halus) dan nama langkah. Setiap langkah dibuka dengan pertanyaan `title` ("Dari mana ke mana?"), isi masuk dari kanan/kiri 16 dp sesuai arah. Footer: "Kembali" secondary + "Lanjut"/"Kirim permintaan" `lg`. Back Android mundur satu langkah.
+### Pemesanan towing
+- **Formulir bertahap** (`/request/new`): pelanggan 4 langkah (Lokasi → Layanan → Waktu → Periksa); langkah Layanan memilih paket (kartu 2 kolom bergambar) lalu jenis mobil/motor, kondisi (Self Drive: pernyataan layak jalan; Car Carrier: jumlah mobil); owner mulai dari Pelanggan. Di bawah header: garis langkah (ruas 4 dp, terisi `accent` dengan halus) dan nama langkah. Setiap langkah dibuka dengan pertanyaan `title` ("Dari mana ke mana?"), isi masuk dari kanan/kiri 16 dp sesuai arah. Footer: "Kembali" secondary + "Lanjut"/"Kirim permintaan" `lg`. Back Android mundur satu langkah.
 - **RouteCard:** kartu jemput/tujuan seperti aplikasi ojek online, dihubungkan titik-titik, tombol tukar bulat `accentSoft`, patokan sopir `accentInk`, dan jarak garis lurus di bawahnya.
 - **PlacePicker:** layar penuh dengan kotak cari bergaris `accent` 2, tombol cepat "Lokasi saya" / "Pilih di peta", lalu "Terakhir dipakai" dan "Tempat tersimpan" (atau hasil pencarian peta HP dan "Pakai alamat yang diketik"). Konfirmasi titik: peta penuh dengan pin tetap di tengah yang terangkat saat peta digeser, lembar bawah berisi alamat terbaca, kolom patokan untuk sopir, dan tombol "Jemput di sini"/"Antar ke sini".
 
@@ -400,10 +403,26 @@ Label `label` di atas, kotak `surface` bergaris `line` 1,5, sudut 14, min 52 dp,
 - **DemoStrip:** pita `demoWash` permanen, tinggi 40 + hitSlop 4 = 48 dp, ikon labu + "DEMO — SIMULASI FRONTEND" 800 + peran + usaha + pil "Ganti"; membuka pemilih akun demo lokal.
 
 ### Motion
-Durasi `fast` 120, `base` 220, `slow` 300, `count` 650 ms; `easeOut` = bezier (0,22, 1, 0,36, 1) untuk kemunculan, `easeInOut` kubik untuk kilau kerangka; pegas `pressSpring` (damping 26, stiffness 420, mass 0,6) dan `glideSpring` (24, 240, 0,8) sama-sama `overshootClamping` — tidak ada yang memantul. Masuk bertahap `useEnter`: naik 6 dp + memudar 300 ms, jeda 30 × indeks, hanya 6 item pertama. Efek scroll-trigger per kartu dan kemiringan 3D dihapus (terlalu ramai dan menambah kerja di setiap gulir). Hanya Reanimated/native; `useMotionDuration` dan `useReducedMotion` mematikan gerak ruang. Yang berulang hanya penanda menunggu: kilau kerangka, loader unit derek, riak titik "Langsung".
+Durasi `fast` 120, `base` 220, `slow` 300, `count` 650 ms; `easeOut` = bezier (0,22, 1, 0,36, 1) untuk kemunculan, `easeInOut` kubik untuk kilau kerangka; pegas `pressSpring` (damping 26, stiffness 420, mass 0,6) dan `glideSpring` (24, 240, 0,8) sama-sama `overshootClamping` — tidak ada yang memantul. Masuk bertahap `useEnter`: naik 6 dp + memudar 300 ms, jeda 30 × indeks, hanya 6 item pertama. Efek scroll-trigger per kartu dan kemiringan 3D dihapus (terlalu ramai dan menambah kerja di setiap gulir). Hanya Reanimated/native; `useMotionDuration` dan `useReducedMotion` mematikan gerak ruang. Yang berulang hanya penanda menunggu: kilau kerangka, loader unit towing, riak titik "Langsung".
+
+### Paket layanan
+- **ServiceArt:** ilustrasi per paket di kanvas yang sama dengan TowTruckArt — Car Towing (flatbed bermuatan), Car Carrier (truk dua tingkat dengan enam mobil), Storing Motor (truk dengan rel naik dan moge), Self Drive (sedan dengan sopir dan marka jalan).
+- **ServiceTile** (beranda pelanggan, 2 kolom): gambar, nama, satu kalimat, "Mulai Rp …"; sorotan pil "Paling cepat" (`accentSoft`) di Car Towing dan "Paling hemat" (`okWash`) di Car Carrier.
+- **ServiceCard** (`/services`): panel gambar `surfaceAlt`, nama `headline`, harga "Mulai dari" `figureLg` + pil kuning "Harga contoh (DEMO)", tiga ciri (kecepatan, biaya, kapasitas) dalam kotak `accentSoft`, deskripsi, daftar "Cocok untuk" bercentang `okInk`, tombol pesan.
+- **ServicePicker** (formulir): kartu pilih 2 kolom, terpilih bergaris `accent` dengan lencana centang.
+
+### Dialog dan izin
+- **Dialog (`useDialog`)**: kartu `surface` sudut 28 di tengah layar di atas `scrim`, tile ikon 56 ber-tone (info/ok/warn/danger/mode), judul `headline`, pesan `bodySm`, poin bercentang di panel `surfaceAlt`, tombol utama `lg` (primary/danger/mode) dan tombol quiet di bawahnya. Masuk dengan memudar + skala 0,96 → 1 (200 ms); ketuk latar atau Back = batal. Dipakai untuk pindah mode, keluar, terima tugas, terbitkan invoice, tutup order, tandai biaya final, setujui harga, terima/batalkan pembayaran, setujui/tolak biaya, ganti paket, cabut akses/delegasi, buang isian formulir, dan pemberitahuan setelah pelanggan mengirim permintaan.
+- **Izin (`usePermission`)**: sebelum dialog sistem kamera/lokasi/galeri, dialog Tovv menjelaskan kegunaannya dengan dua poin; bila izin sudah ditolak permanen, tombol "Buka pengaturan". Penolakan diberi toast info, alur tetap bisa lanjut.
+
+### Sorotan
+- **EtaStrip:** pita `accentSoft` "±12 mnt ke tujuan · tiba 14.20" di kartu pesanan, beranda driver/pelanggan, dan kartu "Sekarang" di detail pesanan; hanya tampil bila lokasi boleh dibagikan.
+- **Pesanan berjalan** (beranda pelanggan): kartu bergaris `accent` 1,5 dengan status, ETA, rute, sopir, dan "Lacak di peta".
+- **Sekarang** (detail pesanan): status + langkah berikutnya `titleSm` + ETA di puncak layar.
+- **Belum terkirim** (beranda driver): kartu `warnWash` yang bisa diketuk.
 
 ### Identitas
-Wordmark "tovv" **SEMENTARA** (`components/brand/wordmark.tsx`, SVG; "v" kedua `brandSky` di header, `accentInk` di permukaan terang) karena logo resmi belum tersedia; ganti komponen ini saat logo diterima. Logo Solveit Indonesia hanya di layar Tentang.
+Wordmark "Tovv" (T kapital) **SEMENTARA** (`components/brand/wordmark.tsx`, SVG; "v" kedua `brandSky` di header, `accentInk` di permukaan terang) karena logo resmi belum tersedia; ganti komponen ini saat logo diterima. Logo Solveit Indonesia hanya di layar Tentang.
 
 ## Do's and Don'ts
 

@@ -14,6 +14,7 @@ import { useTovvMutation, useTovvQuery } from '@/data/api/hooks';
 import { usageStatus } from '@/core/i18n/status';
 import { formatDate } from '@/core/format/time';
 import { t } from '@/core/i18n';
+import { useDialog } from '@/components/feedback/dialog';
 
 /**
  * Paket SaaS DEMO (SUB-01–06): langganan vs bayar per layanan sukses. Pratinjau tagihan langganan terpisah dari
@@ -22,6 +23,7 @@ import { t } from '@/core/i18n';
 export function SaasScreen() {
   const color = useColors();
   const q = useTovvQuery(['saas'], (a) => a.getSaas());
+  const dialog = useDialog();
   const change = useTovvMutation((a, kind: 'subscription' | 'success') => a.schedulePlanChange(kind), { success: 'Paket baru berlaku mulai periode berikutnya. Pesanan yang sedang jalan tetap memakai ketentuan lama.' });
   return (
     <Screen header={<DetailHeader title="Paket langganan Tovv (DEMO)" subtitle="Harga contoh · tidak ditagih" />}>
@@ -45,7 +47,7 @@ export function SaasScreen() {
                 variant="secondary"
                 compact
                 loading={change.isPending}
-                onPress={() => change.mutate(s.plan.kind === 'subscription' ? 'success' : 'subscription')}
+                onPress={() => void dialog.confirm({ title: 'Ganti paket langganan?', message: 'Paket baru berlaku mulai periode berikutnya. Pesanan yang sedang jalan tetap memakai ketentuan lama.', icon: 'package-variant-closed', confirmLabel: 'Ganti paket' }).then((ok) => (ok ? change.mutate(s.plan.kind === 'subscription' ? 'success' : 'subscription') : undefined))}
                 style={{ alignSelf: 'flex-start', marginTop: space.sm }}
               />
             </Card>

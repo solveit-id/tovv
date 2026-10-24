@@ -4,11 +4,11 @@ import { useColors } from '@/core/design/theme';
 import { t } from '@/core/i18n';
 
 /**
- * Wordmark SEMENTARA "tovv" — dibuat untuk prototype karena logo Tovv resmi belum tersedia.
- * Huruf dibangun di grid 2 px; "v" kedua memakai biru langit logo Solveit sebagai satu-satunya aksen.
- * Ganti komponen ini saat logo resmi diterima (lihat docs/DESIGN.md → Identitas).
+ * Wordmark SEMENTARA "Tovv" — dibuat untuk prototype karena logo Tovv resmi belum tersedia.
+ * Nama produk selalu ditulis dengan T kapital. Huruf dibangun di grid 2 px; "v" kedua memakai biru langit logo Solveit sebagai satu-satunya aksen.
+ * Ganti komponen ini saat logo resmi diterima (lihat docs/design/DESIGN.md → Identitas).
  */
-const T = 'M4 4h7v10h7v6.5h-7V36H4V20.5H0V14h4Z';
+const T = 'M0 4h20v6.5h-6.5V36h-7V10.5H0Z';
 const O = 'M22 25a11 11 0 1 0 22 0a11 11 0 1 0-22 0ZM28.25 25a4.75 4.75 0 1 1 9.5 0a4.75 4.75 0 1 1-9.5 0Z';
 const V1 = 'M47 14h7.5L59 27.5L63.5 14H71L62.6 36h-7.2Z';
 const V2 = 'M73 14h7.5L85 27.5L89.5 14H97L88.6 36h-7.2Z';

@@ -1,4 +1,4 @@
-import type { BusinessAccount, Place, Tenant, UnitAsset, User } from '@/domain/types';
+import type { BusinessAccount, Place, ServicePackage, Tenant, UnitAsset, User } from '@/domain/types';
 import { dayAt, DEMO_CLOCK_C0, addMinutes } from '@/core/format/time';
 
 /**
@@ -47,7 +47,7 @@ export const USERS: User[] = [
   { id: 'finance-a', tenantId: 'tenant-a', name: 'Lestari Putri', email: mail('lestari.finance-a'), staffRoles: ['finance'], phoneLabel: phone(104) },
   { id: 'driver-a1', tenantId: 'tenant-a', name: 'Agus Setiawan', email: mail('agus.driver-a1'), staffRoles: ['driver'], phoneLabel: phone(105) },
   { id: 'driver-a2', tenantId: 'tenant-a', name: 'Bayu Nugroho', email: mail('bayu.driver-a2'), staffRoles: ['driver'], phoneLabel: phone(106) },
-  { id: 'partner-a', tenantId: 'tenant-a', name: 'Mitra Derek Demo', email: mail('mitra.partner-a'), staffRoles: ['partner'], phoneLabel: phone(107) },
+  { id: 'partner-a', tenantId: 'tenant-a', name: 'Mitra Towing Demo', email: mail('mitra.partner-a'), staffRoles: ['partner'], phoneLabel: phone(107) },
   { id: 'customer-a1', tenantId: 'tenant-a', name: 'Wulan Sari', email: mail('wulan.customer-a1'), staffRoles: [], customerKind: 'personal', phoneLabel: phone(108) },
   { id: 'customer-a2', tenantId: 'tenant-a', name: 'Hendra Gunawan', email: mail('hendra.customer-a2'), staffRoles: [], customerKind: 'personal', phoneLabel: phone(109) },
   { id: 'ba1-req', tenantId: 'tenant-a', name: 'Fajar Ramadhan', email: mail('fajar.ba1'), staffRoles: [], customerKind: 'b2b', businessAccountId: 'ba1', b2bRoles: ['requester'], phoneLabel: phone(110) },
@@ -131,7 +131,7 @@ export const UNITS: UnitAsset[] = [
     lastPosition: { lat: -7.2575, lng: 112.7521, capturedAt: addMinutes(DEMO_CLOCK_C0, -60 * 26), source: 'simulated', accuracyM: null },
   },
   {
-    id: 'A-P1', tenantId: 'tenant-a', code: 'P1', label: 'Flatbed mitra P1', ownership: 'partner', partnerName: 'Mitra Derek Demo',
+    id: 'A-P1', tenantId: 'tenant-a', code: 'P1', label: 'Flatbed mitra P1', ownership: 'partner', partnerName: 'Mitra Towing Demo',
     capacityKg: 3500, deckLengthMm: 6500, deckWidthMm: 2300, equipment: ['winch', 'strap roda', 'dolly'], status: 'active',
     specSource: 'synthetic', costTemplateVersion: 'CT-A-1', ratePerKm: 0, baseCost: 1_150_000,
     lastPosition: { lat: -7.3311, lng: 112.7702, capturedAt: addMinutes(DEMO_CLOCK_C0, -38), source: 'simulated', accuracyM: 30 },
@@ -141,6 +141,66 @@ export const UNITS: UnitAsset[] = [
     capacityKg: 3000, deckLengthMm: 6000, deckWidthMm: 2200, equipment: ['winch', 'strap roda'], status: 'active',
     specSource: 'synthetic', costTemplateVersion: 'CT-B-1', ratePerKm: 10_000, baseCost: 420_000,
     lastPosition: { lat: -7.2711, lng: 112.7440, capturedAt: addMinutes(DEMO_CLOCK_C0, -2), source: 'simulated', accuracyM: 14 },
+  },
+];
+
+/**
+ * Paket layanan towing (keputusan pengguna 25 Okt 2026). Nama paket umum di industri towing; deskripsi
+ * ditulis sendiri. Harga "mulai dari" sintetis berlabel DEMO, bukan tarif operator nyata; harga pasti
+ * tetap datang dari penawaran operator.
+ */
+export const SERVICE_PACKAGES: ServicePackage[] = [
+  {
+    kind: 'car_towing',
+    name: 'Car Towing',
+    tagline: 'Satu mobil, langsung diangkut truk towing',
+    description: 'Mobil Anda dinaikkan ke truk towing ukuran sedang. Truknya cukup lincah untuk masuk ke jalan kecil, jadi cepat sampai di lokasi jemput dan tujuan.',
+    bestFor: ['Mobil mogok atau habis kecelakaan', 'Lokasi di gang atau daerah pelosok', 'Butuh cepat sampai'],
+    speed: 'fastest',
+    cost: 'standard',
+    capacity: '1 mobil',
+    vehicleClass: 'car',
+    startFrom: 850_000,
+    priceUnit: 'per mobil',
+  },
+  {
+    kind: 'car_carrier',
+    name: 'Car Carrier',
+    tagline: 'Kirim banyak mobil sekaligus, lebih hemat',
+    description: 'Mobil diangkut truk panjang yang memuat hingga 6 mobil sekaligus. Biaya per mobil lebih hemat bila mengirim beberapa mobil, tetapi waktu tempuhnya sedikit lebih lama dibanding towing.',
+    bestFor: ['Pindah kota tanpa terburu-buru', 'Dealer atau kantor yang kirim beberapa mobil', 'Mobil dalam kondisi baik'],
+    speed: 'slower',
+    cost: 'saver',
+    capacity: 'Hingga 6 mobil',
+    vehicleClass: 'car',
+    startFrom: 750_000,
+    priceUnit: 'per mobil',
+  },
+  {
+    kind: 'motor_storing',
+    name: 'Storing Motor',
+    tagline: 'Angkut motor dan moge dengan aman',
+    description: 'Truk khusus motor dengan rel atau tangga, jadi motor besar bisa naik dengan mudah dan diikat dengan aman sampai tujuan.',
+    bestFor: ['Moge dan motor sport', 'Motor mogok atau bannya rusak', 'Kirim motor ke luar kota'],
+    speed: 'fast',
+    cost: 'saver',
+    capacity: 'Hingga 4 motor',
+    vehicleClass: 'motorcycle',
+    startFrom: 450_000,
+    priceUnit: 'per motor',
+  },
+  {
+    kind: 'self_drive',
+    name: 'Self Drive',
+    tagline: 'Mobil Anda dikemudikan sopir berpengalaman',
+    description: 'Sopir berpengalaman mengemudikan mobil Anda lewat darat sampai tujuan. Tarifnya lebih terjangkau, asalkan mobil dalam kondisi layak jalan.',
+    bestFor: ['Mobil sehat dan siap jalan', 'Pindah kota dengan biaya ringan', 'Tidak ada truk yang bisa masuk'],
+    speed: 'fast',
+    cost: 'saver',
+    capacity: '1 mobil',
+    vehicleClass: 'car',
+    startFrom: 500_000,
+    priceUnit: 'per mobil',
   },
 ];
 

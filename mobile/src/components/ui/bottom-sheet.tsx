@@ -3,6 +3,7 @@ import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, View } fr
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { radius, space } from '@/core/design/tokens';
 import { makeStyles } from '@/core/design/theme';
+import { useReducedMotion } from '@/core/design/motion';
 import { Txt } from './txt';
 import { HeaderIconButton } from '@/components/layout/app-header';
 import { t } from '@/core/i18n';
@@ -14,8 +15,9 @@ import { t } from '@/core/i18n';
 export function BottomSheet({ visible, title, onClose, children, footer }: { visible: boolean; title: string; onClose: () => void; children: React.ReactNode; footer?: React.ReactNode }) {
   const insets = useSafeAreaInsets();
   const s = useStyles();
+  const reduced = useReducedMotion();
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent navigationBarTranslucent>
+    <Modal visible={visible} transparent animationType={reduced ? 'none' : 'slide'} onRequestClose={onClose} statusBarTranslucent navigationBarTranslucent>
       <View style={s.fill}>
         <Pressable style={s.backdrop} onPress={onClose} accessibilityRole="button" accessibilityLabel={t('Tutup')} />
         <KeyboardAvoidingView style={s.root} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} pointerEvents="box-none">

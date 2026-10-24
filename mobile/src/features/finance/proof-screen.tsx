@@ -44,6 +44,7 @@ export function ProofScreen() {
 
   const run = async () => {
     if (!p) return;
+    // Lembar isian (BottomSheet) ini sudah menjadi langkah konfirmasi: dialog di atas Modal tidak tampil di iOS.
     setBusy(true);
     setErr(null);
     try {

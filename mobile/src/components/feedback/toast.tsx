@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo, Pressable, View } from 'react-native';
 import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -42,8 +42,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const look = msg ? LOOK[msg.tone] : null;
+  // Nilai konteks stabil: hook yang bergantung pada toast (mis. usePermission) tidak berganti identitas tiap toast tampil.
+  const value = useMemo(() => ({ show }), [show]);
   return (
-    <ToastContext.Provider value={{ show }}>
+    <ToastContext.Provider value={value}>
       {children}
       {msg && look ? (
         <Animated.View key={msg.id} entering={FadeInUp.duration(220)} exiting={FadeOutUp.duration(160)} style={[s.wrap, { top: insets.top + 44 }]} pointerEvents="box-none">

@@ -4,8 +4,8 @@ import { customerCanSeeRequest, requireScope } from './policy';
 import { isStaffView, mediaItem, quoteDoc, requestOf, requestSummary, userName } from './mappers';
 import { haversineKm } from './tracking';
 import type { DemoDb } from './db';
-import { PLACES, STANDARD_RATE } from '@/data/fixtures/reference';
-import { ApiError, type NewRequestInput, type PlaceBook, type QuoteDoc, type QuoteInput, type RequestDetail, type RequestSummary, type UnitCandidate } from '@/data/api/contract';
+import { PLACES, SERVICE_PACKAGES, STANDARD_RATE } from '@/data/fixtures/reference';
+import { ApiError, type NewRequestInput, type PlaceBook, type ServicePackageDTO, type QuoteDoc, type QuoteInput, type RequestDetail, type RequestSummary, type UnitCandidate } from '@/data/api/contract';
 import type { CustomerVehicle, Order, Place, Quote, ServiceRequest } from '@/domain/types';
 import { evaluatePrice } from '@/domain/pricing';
 import { toMoneyString, formatRupiah, formatNumber } from '@/core/format/money';
@@ -130,6 +130,7 @@ export function createRequest(ctx: Ctx, input: NewRequestInput): RequestSummary 
       customerUserId: staff ? input.customerUserId : ctx.actor.user.id,
       businessAccountId: staff ? input.businessAccountId : (ctx.actor.user.businessAccountId ?? null),
       parties: input.parties,
+      service: input.service ?? 'car_towing',
       vehicleId: vehicle.id,
       pickup: input.pickup,
       dropoff: input.dropoff,
@@ -301,7 +302,7 @@ export function sendQuote(ctx: Ctx, input: QuoteInput): QuoteDoc {
       status: 'sent',
       amount: input.price + priorityFee,
       items: [
-        { label: 'Jasa derek flatbed', amount: base },
+        { label: 'Jasa towing flatbed', amount: base },
         { label: 'Jarak tempuh dan tol', amount: input.price - base },
         ...(input.priority ? [{ label: 'Tarif prioritas (jadwal didahulukan)', amount: priorityFee }] : []),
       ],
@@ -497,6 +498,11 @@ export function listCustomers(ctx: Ctx) {
       const acc = u.businessAccountId ? db.businessAccounts.find((b) => b.id === u.businessAccountId) : null;
       return { userId: u.id, name: u.name, businessAccountId: acc?.id ?? null, businessAccountName: acc?.name ?? null, poRequired: acc?.poRequired ?? false, roles: u.b2bRoles ?? [] };
     });
+}
+
+/** Paket layanan; harga "mulai dari" adalah contoh DEMO. */
+export function servicePackages(): ServicePackageDTO[] {
+  return SERVICE_PACKAGES.map((p) => ({ ...p, startFrom: toMoneyString(p.startFrom) }));
 }
 
 export function demoPlaces() {

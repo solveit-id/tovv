@@ -26,6 +26,8 @@ import type {
   ProofStatus,
   QuoteStatus,
   RequestStatus,
+  ServiceKind,
+  ServicePackage,
   StaffRole,
   TenantId,
   TimingKind,
@@ -161,6 +163,7 @@ export interface AnalyticsReport extends OwnerSummary {
 export interface OrderSummary {
   id: string;
   alias: string;
+  service: ServiceKind;
   tenantId: TenantId;
   status: ExecutionStatus;
   customerLabel: string;
@@ -387,6 +390,7 @@ export type OrderAction =
 export interface RequestSummary {
   id: string;
   alias: string;
+  service: ServiceKind;
   status: RequestStatus;
   channel: Channel;
   customerLabel: string;
@@ -436,6 +440,21 @@ export interface UnitCandidate {
   reason: string;
 }
 
+/** Paket layanan untuk tampilan; harga "mulai dari" adalah contoh DEMO. */
+export interface ServicePackageDTO {
+  kind: ServiceKind;
+  name: string;
+  tagline: string;
+  description: string;
+  bestFor: string[];
+  speed: ServicePackage['speed'];
+  cost: ServicePackage['cost'];
+  capacity: string;
+  vehicleClass: ServicePackage['vehicleClass'];
+  startFrom: MoneyString;
+  priceUnit: string;
+}
+
 /** Tempat siap pilih di formulir permintaan: contoh tersimpan dan yang terakhir dipakai akun ini. */
 export interface PlaceBook {
   saved: { key: string; kind: 'home' | 'work' | 'route' | 'sample'; place: Place }[];
@@ -443,6 +462,8 @@ export interface PlaceBook {
 }
 
 export interface NewRequestInput {
+  /** Paket layanan; bila tidak diisi dianggap car_towing. */
+  service?: ServiceKind;
   channel: Channel;
   customerUserId: string | null;
   businessAccountId: string | null;
