@@ -4,11 +4,11 @@ Instruksi bersama untuk setiap coding agent di repository ini. Claude Code memua
 
 ## Proyek
 
-Tovv adalah SaaS multi-tenant untuk operator derek/pengangkutan kendaraan: satu aplikasi Android + iOS. PRD mendefinisikan empat kelompok tampilan (Owner, Admin, Operator/driver, User/customer); aplikasi saat ini hanya membuka tiga — **owner** (termasuk pekerjaan dispatcher dan finance), **driver**, dan **pelanggan** (keputusan pengguna 23 Oktober 2026). Pemilik, pengembang, dan penerbit: **Solveit Indonesia**. Nama tampil: **Tovv**.
+Tovv adalah SaaS multi-tenant untuk operator towing/pengangkutan kendaraan: satu aplikasi Android + iOS. PRD mendefinisikan empat kelompok tampilan (Owner, Admin, Operator/driver, User/customer); aplikasi saat ini hanya membuka tiga — **owner** (termasuk pekerjaan dispatcher dan finance), **driver**, dan **pelanggan** (keputusan pengguna 23 Oktober 2026). Pemilik, pengembang, dan penerbit: **Solveit Indonesia**. Nama tampil: **Tovv**.
 
 Sumber kebenaran, urutan baca: `PRD.md` → `ARCHITECTURE.md` → `INTEGRATION_PLAN.md` → `IMPLEMENTATION_PLAN.md` → `TEST_PLAN.md` → `VALIDATION_PLAN.md` (paket 2.1, di `docs/spec/`). PRD menang untuk scope dan aturan bisnis; pesan pengguna terbaru mengungguli baseline dan dicatat di IMPLEMENTATION_PLAN §0. Jangan menyalin PRD ke dokumen lain; tautkan saja.
 
-Status dan serah terima: `.ai/project-status.md`. Sistem desain (gaya super-app/fintech, terang + gelap): `docs/DESIGN.md` (sidecar `.impeccable/design.json`). Cakupan layar vs requirement: `docs/SCREEN_INVENTORY.md`. Peta dokumentasi: `docs/README.md`.
+Status dan serah terima: `.ai/project-status.md`. Sistem desain (gaya super-app/fintech, terang + gelap): `docs/design/DESIGN.md` (sidecar `.impeccable/design.json`). Cakupan layar vs requirement: `docs/product/SCREEN_INVENTORY.md`. Peta dokumentasi: `docs/README.md`.
 
 ## Struktur repository
 
@@ -54,6 +54,8 @@ Jalankan typecheck, lint, dan tes sebelum menyatakan pekerjaan selesai.
 - Status selalu tampil dengan teks + ikon + bentuk garis (utuh/putus-putus/coret), bukan warna saja (`mobile/src/core/i18n/status.ts`).
 - Token desain di `mobile/src/core/design/tokens.ts` (palet terang dan gelap berkunci sama). Layar membaca warna lewat `useColors()` / `makeStyles()` dari `core/design/theme.tsx`, tidak pernah hex mentah. Satu keluarga ikon: MaterialCommunityIcons.
 - Mode driver memakai palet `field` (header biru-arang + aksen kuning) lewat `ThemeModeScope`; penanda mode memakai token `modeAccent*` atau `Button variant="mode"`, bukan warna langsung. Ilustrasi unit derek hanya dari `components/brand/tow-truck.tsx`.
+- Font antarmuka Plus Jakarta Sans lewat `Txt`/`fontStyle()`; jangan menulis `fontFamily` per layar. Nama produk selalu "Tovv"; di teks antarmuka layanan disebut "towing", bukan "derek".
+- Tindakan penting (pindah mode, keluar, uang, keputusan yang tidak bisa dibatalkan) memakai `useDialog().confirm`; izin kamera/lokasi/galeri lewat `usePermission()`, bukan langsung dialog sistem.
 - Saat memuat, tampilkan kerangka berbentuk isi (`QueryView skeleton=…`) atau `TowLoader`, bukan spinner kosong. Jangan menghitung animasi per kartu dari posisi gulir.
 - Pencarian alamat memakai layanan peta bawaan HP (expo-location); tidak ada geocoding/peta berbayar tanpa keputusan pengguna (DEC-08).
 - Dua bahasa: teks sumber bahasa Indonesia di kode; terjemahan Inggris di `mobile/src/core/i18n/en.ts`. Teks dinamis pakai `t('… {0}', [nilai])`; label aksesibilitas pakai `tr()`. Setiap teks baru wajib diberi entri bahasa Inggris. Logika tidak boleh bergantung pada isi teks yang diterjemahkan.

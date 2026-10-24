@@ -1,6 +1,6 @@
 # Tovv
 
-Aplikasi Android dan iOS untuk usaha derek/pengangkutan kendaraan: permintaan lewat telepon atau aplikasi, harga yang bisa dijelaskan, unit yang cocok, perjalanan yang bisa dipantau di peta dengan bukti foto, dan pembayaran manual yang dicek petugas. Satu aplikasi multi-tenant; saat ini membuka tiga peran: **owner**, **driver**, dan **pelanggan**. Tersedia dalam bahasa Indonesia dan Inggris, tema terang dan gelap.
+Aplikasi Android dan iOS untuk usaha towing/pengangkutan kendaraan (paket Car Towing, Car Carrier, Storing Motor, Self Drive): permintaan lewat telepon atau aplikasi, harga yang bisa dijelaskan, unit yang cocok, perjalanan yang bisa dipantau di peta dengan bukti foto, dan pembayaran manual yang dicek petugas. Satu aplikasi multi-tenant; saat ini membuka tiga peran: **owner**, **driver**, dan **pelanggan**. Tersedia dalam bahasa Indonesia dan Inggris, tema terang dan gelap.
 
 Dimiliki, dikembangkan, dan diterbitkan oleh **Solveit Indonesia**.
 
@@ -26,7 +26,7 @@ npm test              # uji domain, oracle F-09, alur adapter demo, terjemahan
 npm run start:go      # buka di HP lewat Expo Go (iPhone dan Android)
 ```
 
-Masuk dengan akun demo (ketuk Owner/Driver/Pelanggan di halaman Masuk; kata sandi `demo1234`). Owner bisa berpindah ke mode driver dari kartu "Masuk mode driver" di beranda; pelanggan memesan lewat "Jemput di mana?". Rincian, termasuk development build Android: [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
+Masuk dengan akun demo (ketuk Owner/Driver/Pelanggan di halaman Masuk; kata sandi `demo1234`). Owner bisa berpindah ke mode driver dari kartu "Masuk mode driver" di beranda; pelanggan memesan lewat "Mau towing ke mana?" atau memilih paket layanan. Rincian, termasuk development build Android: [`docs/engineering/DEVELOPMENT.md`](docs/engineering/DEVELOPMENT.md).
 
 ## Alur Git
 

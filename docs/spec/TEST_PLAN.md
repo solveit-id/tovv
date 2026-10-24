@@ -9,7 +9,7 @@ Baseline yang benar-benar dibaca: PRD v2.0 (file sumber PRD(2).md, identik denga
 Urutan baca: [PRD](PRD.md) → [ARCHITECTURE](ARCHITECTURE.md) → [INTEGRATION_PLAN](INTEGRATION_PLAN.md) → [IMPLEMENTATION_PLAN](IMPLEMENTATION_PLAN.md) → [TEST_PLAN](TEST_PLAN.md) → [VALIDATION_PLAN](VALIDATION_PLAN.md). PRD menguasai scope/aturan bisnis; kontrak dan model harus mematuhinya. Perubahan mengharuskan pembaruan requirement, task, test, fixture dan keputusan terkait pada paket yang sama.
 ## Catatan implementasi (23 Oktober 2026)
 
-Register skenario TC di bawah tetap **NOT_RUN** untuk backend, database, dan perangkat. Yang sudah berjalan adalah uji Jest di `mobile/` (1.292 uji): oracle F-09, rumus harga, ledger, analytics, alur adapter demo per peran, login demo, cakupan peta per peran, kontras warna dua tema, dan kelengkapan kamus terjemahan. Uji ini memeriksa logika frontend/adapter, bukan klaim lulus TC. Bukti layar ada di `docs/QA_REPORT.md`.
+Register skenario TC di bawah tetap **NOT_RUN** untuk backend, database, dan perangkat. Yang sudah berjalan adalah uji Jest di `mobile/` (1.680 uji, putaran 6): oracle F-09, rumus harga, ledger, analytics, alur adapter demo per peran, login demo, cakupan peta per peran, kontras warna dua tema, dan kelengkapan kamus terjemahan. Uji ini memeriksa logika frontend/adapter, bukan klaim lulus TC. Bukti layar ada di `docs/qa/QA_REPORT.md`.
 
 ## 1. Status, risiko dan bukti
 

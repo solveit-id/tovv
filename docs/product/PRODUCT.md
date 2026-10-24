@@ -2,7 +2,7 @@
 
 <!-- impeccable:product-schema 1 -->
 
-Ringkasan kerja untuk desain. Sumber kebenaran scope, requirement, aturan bisnis dan fixture tetap [`spec/PRD.md`](spec/PRD.md); bila berbeda, PRD yang berlaku.
+Ringkasan kerja untuk desain. Sumber kebenaran scope, requirement, aturan bisnis dan fixture tetap [`spec/PRD.md`](../spec/PRD.md); bila berbeda, PRD yang berlaku.
 
 ## Platform
 
@@ -37,6 +37,19 @@ Tovv mengelola operasi satu operator (unit sendiri dan mitra kelolaan), bukan ma
 - Dokumen: quote berversi, invoice bernomor, permintaan pembayaran internal, bukti transfer/tunai, receipt demo, PDF/CSV.
 - Zona waktu bisnis default Asia/Jakarta; uang integer rupiah.
 
+## Paket layanan
+
+Keputusan pengguna 25 Okt 2026: operator towing menawarkan paket layanan, dan aplikasi menampilkannya.
+
+| Paket | Isi | Ciri |
+|---|---|---|
+| Car Towing | Satu mobil diangkut truk towing sedang (flatbed) | Paling cepat, menjangkau jalan kecil/pelosok |
+| Car Carrier | Truk panjang mengangkut lebih dari 5 mobil sekaligus | Paling hemat per mobil, waktu tempuh lebih lama |
+| Storing Motor | Truk khusus motor/moge dengan rel atau tangga | Untuk moge dan motor mogok |
+| Self Drive | Kendaraan dikemudikan sopir berpengalaman lewat darat | Terjangkau dan cepat, hanya untuk mobil layak jalan |
+
+Harga "mulai dari" di aplikasi adalah contoh sintetis berlabel DEMO; harga pasti tetap lewat penawaran operator. Nama perusahaan nyata yang dipakai sebagai contoh paket tidak menjadi data seed.
+
 ## Capabilities and Constraints
 
 - Status kanonik mengikuti PRD §5 (request, quote, execution, assignment, invoice, payment proof, outbox, dll.). Jangan membuat status tunggal "paid".
@@ -52,6 +65,7 @@ Tovv mengelola operasi satu operator (unit sendiri dan mitra kelolaan), bukan ma
 - Nama produk tampil: **Tovv**. Pemilik, pengembang dan penerbit: **Solveit Indonesia** (identitas pendukung, misalnya halaman Tentang).
 - Belum ada logo Tovv; wordmark sementara dibuat dan ditandai SEMENTARA sampai logo resmi tersedia.
 - Logo Solveit (`mobile/assets/brand/`) memakai biru #1136D6–#19B8F2 dan navy #082A56; palet Tovv diturunkan dari sini.
+- Nama produk selalu ditulis **Tovv** (T kapital). Di antarmuka, layanan disebut "towing", bukan "derek" (keputusan pengguna 25 Okt 2026). Font antarmuka: Plus Jakarta Sans.
 - Antarmuka dua bahasa: Indonesia (sumber) dan Inggris, mengikuti bahasa HP dan bisa diganti di Lainnya → Bahasa. Teks ditulis seperti orang berbicara, bukan istilah teknis. Label "DEMO — SIMULASI FRONTEND" wajib terlihat.
 - Masuk, daftar, dan lupa kata sandi pada tahap ini adalah simulasi lokal berlabel demo, bukan autentikasi produksi (TEN-04).
 - Gaya visual: standar super-app/fintech Indonesia yang akrab bagi pengguna, dengan patokan kualitas Gojek/GoPay, Grab/Tokopedia dan Bank Jago/Jenius (keputusan pengguna 2026-10-22, menggantikan arah "Nota Rangkap"). Tema terang dan gelap mengikuti pengaturan sistem.

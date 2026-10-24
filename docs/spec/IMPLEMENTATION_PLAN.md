@@ -7,11 +7,11 @@ Paket **2.1 — 21 Oktober 2026**. Produk **Tovv**; pemilik, pengembang dan pene
 Baseline yang benar-benar dibaca: PRD v2.0 (file sumber PRD(2).md, identik dengan salinan PRD (1).md), ARCHITECTURE, IMPLEMENTATION_PLAN, INTEGRATION_PLAN dan TEST_PLAN masing-masing berlabel v1.0 dengan acuan PRD v2.0. Tidak ditemukan versi lebih baru. VALIDATION_PLAN.md tidak ditemukan setelah pencarian nama; dokumen itu **disusun kembali**, bukan hasil pemeriksaan file lama. Pesan pengguna terbaru mengungguli baseline. Seluruh enam dokumen kini memakai versi paket 2.1.
 
 Urutan baca: [PRD](PRD.md) → [ARCHITECTURE](ARCHITECTURE.md) → [INTEGRATION_PLAN](INTEGRATION_PLAN.md) → [IMPLEMENTATION_PLAN](IMPLEMENTATION_PLAN.md) → [TEST_PLAN](TEST_PLAN.md) → [VALIDATION_PLAN](VALIDATION_PLAN.md). PRD menguasai scope/aturan bisnis; kontrak dan model harus mematuhinya. Perubahan mengharuskan pembaruan requirement, task, test, fixture dan keputusan terkait pada paket yang sama.
-## 0. Status aktual (23 Oktober 2026, putaran 5)
+## 0. Status aktual (25 Oktober 2026, putaran 6)
 
 Bagian ini mencatat kondisi repository, bukan mengubah requirement. Yang sudah ada hanya **aplikasi mobile tahap frontend** (`mobile/`) dengan adapter demo bertipe; **backend, database, otorisasi server, realtime, dan integrasi belum dibuat**. Status `VERIFIED_LOCAL` di bawah berarti diuji Jest terhadap adapter demo/domain, bukan bukti backend atau perangkat. Tidak ada gate G0–G7 yang dinyatakan lulus.
 
-Pemeriksaan terakhir di `mobile/` (putaran 5, 23 Okt 2026): typecheck dan lint bersih, 1.490 uji Jest lulus (termasuk oracle F-09, alur adapter, login demo, peta per peran, buku tempat pemilih lokasi, jarak/arah garis lurus, kontras palet terang/gelap dan mode driver, serta kelengkapan terjemahan setiap teks `t()` di layar), expo-doctor 20/20, `npx expo export` iOS + Android PASS. Bukti dan catatan perangkat ada di `docs/QA_REPORT.md`.
+Pemeriksaan terakhir di `mobile/` (putaran 6, 25 Okt 2026): typecheck dan lint bersih, 1.680 uji Jest lulus (termasuk paket layanan towing dan paket pada permintaan, termasuk oracle F-09, alur adapter, login demo, peta per peran, buku tempat pemilih lokasi, jarak/arah garis lurus, kontras palet terang/gelap dan mode driver, serta kelengkapan terjemahan setiap teks `t()` di layar), expo-doctor 20/20, `npx expo export` iOS + Android PASS. Bukti dan catatan perangkat ada di `docs/qa/QA_REPORT.md`.
 
 ### Progres tahap frontend mobile (Android + iOS)
 
@@ -23,26 +23,37 @@ Status per alur kerja tampilan. "Selesai di kode" berarti dibangun dan lolos pem
 | Gaya super-app/fintech, tema terang + gelap | 2 | Selesai di kode | Tangkapan emulator putaran 2 |
 | Peta langsung per peran, akun demo, dua bahasa | 3 | Selesai di kode | Uji peta per peran, login demo, terjemahan |
 | Naik Expo SDK 58 (Expo Go terbaru) | 4 | Selesai | Pengguna membuka di iPhone + Android |
-| Tampilan lebih premium: bayangan berlapis, kartu, header, tab, form | 5 | Selesai di kode | `docs/DESIGN.md`; belum ada tangkapan layar |
+| Tampilan lebih premium: bayangan berlapis, kartu, header, tab, form | 5 | Selesai di kode | `docs/design/DESIGN.md`; belum ada tangkapan layar |
 | Mode owner vs mode driver (palet biru-arang + kuning, transisi ganti mode) | 5 | Selesai di kode | Uji kontras palet mode driver |
 | Peta: truk tampak atas yang menghadap arah jalan, gerak terus-menerus, ikuti truk, satelit, rute bertepi, peta mini di Perjalanan | 5 | Selesai di kode | Posisi tetap replay sintetis F-06 (simulasi) |
-| Loader: kerangka berbentuk isi dengan kilau, loader unit derek, splash baru | 5 | Selesai di kode | — |
+| Loader: kerangka berbentuk isi dengan kilau, loader unit towing, splash baru | 5 | Selesai di kode | — |
 | Lokasi jemput/tujuan ala ojek online (cari alamat peta HP, lokasi saya, geser pin, tersimpan, terakhir dipakai, patokan) | 5 | Selesai di kode | Uji buku tempat + catatan patokan; pencarian alamat perlu diuji di HP |
-| Formulir "Pesan derek" bertahap 4 langkah | 5 | Selesai di kode | — |
-| Aset unit derek (vektor) | 5 | Selesai di kode | `components/brand/tow-truck.tsx` |
+| Formulir "Pesan towing" bertahap 4 langkah | 5 | Selesai di kode | — |
+| Aset unit towing (vektor) | 5 | Selesai di kode | `components/brand/tow-truck.tsx` |
 | Gerak lebih tenang (tanpa pantulan, tanpa 3D, tanpa scroll-trigger per kartu) | 5 | Selesai di kode | — |
 | Teks lebih natural + terjemahan Inggris | 3, 5 | Selesai di kode | Uji kelengkapan terjemahan |
 | Performa (tab dibekukan, peta berhenti saat tidak dibuka, memo penanda, cache 60 detik) | 5 | Selesai di kode | Pengukuran fps/memori di HP belum (NFR-12, T-23) |
-| Uji perangkat + tangkapan layar putaran 5 | 5 | Belum | Menunggu uji pengguna di HP |
+| Font Plus Jakarta Sans + nama "Tovv" (T kapital) di wordmark, ikon, splash | 6 | Selesai di kode | `core/design/fonts.ts`; ikon/splash dibuat ulang |
+| Dialog konfirmasi & informasi + penjelasan izin kamera/lokasi/galeri | 6 | Selesai di kode | `useDialog`, `usePermission`; dipakai di ±20 tindakan |
+| Kata "derek" → "towing" di seluruh teks aplikasi | 6 | Selesai di kode | Tidak ada lagi "derek" di `mobile/src` |
+| Paket layanan Car Towing, Car Carrier, Storing Motor, Self Drive (harga contoh DEMO) + pilihan paket di formulir | 6 | Selesai di kode | Uji paket + paket tersimpan di permintaan |
+| Teks panjang lebih rapi (pemecahan baris seimbang, status membungkus) | 6 | Selesai di kode | Perlu dicek di HP dengan teks besar |
+| Tampilan owner/driver/pelanggan lebih sederhana | 6 | Selesai di kode | Beranda pelanggan & driver dipangkas ke satu tugas utama |
+| Perkiraan tiba (ETA) di peta, kartu pesanan, beranda, detail pesanan | 6 | Selesai di kode | Dari replay F-06; garis lurus, belum termasuk macet |
+| Sorotan hal penting (pesanan berjalan, "Sekarang", ETA, catatan belum terkirim, paket tercepat/terhemat) | 6 | Selesai di kode | — |
+| Penanda peta memakai gambar unit towing (tampak samping + ETA) | 6 | Selesai di kode | `TruckBubble` |
+| Folder `docs/` dikelompokkan (product, design, engineering, qa, spec) | 6 | Selesai | Semua tautan diperbarui |
+| Performa: render belakangan bagian bawah beranda, muat ulang hanya saat layar terlihat, satu font ikon di bundel | 6 | Selesai di kode | Bundel ±1,5 MB lebih kecil; fps di HP belum diukur |
+| Uji perangkat + tangkapan layar putaran 5–6 | 5–6 | Belum | Menunggu uji pengguna di HP |
 | Backend, otorisasi server, realtime, push, PDF, upload media | — | Belum dimulai | Tahap `backend` |
 
 | Task | Status | Catatan |
 |---|---|---|
-| T-01 | IMPLEMENTED_UNVERIFIED | mobile: Expo SDK 58 dipin (naik dari 57 pada 23 Okt 2026 agar terbuka di Expo Go terbaru), lockfile, expo-doctor 20/20, tanpa dependensi baru di putaran 5; backend belum dibuat |
+| T-01 | IMPLEMENTED_UNVERIFIED | mobile: Expo SDK 58 dipin (naik dari 57 pada 23 Okt 2026 agar terbuka di Expo Go terbaru), lockfile, expo-doctor 20/20, dependensi baru putaran 6: `@expo-google-fonts/plus-jakarta-sans`; backend belum dibuat |
 | T-02 | VERIFIED_LOCAL | mobile shell tiga peran, fixture F-09 di adapter demo, oracle diuji Jest; seeder database belum |
 | T-03 | NOT_STARTED | backend; layar masuk/daftar/lupa kata sandi hanya simulasi lokal |
 | T-04 | IMPLEMENTED_UNVERIFIED | frontend: registry armada baca saja; CRUD dan backend belum |
-| T-05 | IMPLEMENTED_UNVERIFIED | frontend: permintaan lintas kanal di adapter demo; formulir bertahap dan pemilih lokasi (pencarian alamat peta HP, GPS, pin, tersimpan, patokan sopir) |
+| T-05 | IMPLEMENTED_UNVERIFIED | frontend: permintaan lintas kanal di adapter demo; formulir bertahap dengan paket layanan dan pemilih lokasi (pencarian alamat peta HP, GPS, pin, tersimpan, patokan sopir) |
 | T-06 | IMPLEMENTED_UNVERIFIED | frontend: outbox lokal + idempotency di adapter; kontrak server belum |
 | T-07 | VERIFIED_LOCAL | rumus harga F-01/F-02 diuji Jest; tanpa backend |
 | T-08 | IMPLEMENTED_UNVERIFIED | frontend: versi penawaran dan biaya tambahan |
@@ -58,7 +69,7 @@ Status per alur kerja tampilan. "Selesai di kode" berarti dibangun dan lolos pem
 | T-19 | IMPLEMENTED_UNVERIFIED | frontend: pratinjau langganan dan rekap B2B |
 | T-20 | NOT_STARTED | hanya layar contoh akses dukungan; Solveit Admin aktual BLOCKED |
 | T-21 | IMPLEMENTED_UNVERIFIED | frontend: kotak masuk simulasi dan deep link; push belum |
-| T-22 | IN_PROGRESS | emulator Android API 36 + Expo Go di HP pengguna; putaran 5 belum diuji di perangkat dan belum ada tangkapan layar |
+| T-22 | IN_PROGRESS | emulator Android API 36 + Expo Go di HP pengguna; putaran 5–6 belum diuji di perangkat dan belum ada tangkapan layar |
 | T-23 | NOT_STARTED | frontend sudah dirapikan untuk performa (putaran 5), tetapi pengukuran load/performa/observability belum |
 | T-24 | NOT_STARTED | — |
 | T-25 | IN_PROGRESS | prototype demo frontend siap dicoba; rehearsal backend belum |
@@ -74,15 +85,20 @@ Status per alur kerja tampilan. "Selesai di kode" berarti dibangun dan lolos pem
 
 | Tanggal | Keputusan | Dampak |
 |---|---|---|
-| 22 Okt 2026 | Gaya visual standar super-app/fintech Indonesia, tema terang + gelap | `docs/DESIGN.md`; arah "Nota Rangkap" diganti |
+| 22 Okt 2026 | Gaya visual standar super-app/fintech Indonesia, tema terang + gelap | `docs/design/DESIGN.md`; arah "Nota Rangkap" diganti |
 | 23 Okt 2026 | Aplikasi hanya membuka tiga peran: owner, driver, pelanggan | Tugas dispatcher/finance dikerjakan owner; peran `admin` tetap di model data dan uji kebijakan. Requirement admin di PRD tidak dihapus |
 | 23 Okt 2026 | Peta langsung memakai peta bawaan HP (react-native-maps) | Expo Go berjalan tanpa API key; build Android produksi butuh API key Google Maps (DEC-08 tetap terbuka untuk biaya/kebijakan) |
 | 23 Okt 2026 | Masuk/daftar/lupa kata sandi sebagai simulasi lokal | Tidak menggantikan TEN-04; tetap tugas T-03 |
 | 23 Okt 2026 | Antarmuka dua bahasa (Indonesia, Inggris) | Teks sumber bahasa Indonesia; kamus Inggris di `mobile/src/core/i18n/en.ts` |
 | 23 Okt 2026 | Nama file, folder, commit, dan PR berbahasa Inggris; isi dokumen tetap bahasa Indonesia | `AGENTS.md` bagian Git |
-| 23 Okt 2026 | Mode driver dibedakan dengan palet gelap + aksen kuning | `docs/DESIGN.md` (palet `field`) |
+| 23 Okt 2026 | Mode driver dibedakan dengan palet gelap + aksen kuning | `docs/design/DESIGN.md` (palet `field`) |
 | 23 Okt 2026 | Lokasi jemput/tujuan dicari lewat layanan peta bawaan HP (gratis, tanpa API key) | Alamat asli hanya tersimpan lokal pada mode demo; DEC-08 tetap terbuka untuk provider produksi |
-| 23 Okt 2026 | Formulir "Pesan derek" bertahap 4 langkah | ORD-01–04 tetap; hanya bentuk tampilan |
+| 23 Okt 2026 | Formulir "Pesan towing" bertahap 4 langkah | ORD-01–04 tetap; hanya bentuk tampilan |
+| 25 Okt 2026 | Font Plus Jakarta Sans; nama produk selalu "Tovv" | `docs/design/DESIGN.md` Typography |
+| 25 Okt 2026 | Kata "derek" di aplikasi diganti "towing" | Teks antarmuka; PRD tidak diubah |
+| 25 Okt 2026 | Paket layanan Car Towing, Car Carrier, Storing Motor, Self Drive dengan harga "mulai dari" berlabel DEMO | Tambahan di luar PRD 2.1 atas pesan pengguna; harga pasti tetap lewat penawaran (QTE) |
+| 25 Okt 2026 | Tindakan penting dan permintaan izin memakai dialog Tovv | NFR-11, CAM-01 |
+| 25 Okt 2026 | `docs/` dikelompokkan: product, design, engineering, qa, spec | `docs/README.md` |
 
 ## 1. Kontrak kerja agent dan status
 
